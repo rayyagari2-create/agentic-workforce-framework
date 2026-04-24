@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agentic-workforce-framework/schemas/v1/qa-verdict.schema.json",
+  "title": "QAVerdict",
+  "description": "Structured QA verdict produced by a QA agent after every task verification. Not just pass/fail — includes defect classification, novelty detection, and trust score impact. Generic, product-agnostic.",
+  "version": "1.0",
+  "type": "object",
+  "required": [
+    "verdictId",
+    "taskId",
+    "qaDecision",
+    "findings",
+    "timestamp"
+  ],
+  "properties": {
+    "verdictId": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID primary key for this verdict."
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID of the AgentTaskManifest this verdict evaluates."
+    },
+    "qaDecision": {
+      "type": "string",
+      "enum": ["pass", "pass_with_notes", "fail", "block_release"],
+      "description": "Overall QA decision. block_release = hard stop, cannot proceed without fix."
+    },
+    "defectClass": {
+      "type": ["string", "null"],
+      "enum": [
+        "schema_violation",
+        "state_desync",
+        "render_error",
+        "api_contract_break",
+        "date_time_handling",
+        "null_reference",
+        "race_condition",
+        "prompt_regression",
+        "data_loss",
+        "security_vulnerability",
+        "performance_degradation",
+        "ux_regression",
+        "policy_violation",
+        "truth_ownership",
+        null
+      ],
+      "description": "Classification of the defect found. Null if qaDecision is pass."
+    },
+    "novelty": {
+      "type": "string",
+      "enum": ["new", "repeat", "unknown"],
+      "description": "Whether this defect has been seen before. Repeat defects trigger escalation rules."
+    },
+    "repeatReferenceIds": {
+      "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "References to prior FailureRecords if novelty is 'repeat'."
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "description", "severity"],
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "Finding category (e.g., 'missing_validation', 'contract_drift')."
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the finding."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor", "info"],
+            "description": "Severity of this individual finding."
+          },
+          "file": {
+            "type": ["string", "null"],
+            "description": "File path where the finding was observed."
+          },
+          "lineRange": {
+            "type": ["string", "null"],
+            "description": "Line range in the file (e.g., '42-58')."
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "description": "Detailed findings from the QA review. At least one finding required — even for pass, document what was verified."
+    },
+    "recommendedPreventionArtifact": {
+      "type": ["string", "null"],
+      "description": "Suggested prevention artifact type and location if defects were found."
+    },
+    "missingEval": {
+      "type": ["string", "null"],
+      "description": "Eval scenario that should exist but does not. Surfaces gaps in the eval corpus."
+    },
+    "recommendedEscalation": {
+      "type": ["string", "null"],
+      "enum": ["none", "fix-agent", "reviewer", "escalated_review", "human_approval", null],
+      "description": "Where this issue should be escalated if not resolved at QA level."
+    },
+    "trustScoreDelta": {
+      "type": ["object", "null"],
+      "properties": {
+        "agentId": {
+          "type": "string",
+          "enum": ["orchestrator", "qa-agent", "fix-agent", "executor", "reviewer"],
+          "description": "Generic agent role whose trust score is affected."
+        },
+        "dimension": {
+          "type": "string",
+          "description": "Which trust dimension to adjust."
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["increment", "decrement"],
+          "description": "Direction of the trust score adjustment."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why the trust score should change."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Recommended trust score adjustment based on this verdict."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the verdict was produced."
+    },
+    "correlationId": {
+      "type": ["string", "null"],
+      "description": "Correlation ID for event tracing across the audit log."
+    }
+  },
+  "additionalProperties": false
+}
