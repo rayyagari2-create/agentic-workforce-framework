@@ -1,14 +1,103 @@
 # Agentic Workforce Framework
 
-**An operating model for autonomous agent teams. Not a library.**
+A reference architecture for operating autonomous AI agents as
+accountable digital workers inside enterprise environments.
 
-Most teams building with AI agents have model APIs and prompt files.
-This framework gives them the rest: persistent agent identity, behavioral trust scoring,
-failure memory, autonomy gates, approval gate chains, enforcement hooks and enterprise scaling.
+This framework defines how agents are assigned work, bounded by role,
+governed by approval chains, evaluated over time and integrated into
+enterprise structures such as divisions, workspaces, audit logs and
+control planes.
 
 > Status: Production-informed reference architecture.
 > Current implementation: single-founder / single-workspace.
 > Enterprise scaling model: designed extension, not yet field-proven at multi-team scale.
+
+---
+
+## Why this exists
+
+Most agent frameworks focus on task execution.
+
+Enterprises need more than execution. They need workforce controls:
+
+- Who is the agent?
+- What work is it allowed to perform?
+- Who approved the work?
+- What evidence exists?
+- How does trust change over time?
+- When does autonomy expand or contract?
+- How do agent teams operate across departments?
+
+This framework addresses that gap by defining a complete operating
+model for agent identity, task assignment, behavioral trust, failure
+memory, approval gates and enterprise scaling.
+
+---
+
+## What this repo includes
+
+- Four-plane enterprise architecture
+- Agentic workforce operating model
+- Work queues and delegation rules
+- Approval gate chains
+- Trust and autonomy model (D1-D4)
+- Manifest-based task assignment
+- OS-level hook interception examples
+- Reference Postgres governance schema
+- Enterprise extension schema (divisions, workspaces, agent instances)
+- Reference agent instruction files (five-agent team)
+- Failure memory taxonomy (17 classes)
+- Calibration anchors and scoring rubric
+
+---
+
+## Maturity legend
+
+This repo uses four status labels throughout. Every major artifact
+and capability is labeled.
+
+| Label | Meaning |
+|---|---|
+| Implemented | Used in the reference implementation today |
+| Reference Pattern | Architecture pattern ready for adoption, not tied to a specific product implementation |
+| Experimental | Actively being validated in the reference implementation |
+| Planned | Future roadmap concept, not yet designed or built |
+
+The Implementation Status table below applies these labels to every
+capability claim. The labels are deliberately conservative: a capability
+moves to "Implemented" only after sustained use in the reference
+implementation, not on the day it is first written.
+
+---
+
+## What this framework is not
+
+This framework is not:
+- a model safety system
+- a replacement for identity and access management
+- a replacement for enterprise GRC tooling
+- a guarantee that agent outputs are correct
+- a hosted product
+- a full agent runtime
+- a substitute for legal, compliance or security review
+
+What this framework is:
+
+An operating architecture for accountable agentic work. It governs
+the operational reliability of agents — not the safety of their
+outputs. It tracks whether agents are becoming more or less
+trustworthy over time, gates autonomy on demonstrated behavior and
+maintains institutional failure memory.
+
+How this relates to other layers:
+
+| Layer | What it governs |
+|---|---|
+| Runtime policy layer (e.g. AGT) | What agents are permitted to do: identity, policy, sandboxing |
+| This framework | Whether agents can be trusted to do it: trust over time, failure memory |
+| Model provider layer | What the model produces: output quality, safety |
+
+These three layers are complementary. None replaces the other.
 
 ---
 
@@ -28,9 +117,6 @@ That requires persistent identity, role boundaries, task assignment, work logs, 
 history, failure memory, approval gates, policy enforcement and enterprise-scale team structures.
 Most teams are still early here. Many have model APIs and prompt files, but not yet
 a durable operating model for agent identity, trust, failure memory and autonomy.
-
-This framework addresses that gap by defining an operating model for agent identity,
-task assignment, behavioral trust, failure memory, approval gates and enterprise scaling.
 
 ---
 
@@ -58,6 +144,10 @@ task assignment, behavioral trust, failure memory, approval gates and enterprise
 ║  PR Test Routine (R1) · Security Scan Routine (R4)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ```
+
+The status glyphs above mirror the four-label legend: ✅ corresponds
+to Implemented, ⚠️ to Experimental, "next" to Planned. The full
+breakdown is in the Implementation Status table further down.
 
 **Governance is the control plane. Not the architecture.**
 The workforce plane is the headline. Governance is what makes it safe to run autonomously.
@@ -105,14 +195,23 @@ identity, policy enforcement and audit trail capabilities.
 
 ---
 
-## Who This Is For
+## Start here
 
-This framework is for teams that already have or are planning autonomous coding,
-operations, research or workflow agents and need a durable operating model for
-identity, trust, failure memory, human approval and auditability.
+If you are reading this for the first time:
 
-It is especially useful for engineering leaders, platform teams, AI governance teams
-and founders building multi-agent systems beyond one-off prompts.
+1. Read [the four-plane model](docs/architecture/four-plane-model.md)
+2. Review [the agentic workforce model](docs/concepts/agentic-workforce-model.md)
+3. Review [task manifests](schemas/v1/agent-task-manifest.schema.json)
+4. Review [approval gate chains](docs/concepts/approval-gate-chains.md)
+5. Review [hook examples](hooks/)
+6. Review [the database schema](database/)
+7. Read [the reference implementation](docs/reference-implementation.md)
+
+For a hands-on path: [Getting Started](docs/guides/getting-started.md)
+covers a 30-minute first session.
+
+For minimum viable adoption: [examples/minimum-viable-adoption/](examples/minimum-viable-adoption/)
+covers what you can run today without Postgres or hooks.
 
 ---
 
@@ -133,22 +232,23 @@ and founders building multi-agent systems beyond one-off prompts.
 
 ## Implementation Status
 
-Honest accounting. No mixing of current state and target state.
+Honest accounting. No mixing of current state and target state. Every
+row uses the four-label legend defined above.
 
 | Capability | Status |
 |---|---|
-| Single-workspace orchestrator model | Live: running in private reference implementation |
-| D1-D4 trust scoring | Live in private reference implementation: 15+ scored sessions |
-| Failure memory | Live: file-based, 17-class taxonomy |
-| Hook enforcement | Live in private reference implementation: 13 hooks; public repo includes sanitized examples of core spawn control pattern |
-| AGT integration | Shadow mode live, enforcement pending |
-| Postgres governance schema | Schema live, data migration in progress |
-| R1 PR test routine | Next |
-| R4 security scan routine | Next |
-| Enterprise multi-workspace model | Designed, not yet field-proven |
-| Automated trust scoring (R10) | Designed, future |
-| Work queue system | Designed, future |
-| Approval gate chains | Designed, future |
+| Single-workspace orchestrator model | Implemented |
+| D1-D4 trust scoring | Implemented |
+| Failure memory | Implemented |
+| Hook enforcement | Implemented |
+| AGT integration | Experimental |
+| Postgres governance schema | Experimental |
+| R1 PR test routine | Planned |
+| R4 security scan routine | Planned |
+| Enterprise multi-workspace model | Reference Pattern |
+| Automated trust scoring (R10) | Planned |
+| Work queue system | Planned |
+| Approval gate chains | Planned |
 
 ---
 
@@ -241,39 +341,22 @@ See [docs/guides/getting-started.md](docs/guides/getting-started.md) for a 30-mi
 
 ---
 
-## What This Is Not
+## IP and scope boundary
 
-**What this framework is:**
-A behavioral accountability system. It tracks whether agents
-are becoming more or less trustworthy over time, gates autonomy
-on demonstrated behavior and maintains institutional failure
-memory. It governs the operational reliability of agents —
-not the safety of their outputs.
+This repository contains a generalized agentic operating architecture
+and governance framework. It excludes:
 
-**What this framework is not:**
-An AI safety system. It does not make claims about model output
-quality, hallucination rates or harmful content. Those concerns
-belong to the model provider layer and the application layer.
+- Product-specific implementation logic
+- Proprietary prompts or AI persona design
+- Commercial workflows and pricing logic
+- Customer or session data
+- Supplier integration details
+- Patent-sensitive product scoring logic
+- Private repository paths or internal operational identifiers
 
-**How the layers relate:**
-AGT governs what agents are permitted to do (policy enforcement).
-This framework governs whether agents can be trusted to do it
-(behavioral accountability). Anthropic governs what the model
-produces (model safety). These three layers are complementary.
-None replaces the other.
-
-**Not a runtime library.** This is a framework: concepts, schemas, patterns and reference SQL.
-You implement it in your stack.
-
-**Not a model or inference layer.** The framework is model-agnostic. It governs agent behavior
-regardless of which model the agent uses.
-
-**Not a replacement for a runtime policy layer.** Runtime enforcement governs what agents are
-permitted to do. This framework governs whether they can be trusted to do it over time.
-Both are needed. Neither replaces the other.
-
-**Not a finished product.** The enterprise scaling model is designed but not yet field-proven
-at multi-team scale. That section is labeled explicitly. We do not claim what has not been measured.
+The framework is extracted from a working reference implementation
+and generalized for public use. The reference implementation itself
+is private and not covered by this repository's license.
 
 ---
 

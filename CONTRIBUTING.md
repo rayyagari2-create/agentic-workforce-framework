@@ -85,12 +85,58 @@ Proposals for new JSON schemas, new versions of existing schemas, or extensions 
 
 ---
 
+## Public-safe content rules
+
+Every contribution must be publishable in a public repository without exposing
+private material. The following are not accepted in any PR:
+
+- Product-specific examples drawn from a private codebase (rewrite as generic)
+- Proprietary company references, internal team names, or branded product names
+- Real customer data, session transcripts, or user-identifiable content
+- Patent-sensitive implementation details (formulas, scoring weights, or
+  ranking logic that is commercially significant)
+- Real file paths from a private repository — use placeholders such as
+  `[PROJECT_REPO]`, `path/to/your/project-conventions.md`, or `<workspace>/`
+- Internal operational identifiers (tenant IDs, environment names, hostnames,
+  ticket numbers from private trackers)
+
+If you are unsure whether a given example is public-safe, generalize it before
+submitting and note the change in the PR description.
+
+---
+
+## Status labels for capability claims
+
+Any PR that introduces a new capability claim — in docs, schemas, or examples —
+must label it using the four-label legend defined in the README:
+
+- **Implemented** — used in the reference implementation today
+- **Reference Pattern** — architecture pattern ready for adoption, not tied to
+  a specific product implementation
+- **Experimental** — actively being validated in the reference implementation
+- **Planned** — future roadmap concept, not yet designed or built
+
+Rules:
+
+- Governance claims (anything asserting that the framework enforces, blocks,
+  scores, or audits something) require either evidence from the reference
+  implementation or a `Reference Pattern` / `Planned` label. Unevidenced
+  governance claims will be rejected.
+- A capability moves to `Implemented` only after sustained use in the
+  reference implementation. New work is at most `Experimental` until then.
+- The Implementation Status table in the README is the canonical list.
+  PRs that add capabilities must update that table.
+
+---
+
 ## Pull Request Checklist
 
 Every PR must:
 
 - [ ] Pass the extraction safety check no private repository names, product names, or internal paths
-- [ ] Include a rationale in the description
+- [ ] Use public-safe placeholders for any file paths
+- [ ] Apply a status label (Implemented / Reference Pattern / Experimental / Planned) to any new capability claim
+- [ ] Include a rationale in the description schema changes additionally require a backward-compatibility statement
 - [ ] Touch only the scope described in the title
 - [ ] Update relevant cross-references if terms or paths change
 - [ ] Update `CHANGELOG.md` for any user-visible change

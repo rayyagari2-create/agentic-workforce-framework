@@ -2,6 +2,11 @@
 
 The Agentic Workforce Framework ships schemas, SQL, and hook patterns that are intended to govern autonomous agent behavior. Security issues in these artifacts even in examples can propagate into downstream deployments. We take them seriously.
 
+> This is a reference framework, not a hosted service. There is no
+> production endpoint, no hosted control plane, and no managed
+> deployment. The artifacts shipped here are documentation, schemas,
+> SQL, and example code intended to be adopted into your own stack.
+
 ---
 
 ## Supported Versions
@@ -18,6 +23,12 @@ Only the latest v1.x release receives security fixes. Once v2.0 ships, v1.x will
 ## Reporting a Vulnerability
 
 **Do not open a public GitHub issue for security vulnerabilities.**
+
+**Never include secrets, credentials, or sensitive material in issues, PRs,
+or comments — public or private.** That includes API keys, tokens, session
+cookies, customer data, internal hostnames, tenant identifiers, and excerpts
+from private logs. If a reproduction requires sensitive data, redact it
+before sending and describe the shape of the data instead.
 
 Report vulnerabilities privately by emailing **security@agentic-workforce-framework.org** (placeholder confirm the maintainer email in the repo maintainer list before depending on it).
 
@@ -88,6 +99,25 @@ We will not pursue legal action against researchers who:
 - Report vulnerabilities through the channels described above
 - Give us reasonable time to address the issue before public disclosure
 - Do not exploit the vulnerability beyond what is necessary to demonstrate it
+
+---
+
+## What not to publish in PRs and issues
+
+Contributors must not include any of the following in PRs, issues, comments,
+or discussion threads on this repository:
+
+- Tokens, API keys, OAuth secrets, or any other credential
+- Tenant IDs, organization IDs, or customer-identifying values
+- Real customer data, session transcripts, or user-identifiable content
+- Production logs or audit-log excerpts that contain real identifiers
+- Internal system names, hostnames, environment names, or private URLs
+- Real file paths from a private repository — use placeholders
+- Internal ticket numbers or links to private trackers
+
+If you discover that any of the above was accidentally committed, contact
+the maintainers privately via the channel in "Reporting a Vulnerability"
+above so the repository history can be addressed.
 
 ---
 
