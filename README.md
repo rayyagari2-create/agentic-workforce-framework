@@ -243,6 +243,25 @@ See [docs/guides/getting-started.md](docs/guides/getting-started.md) for a 30-mi
 
 ## What This Is Not
 
+**What this framework is:**
+A behavioral accountability system. It tracks whether agents
+are becoming more or less trustworthy over time, gates autonomy
+on demonstrated behavior and maintains institutional failure
+memory. It governs the operational reliability of agents —
+not the safety of their outputs.
+
+**What this framework is not:**
+An AI safety system. It does not make claims about model output
+quality, hallucination rates or harmful content. Those concerns
+belong to the model provider layer and the application layer.
+
+**How the layers relate:**
+AGT governs what agents are permitted to do (policy enforcement).
+This framework governs whether agents can be trusted to do it
+(behavioral accountability). Anthropic governs what the model
+produces (model safety). These three layers are complementary.
+None replaces the other.
+
 **Not a runtime library.** This is a framework: concepts, schemas, patterns and reference SQL.
 You implement it in your stack.
 

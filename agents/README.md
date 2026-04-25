@@ -9,8 +9,10 @@ counterpart to the role specs in `docs/architecture/agent-roster.md`.
 | File | Role | Human equivalent |
 |---|---|---|
 | `orchestrator.md` | Plans, assigns, monitors, verifies the QA loop | Engineering Manager |
+| `agent-fe.md` | User-facing surface, components, routing, client state | Frontend Engineer |
 | `agent-srv.md` | Server-side logic, APIs, database migrations | Backend Engineer |
 | `qa-agent.md` | Audits changed files or full codebase; never fixes | QA Lead |
+| `fix-agent.md` | Diagnoses, repairs, and records defects via FailureRecord | On-Call / SRE |
 
 Every agent in this directory is classified as **Agent** (stateful,
 reasoning, governed) per `docs/architecture/agent-vs-service.md`. Each
@@ -28,12 +30,13 @@ cp /path/to/agentic-workforce-framework/agents/agent-srv.md .claude/commands/
 ```
 
 Claude Code picks up slash commands from `.claude/commands/` on the next
-session start. `agent-srv.md` becomes `/agent-srv`, `qa-agent.md` becomes
-`/qa-agent`, and so on.
+session start. `agent-srv.md` becomes `/agent-srv`, `agent-fe.md` becomes
+`/agent-fe`, `qa-agent.md` becomes `/qa-agent`, `fix-agent.md` becomes
+`/fix-agent`, and so on.
 
 Orchestrator is the only agent you invoke manually. Once Orchestrator is
 running, it spawns the executing agents with an `AgentTaskManifest` —
-founders never hand-spawn Agent-SRV or QA-Agent.
+founders never hand-spawn Agent-SRV, Agent-FE, QA-Agent, or Fix-Agent.
 
 ## Trust tier at introduction
 
@@ -57,17 +60,19 @@ Your repo layout may differ. Before deploying, adjust:
 1. **Boundary prefixes.** In `agent-srv.md`, the `OWNERSHIP — BOUNDARY
    RULE` section says "inside your configured server root." Replace
    with your actual prefix (e.g. `apps/api/`, `packages/server/`, or a
-   list of prefixes for a monorepo). Do the same for the frontend
-   agent. **Keep the rule "directory, not file type" intact.** The
-   boundary is the path prefix. No exceptions, no judgment calls.
+   list of prefixes for a monorepo). Do the same for `agent-fe.md`,
+   replacing "your configured frontend root" with the actual prefix
+   (e.g. `apps/web/`, `packages/ui/`). **Keep the rule "directory, not
+   file type" intact.** The boundary is the path prefix. No exceptions,
+   no judgment calls.
 
 2. **File path placeholders.** Every `{path/to/...}` placeholder points
    to a governance artifact — bulletin, locks, handoffs, failure
    library, evolution queue, build status, knowledge base, QA reports.
    Decide where these live in your repo and replace the placeholders
    consistently across all agent files. The paths must match across
-   Orchestrator, Agent-SRV, and QA-Agent or handoffs will land in the
-   wrong place.
+   Orchestrator, Agent-SRV, Agent-FE, QA-Agent, and Fix-Agent or
+   handoffs will land in the wrong place.
 
 3. **Security rules section.** `agent-srv.md` has illustrative rules
    (model string pinning, prompt caching, sensitive-data routing,
