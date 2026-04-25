@@ -78,6 +78,38 @@ A mature deployment uses both: the runtime policy layer makes the call about
 
 ---
 
+## Three-Point Agent Spawn Control Loop
+
+Agent spawning is governed by three hooks at three lifecycle points. Each
+catches a class of failure the others cannot:
+
+| Lifecycle point        | Hook                                  | Purpose                                          |
+|------------------------|---------------------------------------|--------------------------------------------------|
+| PreToolUse (Agent)     | `check-agent-spawn.example.js`        | Pre-spawn manifest validation                    |
+| SubagentStart          | `check-subagent-start.example.js`     | Start-time runtime state verification            |
+| PostToolUse (Agent)    | `check-agent-spawn-result.example.js` | Result audit and bulletin check                  |
+
+- **PreToolUse → `check-agent-spawn.example.js`** verifies that a sidecar
+  manifest exists, was minted by the orchestrator within the freshness
+  window, and matches the session, intended agent role, and SHA-256 of the
+  prompt. Blocks spawns that lack provenance.
+- **SubagentStart → `check-subagent-start.example.js`** runs once the
+  subagent process is starting. Re-reads runtime state files (locks,
+  bulletin head, autonomy registry) at the moment of execution to catch
+  state drift between manifest creation and actual spawn.
+- **PostToolUse → `check-agent-spawn-result.example.js`** audits the spawn
+  result, confirms the bulletin entry the subagent was required to write,
+  and records the trust event. Cannot block (the call already ran), but it
+  records the violation and feeds the next pre-spawn decision.
+
+The public repo does not expose all hooks from the private reference
+implementation. The private reference implementation currently uses 13
+hooks covering agent spawn, file locks, bulletin order, audit writes, git
+gates, build state, and post-agent result validation. This public repo
+includes sanitized examples of the core agent spawn control pattern.
+
+---
+
 ## File layout
 
 ```

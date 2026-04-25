@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.gate_records
+-- TABLE: awf_governance.gate_records
 -- ============================================================================
 -- Purpose
 --   One row per HITL / DELEGATION / ESCALATION / APPROVAL gate decision.
@@ -58,12 +58,12 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log,
+-- This table emits audit events into awf_governance.audit_log,
 -- references workspaces (002), work_queue_items (005), and consumes
 -- the risk_level enum from 002_workspaces.sql.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- The four gate types from docs/control-plane/hitl-gates.md.
 DO $$ BEGIN
@@ -99,7 +99,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.gate_records (
+CREATE TABLE IF NOT EXISTS awf_governance.gate_records (
     -- Synthetic primary key.
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -108,14 +108,14 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.gate_records (
 
     -- Workspace scope.
     workspace_id        UUID
-                          REFERENCES agentforce_governance.workspaces(id)
+                          REFERENCES awf_governance.workspaces(id)
                           ON DELETE SET NULL,
 
     -- The work item this gate guards. ON DELETE SET NULL — gate history
     -- survives the deletion of a work item (rare, archive-first is the
     -- norm) so post-mortems can still reconstruct the decision.
     work_item_id        UUID
-                          REFERENCES agentforce_governance.work_queue_items(id)
+                          REFERENCES awf_governance.work_queue_items(id)
                           ON DELETE SET NULL,
 
     -- Gate type. Immutable.
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.gate_records (
     -- For ESCALATION rows: the prior gate row that triggered this
     -- escalation. NULL for a first-fire gate.
     prior_gate_id       UUID
-                          REFERENCES agentforce_governance.gate_records(id)
+                          REFERENCES awf_governance.gate_records(id)
                           ON DELETE SET NULL,
 
     -- Threads to the task / session. Same correlation_id appears in
@@ -209,39 +209,39 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.gate_records (
 -- workspace, oldest first". Oldest-first because approvers should
 -- service older requests before newer ones to avoid TTL expiry storms.
 CREATE INDEX IF NOT EXISTS idx_gate_records_pending_inbox
-    ON agentforce_governance.gate_records (workspace_id, approver_role, status, requested_at ASC);
+    ON awf_governance.gate_records (workspace_id, approver_role, status, requested_at ASC);
 
 -- Per-work-item history: serves "show me every gate ever fired for
 -- this work item, in order".
 CREATE INDEX IF NOT EXISTS idx_gate_records_work_item_time
-    ON agentforce_governance.gate_records (work_item_id, requested_at ASC);
+    ON awf_governance.gate_records (work_item_id, requested_at ASC);
 
 -- Correlation reconstruction: serves "show me the gate chain for this
 -- session" — used by post-mortems and by the QA Agent when assembling
 -- D3 (compliance) evidence.
 CREATE INDEX IF NOT EXISTS idx_gate_records_correlation
-    ON agentforce_governance.gate_records (correlation_id);
+    ON awf_governance.gate_records (correlation_id);
 
 -- Expiry sweep: serves the scheduled job that flips overdue PENDING
 -- rows to EXPIRED. Partial index: only PENDING rows with an expires_at
 -- value matter to the sweep.
 CREATE INDEX IF NOT EXISTS idx_gate_records_expiry_sweep
-    ON agentforce_governance.gate_records (expires_at)
+    ON awf_governance.gate_records (expires_at)
     WHERE status = 'PENDING' AND expires_at IS NOT NULL;
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.gate_records IS
+COMMENT ON TABLE awf_governance.gate_records IS
   'One row per HITL/DELEGATION/ESCALATION/APPROVAL gate decision. PENDING → terminal. Every transition emits an audit_log event.';
 
-COMMENT ON COLUMN agentforce_governance.gate_records.requested_by IS
+COMMENT ON COLUMN awf_governance.gate_records.requested_by IS
   'The user_id or agent_instance_id that triggered the gate. Application enforces requested_by != decided_by (anti-self-approval).';
 
-COMMENT ON COLUMN agentforce_governance.gate_records.rationale IS
+COMMENT ON COLUMN awf_governance.gate_records.rationale IS
   'Required for every decision — including APPROVED. Silent approval is the most common audit failure.';
 
-COMMENT ON COLUMN agentforce_governance.gate_records.expires_at IS
+COMMENT ON COLUMN awf_governance.gate_records.expires_at IS
   'TTL. When NOW() > expires_at and status is PENDING, scheduled sweep flips to EXPIRED and fires an ESCALATION.';
 
 -- ============================================================================
@@ -252,7 +252,7 @@ COMMENT ON COLUMN agentforce_governance.gate_records.expires_at IS
 --    row starts PENDING; a separate UPDATE records the human approver's
 --    decision when they sign the manifest.
 --
--- INSERT INTO agentforce_governance.gate_records (
+-- INSERT INTO awf_governance.gate_records (
 --     tenant_id, workspace_id, work_item_id, gate_type, risk_level,
 --     requested_by, approver_role, correlation_id, expires_at, metadata
 -- ) VALUES (
@@ -273,7 +273,7 @@ COMMENT ON COLUMN agentforce_governance.gate_records.expires_at IS
 --
 -- SELECT id, gate_type, risk_level, work_item_id, requested_by,
 --        requested_at, expires_at
---   FROM agentforce_governance.gate_records
+--   FROM awf_governance.gate_records
 --  WHERE workspace_id  = $1
 --    AND approver_role = $2
 --    AND status        = 'PENDING'
@@ -287,6 +287,6 @@ COMMENT ON COLUMN agentforce_governance.gate_records.expires_at IS
 --
 -- SELECT id, gate_type, status, requested_by, decided_by, decision,
 --        rationale, requested_at, decided_at, prior_gate_id
---   FROM agentforce_governance.gate_records
+--   FROM awf_governance.gate_records
 --  WHERE work_item_id = $1
 --  ORDER BY requested_at ASC;

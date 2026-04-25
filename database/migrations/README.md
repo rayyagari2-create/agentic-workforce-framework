@@ -21,7 +21,7 @@ corrects it. The bug and its fix both stay in the history.
 
 This is the absolute rule of the framework:
 
-- **No `UPDATE` and no `DELETE` on `agentforce_governance.audit_log`. Ever.**
+- **No `UPDATE` and no `DELETE` on `awf_governance.audit_log`. Ever.**
 - This is enforced at the table level by a trigger that raises on
   `BEFORE UPDATE OR DELETE`. Do not work around the trigger.
 - Lifecycle mutations in other tables (e.g., `failure_records.status`

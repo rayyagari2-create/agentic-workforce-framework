@@ -26,7 +26,7 @@ psql "$DATABASE_URL" -f database/governance/004_failure_records.sql
 psql "$DATABASE_URL" -f database/governance/005_routine_runs.sql
 ```
 
-All tables live in the `agentforce_governance` schema.
+All tables live in the `awf_governance` schema.
 
 ## Migration conventions
 
@@ -46,7 +46,7 @@ The short version:
 - Uses `gen_random_uuid()` (Postgres 13+, Supabase default).
 - Uses `JSONB`, `TIMESTAMPTZ`, generated columns, and `CREATE TYPE ... AS ENUM`.
 - No vendor extensions beyond `pgcrypto` for `gen_random_uuid()` if not built in.
-- Schema name `agentforce_governance` is namespaced for safe coexistence with
+- Schema name `awf_governance` is namespaced for safe coexistence with
   application tables.
 
 ## Write authority

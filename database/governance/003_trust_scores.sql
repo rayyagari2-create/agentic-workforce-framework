@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.trust_scores
+-- TABLE: awf_governance.trust_scores
 -- ============================================================================
 -- Purpose
 --   Per-session D1-D4 trust score records, plus the resulting trust tier,
@@ -55,7 +55,7 @@
 --   v1.0 — ships at public launch.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Trust tier — the operational authority granted to the agent. The score
 -- and confidence band together determine the tier; a hard-stop in any
@@ -82,7 +82,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.trust_scores (
+CREATE TABLE IF NOT EXISTS awf_governance.trust_scores (
     -- Synthetic primary key.
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -193,33 +193,33 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.trust_scores (
 -- Per-role time order: serves "show me the latest score for the
 -- QA Agent role" and the rolling-tier calculation per role.
 CREATE INDEX IF NOT EXISTS idx_trust_scores_role_time
-    ON agentforce_governance.trust_scores (agent_role, scored_at DESC);
+    ON awf_governance.trust_scores (agent_role, scored_at DESC);
 
 -- Per-instance time order: serves the autonomy gate read at spawn time
 -- ("what is the most recent score for this specific agent instance?")
 -- and the trust trajectory chart for one instance.
 CREATE INDEX IF NOT EXISTS idx_trust_scores_instance
-    ON agentforce_governance.trust_scores (agent_instance_id, scored_at DESC);
+    ON awf_governance.trust_scores (agent_instance_id, scored_at DESC);
 
 -- Tenant + tier histogram: serves the calibration dashboard "how are
 -- tiers distributed across this tenant's agents" used to spot
 -- score inflation or score collapse drift.
 CREATE INDEX IF NOT EXISTS idx_trust_scores_tenant_tier
-    ON agentforce_governance.trust_scores (tenant_id, tier);
+    ON awf_governance.trust_scores (tenant_id, tier);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.trust_scores IS
+COMMENT ON TABLE awf_governance.trust_scores IS
   'Per-session D1-D4 trust record. Writer: Eval/Telemetry Service only. Agents never self-score. One row per agent per session.';
 
-COMMENT ON COLUMN agentforce_governance.trust_scores.recency_weight IS
+COMMENT ON COLUMN awf_governance.trust_scores.recency_weight IS
   'Sessions 0-30 days: 1.0x. 31-90 days: 0.5x. >90 days: 0.25x. Applied when computing rolling tier.';
 
-COMMENT ON COLUMN agentforce_governance.trust_scores.total_score IS
+COMMENT ON COLUMN awf_governance.trust_scores.total_score IS
   'Generated column: D1 + D2 + D3 + D4. STORED so the autonomy gate does not recompute on every read.';
 
-COMMENT ON COLUMN agentforce_governance.trust_scores.tier_override_reason IS
+COMMENT ON COLUMN awf_governance.trust_scores.tier_override_reason IS
   'Required whenever the tier deviates from the score mapping (e.g., a D-dimension hard-stop forced demotion).';
 
 -- ============================================================================
@@ -230,7 +230,7 @@ COMMENT ON COLUMN agentforce_governance.trust_scores.tier_override_reason IS
 --    Eval/Telemetry Service performs this insert; a human reviewer
 --    supplies the evidence lines through the service interface.
 --
--- INSERT INTO agentforce_governance.trust_scores (
+-- INSERT INTO awf_governance.trust_scores (
 --     tenant_id, workspace_id, agent_instance_id, agent_role, domain,
 --     d1_correctness, d1_evidence,
 --     d2_observability, d2_evidence,
@@ -259,7 +259,7 @@ COMMENT ON COLUMN agentforce_governance.trust_scores.tier_override_reason IS
 --    for one specific agent instance. Served by idx_trust_scores_instance.
 --
 -- SELECT tier, total_score, confidence, scored_at
---   FROM agentforce_governance.trust_scores
+--   FROM awf_governance.trust_scores
 --  WHERE agent_instance_id = $1
 --  ORDER BY scored_at DESC
 --  LIMIT 1;
@@ -275,7 +275,7 @@ COMMENT ON COLUMN agentforce_governance.trust_scores.tier_override_reason IS
 --          WHEN scored_at >= NOW() - INTERVAL '90 days' THEN 0.5
 --          ELSE 0.25
 --        END AS effective_weight
---   FROM agentforce_governance.trust_scores
+--   FROM awf_governance.trust_scores
 --  WHERE agent_instance_id = $1
 --  ORDER BY scored_at DESC
 --  LIMIT 20;

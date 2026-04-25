@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.agent_instances
+-- TABLE: awf_governance.agent_instances
 -- ============================================================================
 -- Purpose
 --   Persistent agent identity. One row per long-lived agent, regardless
@@ -52,7 +52,7 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log
+-- This table emits audit events into awf_governance.audit_log
 -- and consumes the trust_tier and confidence_band types declared in
 -- the governance migrations. It is referenced by workspace_agents
 -- (003) and by agent_events / trust_scores / failure_records (which
@@ -60,7 +60,7 @@
 -- governance can run without this table present).
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Lifecycle status for an agent instance.
 DO $$ BEGIN
@@ -72,7 +72,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.agent_instances (
+CREATE TABLE IF NOT EXISTS awf_governance.agent_instances (
     -- Synthetic primary key. Used as agent_instance_id in agent_events,
     -- trust_scores, failure_records, work_queue_items, gate_records.
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -151,29 +151,29 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.agent_instances (
 -- Tenant + role + status: serves the most common discovery —
 -- "which QA Agents are currently active in this tenant?".
 CREATE INDEX IF NOT EXISTS idx_agent_instances_tenant_role_status
-    ON agentforce_governance.agent_instances (tenant_id, role, status);
+    ON awf_governance.agent_instances (tenant_id, role, status);
 
 -- Operator lookup: serves the per-operator dashboard.
 CREATE INDEX IF NOT EXISTS idx_agent_instances_operator
-    ON agentforce_governance.agent_instances (operator_user_id);
+    ON awf_governance.agent_instances (operator_user_id);
 
 -- Tenant + tier: serves the trust distribution report.
 CREATE INDEX IF NOT EXISTS idx_agent_instances_tenant_tier
-    ON agentforce_governance.agent_instances (tenant_id, current_tier);
+    ON awf_governance.agent_instances (tenant_id, current_tier);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.agent_instances IS
+COMMENT ON TABLE awf_governance.agent_instances IS
   'Persistent agent identity. Trust history, failure memory, and autonomy gate travel with this row across workspaces.';
 
-COMMENT ON COLUMN agentforce_governance.agent_instances.did IS
+COMMENT ON COLUMN awf_governance.agent_instances.did IS
   'Cryptographic identity from AGT (active mode). Immutable; changing it amounts to identity theft from the trust ledger.';
 
-COMMENT ON COLUMN agentforce_governance.agent_instances.role IS
+COMMENT ON COLUMN awf_governance.agent_instances.role IS
   'Canonical role. Immutable; D1-D4 calibration is role-specific so changing role would invalidate the trust history.';
 
-COMMENT ON COLUMN agentforce_governance.agent_instances.current_tier IS
+COMMENT ON COLUMN awf_governance.agent_instances.current_tier IS
   'Maintained by the runtime policy layer after each trust_scores write. NULL in the provisioning state before the first score.';
 
 -- ============================================================================
@@ -185,7 +185,7 @@ COMMENT ON COLUMN agentforce_governance.agent_instances.current_tier IS
 --    workspace via workspace_agents and the first scoring cycle
 --    completes; status flips to 'active' as part of that flow.
 --
--- INSERT INTO agentforce_governance.agent_instances (
+-- INSERT INTO awf_governance.agent_instances (
 --     tenant_id, did, role, display_name, description,
 --     operator_user_id, capabilities, metadata
 -- ) VALUES (
@@ -203,7 +203,7 @@ COMMENT ON COLUMN agentforce_governance.agent_instances.current_tier IS
 --    tenant. Served by idx_agent_instances_tenant_role_status.
 --
 -- SELECT id, display_name, current_tier, current_confidence
---   FROM agentforce_governance.agent_instances
+--   FROM awf_governance.agent_instances
 --  WHERE tenant_id = $1
 --    AND role      = $2
 --    AND status    = 'active'
@@ -216,8 +216,8 @@ COMMENT ON COLUMN agentforce_governance.agent_instances.current_tier IS
 --        ts.scored_at, ts.total_score, ts.tier   AS scored_tier,
 --        ts.confidence AS scored_confidence,
 --        ts.tier_override_reason
---   FROM agentforce_governance.agent_instances ai
---   LEFT JOIN agentforce_governance.trust_scores ts
+--   FROM awf_governance.agent_instances ai
+--   LEFT JOIN awf_governance.trust_scores ts
 --          ON ts.agent_instance_id = ai.id
 --  WHERE ai.id = $1
 --  ORDER BY ts.scored_at DESC NULLS LAST

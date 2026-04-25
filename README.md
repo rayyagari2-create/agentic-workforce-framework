@@ -123,10 +123,10 @@ and founders building multi-agent systems beyond one-off prompts.
 | [D1-D4 Trust Scoring](docs/concepts/trust-scoring.md) | 100-point session scoring across Correctness, Observability, Compliance and Recurrence. Hard-stop rules. Calibration anchors. |
 | [Failure Memory](docs/concepts/failure-memory.md) | 17-class failure taxonomy. Recurrence detection. Pre-task retrieval: agents check their own failure history before starting. |
 | [Autonomy Gates](docs/concepts/autonomy-gates.md) | Five trust tiers (HIGH / STANDARD / RESTRICTED / PROBATION / PROVISIONAL). Promotion and demotion rules. Gate expansion on demonstrated trust. |
-| [Pre-Spawn Protocol](docs/governance/pre-spawn-protocol.md) | Three-step decision tree before any agent spawns. Governs whether to /spec, /plan, or require a Boardroom session. |
-| [HITL Gates](docs/governance/hitl-gates.md) | Human-in-the-loop approval chains. Gate types, authority levels, delegation with TTL and 3-strike escalation. |
-| [Build State Machine](docs/governance/build-state-machine.md) | Agent execution lifecycle from DEBUG through COMPLETE, with loop conditions, QA enforcement and escalation triggers. |
-| [Hook System](docs/governance/hook-system.md) | OS-level enforcement via PreToolUse and PostToolUse hooks. exit(2) = hard block. Fail-closed by default. Operator override with TTL. |
+| [Pre-Spawn Protocol](docs/control-plane/pre-spawn-protocol.md) | Three-step decision tree before any agent spawns. Governs whether to /spec, /plan, or require a Boardroom session. |
+| [HITL Gates](docs/control-plane/hitl-gates.md) | Human-in-the-loop approval chains. Gate types, authority levels, delegation with TTL and 3-strike escalation. |
+| [Build State Machine](docs/control-plane/build-state-machine.md) | Agent execution lifecycle from DEBUG through COMPLETE, with loop conditions, QA enforcement and escalation triggers. |
+| [Hook System](docs/control-plane/hook-system.md) | OS-level enforcement via PreToolUse and PostToolUse hooks. exit(2) = hard block. Fail-closed by default. Operator override with TTL. |
 | [Enterprise Scaling](docs/architecture/enterprise-scaling.md) | Multi-workspace model, Division Orchestrator, role-agent alignment and work queues at team, division and enterprise scope. |
 
 ---
@@ -138,9 +138,9 @@ Honest accounting. No mixing of current state and target state.
 | Capability | Status |
 |---|---|
 | Single-workspace orchestrator model | Live: running in private reference implementation |
-| D1-D4 trust scoring | Live: manual scoring, 15+ sessions |
+| D1-D4 trust scoring | Live in private reference implementation: 15+ scored sessions |
 | Failure memory | Live: file-based, 17-class taxonomy |
-| Hook enforcement | Live: local runtime, 13 hooks |
+| Hook enforcement | Live in private reference implementation: 13 hooks; public repo includes sanitized examples of core spawn control pattern |
 | AGT integration | Shadow mode live, enforcement pending |
 | Postgres governance schema | Schema live, data migration in progress |
 | R1 PR test routine | Next |
@@ -161,6 +161,22 @@ You can adopt the framework incrementally:
 3. Introduce AgentTaskManifest before spawning agents on high-risk tasks.
 4. Add hook enforcement for high-risk file and commit actions.
 5. Move to Postgres-backed governance when file-based tracking becomes limiting.
+
+---
+
+## Repository Layout
+
+Top-level folders in this repository:
+
+- `agents/` — Reference agent role definitions (orchestrator, frontend, backend, QA, fix).
+- `calibration/` — D1-D4 rubric anchors, confidence band guide, scoring ledger and anti-patterns.
+- `database/` — Postgres schemas: `database/governance/` (core) and `database/enterprise/` (multi-workspace extension).
+- `docs/` — Concepts, control plane, architecture, operating model and guides.
+- `examples/` — Case study templates and worked examples.
+- `governance/` — Runtime state templates. Copy these files into your own repo and populate them. These are operational files your orchestrator reads at startup — not framework documentation.
+- `hooks/` — Sanitized PreToolUse / SubagentStart / PostToolUse hook examples plus Claude Code settings template.
+- `routines/` — Scheduled automation routine specs.
+- `schemas/` — JSON Schema files for AgentTaskManifest, QAVerdict, FailureRecord and TrustScore.
 
 ---
 

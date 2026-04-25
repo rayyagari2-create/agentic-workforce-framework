@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.agent_events
+-- TABLE: awf_governance.agent_events
 -- ============================================================================
 -- Purpose
 --   Agent activity event stream — the Postgres-backed equivalent of the
@@ -45,7 +45,7 @@
 --   v1.0 — ships at public launch.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Lifecycle phases for an agent-in-task. Kept distinct from
 -- work_queue_items.status because one work item can produce many
@@ -62,7 +62,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.agent_events (
+CREATE TABLE IF NOT EXISTS awf_governance.agent_events (
     -- Synthetic primary key. UUIDs avoid sequence contention when many
     -- agents write concurrently from different lanes.
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -141,45 +141,45 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.agent_events (
 -- Workspace tail: serves the operator dashboard "what is happening in
 -- this workspace right now". DESC because almost every read is "latest".
 CREATE INDEX IF NOT EXISTS idx_agent_events_workspace_time
-    ON agentforce_governance.agent_events (workspace_id, created_at DESC);
+    ON awf_governance.agent_events (workspace_id, created_at DESC);
 
 -- Correlation lookup: reconstructs one task / session chain. Read by the
 -- QA Agent at session close to assemble D2 evidence.
 CREATE INDEX IF NOT EXISTS idx_agent_events_correlation
-    ON agentforce_governance.agent_events (correlation_id);
+    ON awf_governance.agent_events (correlation_id);
 
 -- Per-role phase profile: serves "show me the recent phase transitions
 -- for the QA Agent". Used by the Eval/Telemetry Service when computing
 -- the D2 (observability) score for a role across sessions.
 CREATE INDEX IF NOT EXISTS idx_agent_events_role_phase
-    ON agentforce_governance.agent_events (agent_role, phase, created_at DESC);
+    ON awf_governance.agent_events (agent_role, phase, created_at DESC);
 
 -- Task lookup: serves "show me every event for this AgentTaskManifest".
 CREATE INDEX IF NOT EXISTS idx_agent_events_task
-    ON agentforce_governance.agent_events (task_id);
+    ON awf_governance.agent_events (task_id);
 
 -- Work item lookup: serves "show me every event for this queued work
 -- item". Used by the Orchestrator when evaluating whether to re-route a
 -- BLOCKED item or escalate it.
 CREATE INDEX IF NOT EXISTS idx_agent_events_work_item
-    ON agentforce_governance.agent_events (work_item_id);
+    ON awf_governance.agent_events (work_item_id);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.agent_events IS
+COMMENT ON TABLE awf_governance.agent_events IS
   'Agent activity event stream. Postgres-backed bulletin replacement. Append-only by convention. Writers: agents themselves.';
 
-COMMENT ON COLUMN agentforce_governance.agent_events.lane IS
+COMMENT ON COLUMN awf_governance.agent_events.lane IS
   'Parallel-session lane tag (LANE-A / LANE-B / ...) for safe concurrent sessions with disjoint file scopes.';
 
-COMMENT ON COLUMN agentforce_governance.agent_events.phase IS
+COMMENT ON COLUMN awf_governance.agent_events.phase IS
   'Lifecycle phase enum: WORKING, BLOCKED, HANDOFF, DONE, FAIL, NOTE. NOTE is informational with no state transition.';
 
-COMMENT ON COLUMN agentforce_governance.agent_events.payload IS
+COMMENT ON COLUMN awf_governance.agent_events.payload IS
   'Per-agent structured detail — diff paths, lock names, tool calls, retry counts, etc. JSONB for flexibility.';
 
-COMMENT ON COLUMN agentforce_governance.agent_events.correlation_id IS
+COMMENT ON COLUMN awf_governance.agent_events.correlation_id IS
   'Threads related events. One task / session shares one correlation_id across all governance tables.';
 
 -- ============================================================================
@@ -190,7 +190,7 @@ COMMENT ON COLUMN agentforce_governance.agent_events.correlation_id IS
 --    The same correlation_id appears in agent_events, audit_log, and
 --    (when the work was queued) work_queue_items.
 --
--- INSERT INTO agentforce_governance.agent_events (
+-- INSERT INTO awf_governance.agent_events (
 --     tenant_id, workspace_id, agent_instance_id, agent_role, lane, phase,
 --     session_id, task_id, work_item_id, summary, payload, correlation_id
 -- ) VALUES (
@@ -212,7 +212,7 @@ COMMENT ON COLUMN agentforce_governance.agent_events.correlation_id IS
 --    first. Served by idx_agent_events_workspace_time.
 --
 -- SELECT created_at, agent_role, lane, phase, summary
---   FROM agentforce_governance.agent_events
+--   FROM awf_governance.agent_events
 --  WHERE workspace_id = $1
 --  ORDER BY created_at DESC
 --  LIMIT 50;
@@ -223,7 +223,7 @@ COMMENT ON COLUMN agentforce_governance.agent_events.correlation_id IS
 --    anchor) or had silent gaps (the D2 ≤ 10 anchor).
 --
 -- SELECT created_at, phase, summary
---   FROM agentforce_governance.agent_events
+--   FROM awf_governance.agent_events
 --  WHERE correlation_id = $1
 --    AND agent_role     = 'qa-agent'
 --  ORDER BY created_at ASC;

@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.work_queue_items
+-- TABLE: awf_governance.work_queue_items
 -- ============================================================================
 -- Purpose
 --   Queue of work for agents to pull from at enterprise scale. At
@@ -61,12 +61,12 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log,
+-- This table emits audit events into awf_governance.audit_log,
 -- references workspaces (002), agent_instances (004), and stores
 -- last_failure_id pointing into failure_records (governance).
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Work queue lifecycle. Order matters — transitions follow the
 -- documented forward path (with 'failed' and 'blocked' as branch
@@ -84,7 +84,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.work_queue_items (
+CREATE TABLE IF NOT EXISTS awf_governance.work_queue_items (
     -- Synthetic primary key.
     id                            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.work_queue_items (
     -- The workspace this item belongs to. ON DELETE CASCADE — work
     -- queue items live and die with their workspace.
     workspace_id                  UUID NOT NULL
-                                    REFERENCES agentforce_governance.workspaces(id)
+                                    REFERENCES awf_governance.workspaces(id)
                                     ON DELETE CASCADE,
 
     -- The user_id of the human (or the agent_instance acting on behalf
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.work_queue_items (
     -- ON DELETE SET NULL — if an agent_instance is hard-deleted (rare),
     -- queued items survive; the Orchestrator must reassign.
     assigned_agent_instance_id    UUID
-                                    REFERENCES agentforce_governance.agent_instances(id)
+                                    REFERENCES awf_governance.agent_instances(id)
                                     ON DELETE SET NULL,
 
     -- Timestamps for each major transition. Set by the runtime when the
@@ -191,37 +191,37 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.work_queue_items (
 -- priority, created_at) lets the Orchestrator pull the highest-priority
 -- 'created' or 'failed' item with one index range scan.
 CREATE INDEX IF NOT EXISTS idx_work_queue_items_pull
-    ON agentforce_governance.work_queue_items
+    ON awf_governance.work_queue_items
        (workspace_id, status, priority ASC, created_at ASC);
 
 -- Per-agent in-flight: serves the agent's "what am I working on?"
 -- view and the Orchestrator's per-agent load chart.
 CREATE INDEX IF NOT EXISTS idx_work_queue_items_assigned
-    ON agentforce_governance.work_queue_items
+    ON awf_governance.work_queue_items
        (assigned_agent_instance_id, status);
 
 -- Status dashboard: serves the workspace-level rollup
 -- ("how many pending_review across this workspace right now?").
 CREATE INDEX IF NOT EXISTS idx_work_queue_items_workspace_status
-    ON agentforce_governance.work_queue_items (workspace_id, status);
+    ON awf_governance.work_queue_items (workspace_id, status);
 
 -- Task lookup: serves "show me the queue row for this AgentTaskManifest".
 CREATE INDEX IF NOT EXISTS idx_work_queue_items_task
-    ON agentforce_governance.work_queue_items (task_id);
+    ON awf_governance.work_queue_items (task_id);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.work_queue_items IS
+COMMENT ON TABLE awf_governance.work_queue_items IS
   'Queue of work for agents to pull at enterprise scale. Lifecycle status mirrors enterprise-scaling.md "Work Queue Architecture".';
 
-COMMENT ON COLUMN agentforce_governance.work_queue_items.risk_level IS
+COMMENT ON COLUMN awf_governance.work_queue_items.risk_level IS
   'Immutable once written. Re-classifying mid-flight would let an agent escape the gate that fired at created time.';
 
-COMMENT ON COLUMN agentforce_governance.work_queue_items.strike_count IS
+COMMENT ON COLUMN awf_governance.work_queue_items.strike_count IS
   '3-strike rule: ESCALATION fires when this reaches 3. Reset only by explicit Orchestrator action (audited).';
 
-COMMENT ON COLUMN agentforce_governance.work_queue_items.manifest_hash IS
+COMMENT ON COLUMN awf_governance.work_queue_items.manifest_hash IS
   'Hash of the AgentTaskManifest at creation. Runtime verifies on dequeue that the manifest has not been edited.';
 
 -- ============================================================================
@@ -232,7 +232,7 @@ COMMENT ON COLUMN agentforce_governance.work_queue_items.manifest_hash IS
 --    item starts in 'created'; a separate UPDATE flips it to 'assigned'
 --    once the Orchestrator picks an agent instance.
 --
--- INSERT INTO agentforce_governance.work_queue_items (
+-- INSERT INTO awf_governance.work_queue_items (
 --     tenant_id, workspace_id, created_by, task_id, domain,
 --     title, description, risk_level, files_in_scope, manifest_hash,
 --     priority, metadata
@@ -256,7 +256,7 @@ COMMENT ON COLUMN agentforce_governance.work_queue_items.manifest_hash IS
 --    idx_work_queue_items_pull.
 --
 -- SELECT id, task_id, title, risk_level, priority, files_in_scope
---   FROM agentforce_governance.work_queue_items
+--   FROM awf_governance.work_queue_items
 --  WHERE workspace_id = $1
 --    AND status IN ('created','failed')
 --  ORDER BY priority ASC, created_at ASC
@@ -267,7 +267,7 @@ COMMENT ON COLUMN agentforce_governance.work_queue_items.manifest_hash IS
 --    surface "tasks that are not converging" for human review.
 --
 -- SELECT id, task_id, title, strike_count, last_failure_id, updated_at
---   FROM agentforce_governance.work_queue_items
+--   FROM awf_governance.work_queue_items
 --  WHERE workspace_id = $1
 --    AND strike_count >= 3
 --    AND status IN ('failed','blocked','pending_review')

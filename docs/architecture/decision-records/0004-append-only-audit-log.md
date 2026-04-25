@@ -30,7 +30,7 @@ UPDATE and DELETE are forbidden.
 
 Concretely:
 
-- `agentforce_governance.audit_log` has a BEFORE UPDATE OR DELETE trigger that
+- `awf_governance.audit_log` has a BEFORE UPDATE OR DELETE trigger that
   raises an exception on any attempt to mutate or remove a row. No role in the
   database has a safe path past this not even `superuser` roles operating
   inside the application.

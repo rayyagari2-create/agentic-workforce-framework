@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.routine_runs
+-- TABLE: awf_governance.routine_runs
 -- ============================================================================
 -- Purpose
 --   Log of every Routine execution: trigger type, context payload, result
@@ -54,7 +54,7 @@
 --   v1.0 — ships at public launch.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- How the routine was fired. The four trigger types map to the four
 -- adapter integrations the framework supports out of the box.
@@ -81,7 +81,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.routine_runs (
+CREATE TABLE IF NOT EXISTS awf_governance.routine_runs (
     -- Synthetic primary key.
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -149,33 +149,33 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.routine_runs (
 
 -- Per-routine recent history: serves "show me the last N runs of R1".
 CREATE INDEX IF NOT EXISTS idx_routine_runs_routine_time
-    ON agentforce_governance.routine_runs (routine_id, fired_at DESC);
+    ON awf_governance.routine_runs (routine_id, fired_at DESC);
 
 -- Per-trigger-type reporting: serves "how many GitHub-triggered runs
 -- happened in the last 7 days".
 CREATE INDEX IF NOT EXISTS idx_routine_runs_trigger
-    ON agentforce_governance.routine_runs (trigger_type, fired_at DESC);
+    ON awf_governance.routine_runs (trigger_type, fired_at DESC);
 
 -- Correlation reconstruction: serves "what routines fired as part of
 -- this task chain".
 CREATE INDEX IF NOT EXISTS idx_routine_runs_correlation
-    ON agentforce_governance.routine_runs (correlation_id);
+    ON awf_governance.routine_runs (correlation_id);
 
 -- Outcome alerting: serves "how many failure / cap_exceeded outcomes
 -- in the last 24h" — primary input to the daily digest.
 CREATE INDEX IF NOT EXISTS idx_routine_runs_outcome
-    ON agentforce_governance.routine_runs (outcome, fired_at DESC);
+    ON awf_governance.routine_runs (outcome, fired_at DESC);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.routine_runs IS
+COMMENT ON TABLE awf_governance.routine_runs IS
   'Log of each Routine execution. Writer: the routine adapter only. Routines never write to trust_scores or failure_records directly.';
 
-COMMENT ON COLUMN agentforce_governance.routine_runs.outcome IS
+COMMENT ON COLUMN awf_governance.routine_runs.outcome IS
   'success | failure | partial | cap_exceeded | degraded. cap_exceeded means the run did not start; degraded means it ran with a missing dependency.';
 
-COMMENT ON COLUMN agentforce_governance.routine_runs.context_payload IS
+COMMENT ON COLUMN awf_governance.routine_runs.context_payload IS
   'Per-routine payload passed at fire time. JSONB for forensics; schema is per-routine.';
 
 -- ============================================================================
@@ -188,7 +188,7 @@ COMMENT ON COLUMN agentforce_governance.routine_runs.context_payload IS
 --    the routine returns; deployments that insert only on completion
 --    will fill them in this same INSERT.
 --
--- INSERT INTO agentforce_governance.routine_runs (
+-- INSERT INTO awf_governance.routine_runs (
 --     tenant_id, workspace_id, routine_id, trigger_type, trigger_ref,
 --     context_payload, outcome, fired_by, correlation_id
 -- ) VALUES (
@@ -208,7 +208,7 @@ COMMENT ON COLUMN agentforce_governance.routine_runs.context_payload IS
 --
 -- SELECT fired_at, completed_at, trigger_type, trigger_ref,
 --        outcome, result_summary
---   FROM agentforce_governance.routine_runs
+--   FROM awf_governance.routine_runs
 --  WHERE routine_id = $1
 --  ORDER BY fired_at DESC
 --  LIMIT 20;
@@ -221,7 +221,7 @@ COMMENT ON COLUMN agentforce_governance.routine_runs.context_payload IS
 -- SELECT routine_id,
 --        outcome,
 --        COUNT(*) AS run_count
---   FROM agentforce_governance.routine_runs
+--   FROM awf_governance.routine_runs
 --  WHERE fired_at >= NOW() - INTERVAL '24 hours'
 --    AND outcome <> 'success'
 --  GROUP BY routine_id, outcome

@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.workspaces
+-- TABLE: awf_governance.workspaces
 -- ============================================================================
 -- Purpose
 --   A Workspace is the working scope of one team — typically owned by a
@@ -47,13 +47,13 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log
+-- This table emits audit events into awf_governance.audit_log
 -- and assumes the schema, types, and triggers from the governance
 -- migrations are in place. It also references divisions(id) — run
 -- 001_divisions.sql first.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Lifecycle status for a Workspace. Same shape as division_status; kept
 -- as a separate type so future additions on either side don't conflate.
@@ -77,7 +77,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.workspaces (
+CREATE TABLE IF NOT EXISTS awf_governance.workspaces (
     -- Synthetic primary key.
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.workspaces (
     -- a Division with workspaces cannot be hard-deleted; archive the
     -- workspaces first, then archive the Division.
     division_id     UUID NOT NULL
-                       REFERENCES agentforce_governance.divisions(id)
+                       REFERENCES awf_governance.divisions(id)
                        ON DELETE RESTRICT,
 
     -- Stable URL-safe identifier. Unique per division (a tenant can
@@ -147,28 +147,28 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.workspaces (
 
 -- Tenant + status: serves the enterprise admin list of active workspaces.
 CREATE INDEX IF NOT EXISTS idx_workspaces_tenant_status
-    ON agentforce_governance.workspaces (tenant_id, status);
+    ON awf_governance.workspaces (tenant_id, status);
 
 -- Division + status: serves the Division Orchestrator's view of its own
 -- workspaces.
 CREATE INDEX IF NOT EXISTS idx_workspaces_division_status
-    ON agentforce_governance.workspaces (division_id, status);
+    ON awf_governance.workspaces (division_id, status);
 
 -- Owner lookup: serves "what workspaces does this user own?" — used
 -- when evaluating HITL approval authority.
 CREATE INDEX IF NOT EXISTS idx_workspaces_owner
-    ON agentforce_governance.workspaces (owner_user_id);
+    ON awf_governance.workspaces (owner_user_id);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.workspaces IS
+COMMENT ON TABLE awf_governance.workspaces IS
   'A working scope owned by a Team Orchestrator. Bounds file scope, locks, and bulletin visibility. v3.0; do not deploy until governance plane is stable.';
 
-COMMENT ON COLUMN agentforce_governance.workspaces.hitl_default_threshold IS
+COMMENT ON COLUMN awf_governance.workspaces.hitl_default_threshold IS
   'Risk level at which HITL gates fire by default in this workspace. Central policy sets the floor; workspaces tune within bounds.';
 
-COMMENT ON COLUMN agentforce_governance.workspaces.max_concurrent_lanes IS
+COMMENT ON COLUMN awf_governance.workspaces.max_concurrent_lanes IS
   'Maximum concurrent parallel lanes (LANE-A/B/...). Bounded to keep file-lock contention manageable.';
 
 -- ============================================================================
@@ -178,7 +178,7 @@ COMMENT ON COLUMN agentforce_governance.workspaces.max_concurrent_lanes IS
 -- 1. Typical write — Division admin provisions a new Workspace under
 --    the 'platform-eng' division.
 --
--- INSERT INTO agentforce_governance.workspaces (
+-- INSERT INTO awf_governance.workspaces (
 --     tenant_id, division_id, slug, name, description,
 --     owner_user_id, hitl_default_threshold, max_concurrent_lanes, metadata
 -- ) VALUES (
@@ -197,7 +197,7 @@ COMMENT ON COLUMN agentforce_governance.workspaces.max_concurrent_lanes IS
 --    Served by idx_workspaces_division_status.
 --
 -- SELECT id, slug, name, owner_user_id, hitl_default_threshold
---   FROM agentforce_governance.workspaces
+--   FROM awf_governance.workspaces
 --  WHERE division_id = $1
 --    AND status      = 'active'
 --  ORDER BY name ASC;
@@ -207,7 +207,7 @@ COMMENT ON COLUMN agentforce_governance.workspaces.max_concurrent_lanes IS
 --    show "current state plus history" in the admin UI.
 --
 -- SELECT a.created_at, a.event_type, a.actor_id, a.before_state, a.after_state, a.rationale
---   FROM agentforce_governance.audit_log a
---  WHERE a.subject_table = 'agentforce_governance.workspaces'
+--   FROM awf_governance.audit_log a
+--  WHERE a.subject_table = 'awf_governance.workspaces'
 --    AND a.subject_id    = $1
 --  ORDER BY a.created_at ASC;

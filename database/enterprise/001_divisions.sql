@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.divisions
+-- TABLE: awf_governance.divisions
 -- ============================================================================
 -- Purpose
 --   Top-level organizational unit in the enterprise extension. A Division
@@ -50,12 +50,12 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log
+-- This table emits audit events into awf_governance.audit_log
 -- and assumes the schema, types, and triggers from the governance
 -- migrations are in place.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Lifecycle status for a Division. 'active' is the working state;
 -- 'paused' temporarily blocks new task assignment but retains all
@@ -69,7 +69,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.divisions (
+CREATE TABLE IF NOT EXISTS awf_governance.divisions (
     -- Synthetic primary key.
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -131,24 +131,24 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.divisions (
 -- Tenant + status: serves "show me active divisions for this tenant",
 -- the list rendered in the enterprise admin console.
 CREATE INDEX IF NOT EXISTS idx_divisions_tenant_status
-    ON agentforce_governance.divisions (tenant_id, status);
+    ON awf_governance.divisions (tenant_id, status);
 
 -- Owner lookup: serves "what divisions does this user own?" — used when
 -- evaluating whether a user has authority to approve a Division-scoped
 -- gate.
 CREATE INDEX IF NOT EXISTS idx_divisions_owner
-    ON agentforce_governance.divisions (owner_user_id);
+    ON awf_governance.divisions (owner_user_id);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.divisions IS
+COMMENT ON TABLE awf_governance.divisions IS
   'Top-level org unit in the enterprise extension. One Division per Division Orchestrator. v3.0; do not deploy until governance plane is stable.';
 
-COMMENT ON COLUMN agentforce_governance.divisions.slug IS
+COMMENT ON COLUMN awf_governance.divisions.slug IS
   'Stable URL-safe identifier; unique per tenant. Format: lowercase alphanumeric and hyphens, 1-64 chars.';
 
-COMMENT ON COLUMN agentforce_governance.divisions.owner_user_id IS
+COMMENT ON COLUMN awf_governance.divisions.owner_user_id IS
   'Default escalation target for ESCALATION gates that reach Division scope. No FK to users.';
 
 -- ============================================================================
@@ -159,7 +159,7 @@ COMMENT ON COLUMN agentforce_governance.divisions.owner_user_id IS
 --    matching audit_log row is emitted by the runtime policy layer with
 --    event_type = 'division.created' and after_state = the full row.
 --
--- INSERT INTO agentforce_governance.divisions (
+-- INSERT INTO awf_governance.divisions (
 --     tenant_id, slug, name, description, owner_user_id, metadata
 -- ) VALUES (
 --     '00000000-0000-0000-0000-000000000001'::uuid,
@@ -174,18 +174,18 @@ COMMENT ON COLUMN agentforce_governance.divisions.owner_user_id IS
 --    Served by idx_divisions_tenant_status.
 --
 -- SELECT id, slug, name, owner_user_id, created_at
---   FROM agentforce_governance.divisions
+--   FROM awf_governance.divisions
 --  WHERE tenant_id = $1
 --    AND status    = 'active'
 --  ORDER BY name ASC;
 --
 -- 3. Lifecycle history reconstruction — every state change for one
 --    Division. The current row lives here; the historical states live
---    in audit_log under subject_table = 'agentforce_governance.divisions'
+--    in audit_log under subject_table = 'awf_governance.divisions'
 --    and subject_id = the division's id.
 --
 -- SELECT a.created_at, a.event_type, a.actor_id, a.before_state, a.after_state, a.rationale
---   FROM agentforce_governance.audit_log a
---  WHERE a.subject_table = 'agentforce_governance.divisions'
+--   FROM awf_governance.audit_log a
+--  WHERE a.subject_table = 'awf_governance.divisions'
 --    AND a.subject_id    = $1
 --  ORDER BY a.created_at ASC;

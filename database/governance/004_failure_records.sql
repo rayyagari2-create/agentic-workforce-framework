@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.failure_records
+-- TABLE: awf_governance.failure_records
 -- ============================================================================
 -- Purpose
 --   Structured failure record store — the framework's institutional
@@ -72,7 +72,7 @@
 --   v1.0 — ships at public launch.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- The 17-class failure taxonomy. Fixed in v1.0; adding a new class
 -- requires a schema version change. Each class definition lives in
@@ -139,7 +139,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.failure_records (
+CREATE TABLE IF NOT EXISTS awf_governance.failure_records (
     -- Synthetic primary key.
     id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -255,35 +255,35 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.failure_records (
 -- recurrence_count. Ordered by recurrence_count DESC so the highest-
 -- recurrence record of each class can be found quickly.
 CREATE INDEX IF NOT EXISTS idx_failure_records_class_count
-    ON agentforce_governance.failure_records (failure_class_value, recurrence_count DESC);
+    ON awf_governance.failure_records (failure_class_value, recurrence_count DESC);
 
 -- Pre-task retrieval by file path: GIN over the files array supports
 -- the @> containment query that the pre-spawn protocol uses.
 CREATE INDEX IF NOT EXISTS idx_failure_records_domain_files
-    ON agentforce_governance.failure_records USING GIN (files);
+    ON awf_governance.failure_records USING GIN (files);
 
 -- Operational triage: serves "what open failures at P0/P1 exist?"
 -- (status, severity) is the natural ordering on the on-call dashboard.
 CREATE INDEX IF NOT EXISTS idx_failure_records_status
-    ON agentforce_governance.failure_records (status, severity);
+    ON awf_governance.failure_records (status, severity);
 
 -- Per-correlation reconstruction: serves "all failures from this session".
 CREATE INDEX IF NOT EXISTS idx_failure_records_correlation
-    ON agentforce_governance.failure_records (correlation_id);
+    ON awf_governance.failure_records (correlation_id);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.failure_records IS
+COMMENT ON TABLE awf_governance.failure_records IS
   'Structured failure records. Fix Agent is the sole writer; QA Agent flags. Classifications fixed in v1.0 (17 classes).';
 
-COMMENT ON COLUMN agentforce_governance.failure_records.failure_id IS
+COMMENT ON COLUMN awf_governance.failure_records.failure_id IS
   'Stable human-readable ID in the form FAIL-YYYY-MM-DD-NNN. UNIQUE; format enforced by CHECK.';
 
-COMMENT ON COLUMN agentforce_governance.failure_records.recurrence_count IS
+COMMENT ON COLUMN awf_governance.failure_records.recurrence_count IS
   'Count of prior records with the same failure_class plus this one. Drives auto-promotion at >=2, benchmark at >=3, systemic refactor at >=5.';
 
-COMMENT ON COLUMN agentforce_governance.failure_records.prevention_artifacts IS
+COMMENT ON COLUMN awf_governance.failure_records.prevention_artifacts IS
   'Array of {type, location, description}. At least one entry is required before status may transition to resolved.';
 
 -- ============================================================================
@@ -295,7 +295,7 @@ COMMENT ON COLUMN agentforce_governance.failure_records.prevention_artifacts IS
 --    below) and the repeat_of_failure_ids is built from the same query's
 --    result set.
 --
--- INSERT INTO agentforce_governance.failure_records (
+-- INSERT INTO awf_governance.failure_records (
 --     failure_id, tenant_id, workspace_id, timestamp, domain,
 --     agents_involved, files, symptom, root_cause, root_cause_confirmed,
 --     failure_class_value, severity, user_impact, detection_source,
@@ -333,7 +333,7 @@ COMMENT ON COLUMN agentforce_governance.failure_records.prevention_artifacts IS
 --
 -- SELECT failure_id, failure_class_value, severity, symptom, root_cause,
 --        recurrence_count, prevention_artifacts
---   FROM agentforce_governance.failure_records
+--   FROM awf_governance.failure_records
 --  WHERE tenant_id = $1
 --    AND files && $2::text[]   -- $2 is the array of files in scope
 --  ORDER BY timestamp DESC
@@ -345,7 +345,7 @@ COMMENT ON COLUMN agentforce_governance.failure_records.prevention_artifacts IS
 --    repeat_of_failure_ids. Served by idx_failure_records_class_count.
 --
 -- SELECT failure_id, timestamp, files, root_cause
---   FROM agentforce_governance.failure_records
+--   FROM awf_governance.failure_records
 --  WHERE tenant_id            = $1
 --    AND failure_class_value  = $2
 --    AND domain               = $3

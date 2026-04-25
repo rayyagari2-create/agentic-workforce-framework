@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.delegation_rules
+-- TABLE: awf_governance.delegation_rules
 -- ============================================================================
 -- Purpose
 --   Records explicit delegations of approval authority. When a HITL or
@@ -59,14 +59,14 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log,
+-- This table emits audit events into awf_governance.audit_log,
 -- references workspaces (002) and divisions (001), and consumes the
 -- gate_type and risk_level enums declared in 002 and 006.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.delegation_rules (
+CREATE TABLE IF NOT EXISTS awf_governance.delegation_rules (
     -- Synthetic primary key. Referenced from gate_records.delegation_rule_id
     -- when a delegate approves a gate.
     id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -78,14 +78,14 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.delegation_rules (
     -- division_scope_id (CHECK below). NULL means the delegation
     -- applies at division scope.
     workspace_scope_id    UUID
-                            REFERENCES agentforce_governance.workspaces(id)
+                            REFERENCES awf_governance.workspaces(id)
                             ON DELETE CASCADE,
 
     -- Division scope of the delegation. Mutually exclusive with
     -- workspace_scope_id. NULL means the delegation applies at a
     -- single-workspace scope.
     division_scope_id     UUID
-                            REFERENCES agentforce_governance.divisions(id)
+                            REFERENCES awf_governance.divisions(id)
                             ON DELETE CASCADE,
 
     -- The original authority delegating. The user_id of the human (or
@@ -179,33 +179,33 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.delegation_rules (
 -- exist?" query. The gate_types and risk_level filters are applied
 -- after the index narrows by delegator/delegate pair.
 CREATE INDEX IF NOT EXISTS idx_delegation_rules_delegator_delegate
-    ON agentforce_governance.delegation_rules (delegator_id, delegate_id);
+    ON awf_governance.delegation_rules (delegator_id, delegate_id);
 
 -- Per-delegate active list: serves "what delegations am I currently a
 -- delegate for?" — the inbox the delegate sees on their dashboard.
 -- Partial index on currently-active rows keeps the index small.
 CREATE INDEX IF NOT EXISTS idx_delegation_rules_delegate_active
-    ON agentforce_governance.delegation_rules (delegate_id, valid_until DESC)
+    ON awf_governance.delegation_rules (delegate_id, valid_until DESC)
     WHERE revoked_at IS NULL;
 
 -- Per-delegator audit list: serves "all delegations this user has
 -- ever issued, in order".
 CREATE INDEX IF NOT EXISTS idx_delegation_rules_delegator_time
-    ON agentforce_governance.delegation_rules (delegator_id, created_at DESC);
+    ON awf_governance.delegation_rules (delegator_id, created_at DESC);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.delegation_rules IS
+COMMENT ON TABLE awf_governance.delegation_rules IS
   'Explicit delegations of approval authority. TTL-bounded, scope-bounded, anti-self-delegation. Re-delegation is forbidden at the application layer.';
 
-COMMENT ON COLUMN agentforce_governance.delegation_rules.gate_types IS
+COMMENT ON COLUMN awf_governance.delegation_rules.gate_types IS
   'Subset of gate_type enum the delegate may approve. Non-empty (CHECK).';
 
-COMMENT ON COLUMN agentforce_governance.delegation_rules.max_risk_level IS
+COMMENT ON COLUMN awf_governance.delegation_rules.max_risk_level IS
   'Runtime evaluates: gate.risk_level <= max_risk_level using the implicit ordering LOW < MEDIUM < HIGH < CRITICAL.';
 
-COMMENT ON COLUMN agentforce_governance.delegation_rules.valid_until IS
+COMMENT ON COLUMN awf_governance.delegation_rules.valid_until IS
   'Hard cutoff. Immutable so delegates cannot silently extend their own window. Workspace policy bounds the maximum (valid_until - valid_from).';
 
 -- ============================================================================
@@ -215,7 +215,7 @@ COMMENT ON COLUMN agentforce_governance.delegation_rules.valid_until IS
 -- 1. Typical write — Tech Lead delegates HIGH-risk HITL approval to
 --    a designated deputy for a 7-day on-call rotation.
 --
--- INSERT INTO agentforce_governance.delegation_rules (
+-- INSERT INTO awf_governance.delegation_rules (
 --     tenant_id, workspace_scope_id, delegator_id, delegate_id,
 --     gate_types, max_risk_level,
 --     valid_from, valid_until, rationale
@@ -237,7 +237,7 @@ COMMENT ON COLUMN agentforce_governance.delegation_rules.valid_until IS
 --    idx_delegation_rules_delegator_delegate.
 --
 -- SELECT id, max_risk_level, gate_types, valid_until
---   FROM agentforce_governance.delegation_rules
+--   FROM awf_governance.delegation_rules
 --  WHERE tenant_id          = $1
 --    AND delegator_id       = $2
 --    AND delegate_id        = $3
@@ -256,10 +256,10 @@ COMMENT ON COLUMN agentforce_governance.delegation_rules.valid_until IS
 -- SELECT dr.id, dr.delegate_id, dr.gate_types, dr.max_risk_level,
 --        dr.valid_from, dr.valid_until, dr.revoked_at,
 --        COALESCE(g.approvals, 0) AS approvals_under_delegation
---   FROM agentforce_governance.delegation_rules dr
+--   FROM awf_governance.delegation_rules dr
 --   LEFT JOIN (
 --        SELECT delegation_rule_id, COUNT(*) AS approvals
---          FROM agentforce_governance.gate_records
+--          FROM awf_governance.gate_records
 --         WHERE decision = 'APPROVED'
 --         GROUP BY delegation_rule_id
 --   ) g ON g.delegation_rule_id = dr.id

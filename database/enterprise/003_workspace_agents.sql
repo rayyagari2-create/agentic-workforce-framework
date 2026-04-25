@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.workspace_agents
+-- TABLE: awf_governance.workspace_agents
 -- ============================================================================
 -- Purpose
 --   Junction table that records which agent instances are active in which
@@ -46,13 +46,13 @@
 --
 -- Requires governance schema to be installed first.
 -- Do not run this before database/governance/ migrations complete.
--- This table emits audit events into agentforce_governance.audit_log
+-- This table emits audit events into awf_governance.audit_log
 -- and references workspaces(id) and agent_instances(id). Run
 -- 001_divisions.sql, 002_workspaces.sql, and 004_agent_instances.sql
 -- before this file.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
 -- Per-workspace membership status. 'active' is the working state;
 -- 'paused' means the agent is not picking up new work in this
@@ -65,7 +65,7 @@ DO $$ BEGIN
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.workspace_agents (
+CREATE TABLE IF NOT EXISTS awf_governance.workspace_agents (
     -- Synthetic primary key.
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.workspace_agents (
     -- workspace is hard-deleted (rare, archive-first is preferred),
     -- membership rows go with it.
     workspace_id        UUID NOT NULL
-                          REFERENCES agentforce_governance.workspaces(id)
+                          REFERENCES awf_governance.workspaces(id)
                           ON DELETE CASCADE,
 
     -- The agent instance that is a member. ON DELETE RESTRICT — an
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.workspace_agents (
     -- in agent_instances) first. Forward reference to a table created
     -- in 004_agent_instances.sql.
     agent_instance_id   UUID NOT NULL
-                          REFERENCES agentforce_governance.agent_instances(id)
+                          REFERENCES awf_governance.agent_instances(id)
                           ON DELETE RESTRICT,
 
     -- The role the agent was assigned at time of join. Frozen at INSERT
@@ -127,29 +127,29 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.workspace_agents (
 -- Workspace + status: serves "show me the active roster of this
 -- workspace" (the Team Orchestrator's team page).
 CREATE INDEX IF NOT EXISTS idx_workspace_agents_workspace_status
-    ON agentforce_governance.workspace_agents (workspace_id, status);
+    ON awf_governance.workspace_agents (workspace_id, status);
 
 -- Instance + status: serves "what workspaces does this agent serve?" —
 -- used when re-allocating shared agents and when computing the agent's
 -- visible footprint.
 CREATE INDEX IF NOT EXISTS idx_workspace_agents_instance_status
-    ON agentforce_governance.workspace_agents (agent_instance_id, status);
+    ON awf_governance.workspace_agents (agent_instance_id, status);
 
 -- Workspace + role: serves "who is the QA Agent in this workspace?" —
 -- used by the Team Orchestrator when routing work by role.
 CREATE INDEX IF NOT EXISTS idx_workspace_agents_workspace_role
-    ON agentforce_governance.workspace_agents (workspace_id, role_at_assignment);
+    ON awf_governance.workspace_agents (workspace_id, role_at_assignment);
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.workspace_agents IS
+COMMENT ON TABLE awf_governance.workspace_agents IS
   'Junction table for agent membership in workspaces. Many-to-many. Trust history travels with agent_instances; status is per-membership.';
 
-COMMENT ON COLUMN agentforce_governance.workspace_agents.role_at_assignment IS
+COMMENT ON COLUMN awf_governance.workspace_agents.role_at_assignment IS
   'The role the agent was assigned at INSERT time. Frozen so historical scoring matches role-at-time-of-work, even if agent_instances.role changes later.';
 
-COMMENT ON COLUMN agentforce_governance.workspace_agents.capability_overrides IS
+COMMENT ON COLUMN awf_governance.workspace_agents.capability_overrides IS
   'Optional per-membership restrictions or expansions. JSONB; schema is per-deployment.';
 
 -- ============================================================================
@@ -160,7 +160,7 @@ COMMENT ON COLUMN agentforce_governance.workspace_agents.capability_overrides IS
 --    workspace. The matching audit_log row carries event_type =
 --    'workspace_agent.added' and after_state = the full row.
 --
--- INSERT INTO agentforce_governance.workspace_agents (
+-- INSERT INTO awf_governance.workspace_agents (
 --     tenant_id, workspace_id, agent_instance_id,
 --     role_at_assignment, capability_overrides
 -- ) VALUES (
@@ -177,8 +177,8 @@ COMMENT ON COLUMN agentforce_governance.workspace_agents.capability_overrides IS
 --
 -- SELECT wa.role_at_assignment, ai.id, ai.display_name, ai.current_tier,
 --        wa.created_at AS joined_at
---   FROM agentforce_governance.workspace_agents wa
---   JOIN agentforce_governance.agent_instances ai
+--   FROM awf_governance.workspace_agents wa
+--   JOIN awf_governance.agent_instances ai
 --        ON ai.id = wa.agent_instance_id
 --  WHERE wa.workspace_id = $1
 --    AND wa.status       = 'active'
@@ -191,8 +191,8 @@ COMMENT ON COLUMN agentforce_governance.workspace_agents.capability_overrides IS
 --
 -- SELECT w.slug AS workspace_slug, wa.role_at_assignment,
 --        wa.status, wa.created_at AS joined_at, wa.removed_at
---   FROM agentforce_governance.workspace_agents wa
---   JOIN agentforce_governance.workspaces w
+--   FROM awf_governance.workspace_agents wa
+--   JOIN awf_governance.workspaces w
 --        ON w.id = wa.workspace_id
 --  WHERE wa.agent_instance_id = $1
 --  ORDER BY wa.created_at ASC;

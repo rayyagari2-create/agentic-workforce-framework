@@ -1,5 +1,5 @@
 -- ============================================================================
--- TABLE: agentforce_governance.audit_log
+-- TABLE: awf_governance.audit_log
 -- ============================================================================
 -- Purpose
 --   Append-only, immutable audit trail. Every gate decision, trust tier
@@ -43,9 +43,9 @@
 --   v1.0 — ships at public launch.
 -- ============================================================================
 
-CREATE SCHEMA IF NOT EXISTS agentforce_governance;
+CREATE SCHEMA IF NOT EXISTS awf_governance;
 
-CREATE TABLE IF NOT EXISTS agentforce_governance.audit_log (
+CREATE TABLE IF NOT EXISTS awf_governance.audit_log (
     -- Synthetic primary key. UUIDs avoid sequence contention on high-volume
     -- audit writes and make rows trivially mergeable across replicas.
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -138,25 +138,25 @@ CREATE TABLE IF NOT EXISTS agentforce_governance.audit_log (
 -- events for this tenant" — and the compliance export query that scans by
 -- tenant within a date range.
 CREATE INDEX IF NOT EXISTS idx_audit_log_tenant_time
-    ON agentforce_governance.audit_log (tenant_id, created_at DESC);
+    ON awf_governance.audit_log (tenant_id, created_at DESC);
 
 -- Correlation lookup: reconstructs the full chain of events for one task /
 -- session / workflow. Used by incident review and by the QA Agent when
 -- assembling D2 (observability) evidence.
 CREATE INDEX IF NOT EXISTS idx_audit_log_correlation
-    ON agentforce_governance.audit_log (correlation_id);
+    ON awf_governance.audit_log (correlation_id);
 
 -- Event-type histogram and time-bounded counts: serves dashboards
 -- ("how many gate.rejected events in the last 24h?") and the policy
 -- self-evaluation routines.
 CREATE INDEX IF NOT EXISTS idx_audit_log_event_type
-    ON agentforce_governance.audit_log (event_type, created_at DESC);
+    ON awf_governance.audit_log (event_type, created_at DESC);
 
 -- Per-row history: serves "show me everything that ever happened to this
 -- failure_record / work_queue_item / gate_record". Required for the
 -- before/after replay used by post-mortems.
 CREATE INDEX IF NOT EXISTS idx_audit_log_subject
-    ON agentforce_governance.audit_log (subject_table, subject_id);
+    ON awf_governance.audit_log (subject_table, subject_id);
 
 -- ============================================================================
 -- IMMUTABILITY ENFORCEMENT
@@ -167,34 +167,34 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_subject
 -- correct path is a new schema version with a one-time forward migration,
 -- not editing rows in place.
 
-CREATE OR REPLACE FUNCTION agentforce_governance.audit_log_immutable()
+CREATE OR REPLACE FUNCTION awf_governance.audit_log_immutable()
 RETURNS TRIGGER AS $$
 BEGIN
-    RAISE EXCEPTION 'agentforce_governance.audit_log is append-only. UPDATE and DELETE are forbidden.';
+    RAISE EXCEPTION 'awf_governance.audit_log is append-only. UPDATE and DELETE are forbidden.';
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trg_audit_log_no_update ON agentforce_governance.audit_log;
+DROP TRIGGER IF EXISTS trg_audit_log_no_update ON awf_governance.audit_log;
 CREATE TRIGGER trg_audit_log_no_update
-  BEFORE UPDATE OR DELETE ON agentforce_governance.audit_log
-  FOR EACH ROW EXECUTE FUNCTION agentforce_governance.audit_log_immutable();
+  BEFORE UPDATE OR DELETE ON awf_governance.audit_log
+  FOR EACH ROW EXECUTE FUNCTION awf_governance.audit_log_immutable();
 
 -- ============================================================================
 -- TABLE / COLUMN COMMENTS (visible via \d+ in psql)
 -- ============================================================================
-COMMENT ON TABLE agentforce_governance.audit_log IS
+COMMENT ON TABLE awf_governance.audit_log IS
   'Append-only, immutable audit trail. Writers: runtime policy layer, hooks, lifecycle triggers. Never written to by agents directly.';
 
-COMMENT ON COLUMN agentforce_governance.audit_log.actor_type IS
+COMMENT ON COLUMN awf_governance.audit_log.actor_type IS
   'Five-valued enum: human, agent, service, routine, system. Lets queries split machine vs human attribution.';
 
-COMMENT ON COLUMN agentforce_governance.audit_log.correlation_id IS
+COMMENT ON COLUMN awf_governance.audit_log.correlation_id IS
   'Threads related events. One task / session / workflow shares one correlation_id across all governance tables.';
 
-COMMENT ON COLUMN agentforce_governance.audit_log.before_state IS
+COMMENT ON COLUMN awf_governance.audit_log.before_state IS
   'JSONB snapshot of the affected row before mutation. NULL on INSERT events.';
 
-COMMENT ON COLUMN agentforce_governance.audit_log.after_state IS
+COMMENT ON COLUMN awf_governance.audit_log.after_state IS
   'JSONB snapshot of the affected row after mutation. NULL on DELETE events.';
 
 -- ============================================================================
@@ -207,7 +207,7 @@ COMMENT ON COLUMN agentforce_governance.audit_log.after_state IS
 --    captures it at APPROVED. The same correlation_id appears in
 --    gate_records and (for the same task) in work_queue_items.
 --
--- INSERT INTO agentforce_governance.audit_log (
+-- INSERT INTO awf_governance.audit_log (
 --     tenant_id, workspace_id, actor_id, actor_type,
 --     event_type, subject_table, subject_id,
 --     before_state, after_state, rationale, correlation_id,
@@ -218,7 +218,7 @@ COMMENT ON COLUMN agentforce_governance.audit_log.after_state IS
 --     '00000000-0000-0000-0000-000000000abc'::uuid,
 --     'human',
 --     'gate.approved',
---     'agentforce_governance.gate_records',
+--     'awf_governance.gate_records',
 --     '00000000-0000-0000-0000-0000000000a1'::uuid,
 --     '{"status":"PENDING","gate_type":"HITL"}'::jsonb,
 --     '{"status":"APPROVED","gate_type":"HITL","approver_id":"...abc"}'::jsonb,
@@ -232,7 +232,7 @@ COMMENT ON COLUMN agentforce_governance.audit_log.after_state IS
 --    Served by idx_audit_log_tenant_time.
 --
 -- SELECT id, event_type, actor_type, subject_table, rationale, created_at
---   FROM agentforce_governance.audit_log
+--   FROM awf_governance.audit_log
 --  WHERE tenant_id = $1
 --  ORDER BY created_at DESC
 --  LIMIT 100;
@@ -242,6 +242,6 @@ COMMENT ON COLUMN agentforce_governance.audit_log.after_state IS
 --    when assembling D2 (observability) evidence at session close.
 --
 -- SELECT created_at, actor_type, event_type, subject_table, before_state, after_state, rationale
---   FROM agentforce_governance.audit_log
+--   FROM awf_governance.audit_log
 --  WHERE correlation_id = $1
 --  ORDER BY created_at ASC;

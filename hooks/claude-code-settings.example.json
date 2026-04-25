@@ -1,0 +1,50 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/check-agent-spawn.example.js"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/check-subagent-start.example.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/check-agent-spawn-result.example.js"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Agent([ORCHESTRATOR_AGENT])",
+      "Agent([SERVER_AGENT])",
+      "Agent([FRONTEND_AGENT])",
+      "Agent([QA_AGENT])",
+      "Agent([FIX_AGENT])"
+    ],
+    "deny": [
+      "Agent(Explore)",
+      "Agent(Plan)"
+    ]
+  }
+}
