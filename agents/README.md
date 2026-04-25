@@ -108,6 +108,19 @@ no self-scoring) must stay intact. Those are the spine.
   agents that have not yet been published as reference
   implementations.
 
+## Agent Versioning Roadmap
+
+| Version | Agents | Status | Note |
+|---|---|---|---|
+| v1.0 | orchestrator, agent-fe, agent-srv, qa-agent, fix-agent | Current | Live in reference implementation |
+| v1.5 | security-check, evolve, code-review | Next | Private repo review before publishing |
+| v2.0 | chief-of-staff, deep-research | Designed | Sanitization review required |
+| v3.0 | eval-telemetry, deploy | Planned | Not yet field-proven |
+
+Each version ships when the reference implementation has sufficient
+session history to back the trust tier claim. No agent publishes
+without scored session data.
+
 ## Warning
 
 **These are reference implementations. Customize before deploying.**
