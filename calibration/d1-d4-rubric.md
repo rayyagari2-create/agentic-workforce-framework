@@ -20,9 +20,11 @@ The total maps to a trust tier:
 | 60-74   | RESTRICTED  | Reviewer present at every phase transition        |
 | < 60    | PROBATION   | Every file change reviewed; escalation if persists 3 sessions |
 
-Tier promotions are gated by **confidence band** see
-`confidence-band-guide.md`. A high single-session total does not promote
-on its own.
+Tier promotions are gated by **confidence band**: a measure of how
+many scored sessions back the current tier assessment. A score based
+on n=3 sessions is provisional; n=15 sessions is MEDIUM confidence.
+Full definitions are in `confidence-band-guide.md`. A high
+single-session total does not promote on its own.
 
 ---
 
@@ -209,7 +211,11 @@ record. An agent that repeats a known failure costs trust.
 ### Evidence sources
 
 - Failure library at session start (which patterns existed)
-- Pre-task retrieval log (which patterns the agent was shown)
+- Pre-task retrieval log — look for FAILURE-LIB bulletin entries
+  written by the orchestrator before spawn (e.g.
+  "[ORCHESTRATOR] FAILURE-LIB: entry found for server/routes/
+  pricing.js"). If no FAILURE-LIB entry exists in the bulletin,
+  the retrieval step was skipped — note this in the D4 evidence.
 - Post-session diff: did this session create a recurrence?
 - Failure record taxonomy class
 

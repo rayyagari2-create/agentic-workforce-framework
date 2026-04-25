@@ -33,7 +33,10 @@
  * Normalized internal framework context (returned by normalize()):
  *
  *   {
- *     sessionId:       <session_id>,
+ *     sessionId:       <session_id from Claude Code payload, or
+ *                       'session-id-unavailable' sentinel if absent —
+ *                       used for sidecar validation; if unavailable,
+ *                       manifest mtime check (60s window) is the gate>,
  *     taskId:          <extracted from [MANIFEST:<taskId>] in description, or null>,
  *     agentRole:       <tool_input.subagent_type>,
  *     rawDescription:  <tool_input.description>,
@@ -79,7 +82,9 @@ function normalize(payload) {
   const p = payload || {};
   const ti = p.tool_input || {};
   return {
-    sessionId: p.session_id,
+    // session_id from Claude Code payload. Used for sidecar validation.
+    // If unavailable, manifest mtime check (60s window) is the gate.
+    sessionId: p.session_id || "session-id-unavailable",
     taskId: extractTaskId(ti.description),
     agentRole: ti.subagent_type,
     rawDescription: ti.description,

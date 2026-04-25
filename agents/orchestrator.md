@@ -266,10 +266,23 @@ Step 2 — Compute promptHash via Bash:
   node -e "const c=require('crypto'),p=process.argv[1];process.stdout.write(c.createHash('sha256').update(p).digest('hex'))" "<spawn prompt text>"
   Capture the 64-char hex output.
 
-Step 3 — Write {path/to/manifests}/<taskId>.json via Write tool:
+Step 2b — Retrieve the current runtime session_id via Bash:
+  node -e "
+    const fs = require('fs');
+    const tp = process.env.CLAUDE_TRANSCRIPT_PATH || '';
+    const match = tp.match(/([a-f0-9-]{36})/);
+    if (match) process.stdout.write(match[1]);
+    else process.stdout.write('session-id-unavailable');
+  "
+  If session_id is unavailable, write 'session-id-unavailable' and
+  note in bulletin. The manifest mtime check (60-second window) is
+  the primary tamper-prevention mechanism. session_id is supplementary.
+
+Step 3 — Write {path/to/manifests}/<taskId>.json via Write tool, using
+         the retrieved session_id from Step 2b (not a generated UUID):
   {
     "taskId":       "<taskId matching your AgentTaskManifest>",
-    "session_id":   "<generated UUID>",
+    "session_id":   "<session_id from Step 2b, or 'session-id-unavailable'>",
     "subagent_type": "<one of your roster's role labels>",
     "riskLevel":    "<low | medium | high | critical — must match manifest>",
     "domains":      ["<exact/file/path/1>", "<exact/file/path/2>"],
@@ -280,6 +293,12 @@ Step 3 — Write {path/to/manifests}/<taskId>.json via Write tool:
     "promptHash":   "<64-char hex from Step 2>",
     "tool_use_id":  null
   }
+
+  NOTE: If session_id cannot be retrieved from the runtime environment,
+  the mtime freshness check (manifest must be under 60 seconds old)
+  remains the primary spawn gate. The session_id field is written as
+  'session-id-unavailable' and the hook skips the session_id match
+  check when this sentinel value is present.
 
 Step 4 — Append to bulletin:
   [YYYY-MM-DD HH:MM] [ORCHESTRATOR] SIDECAR: {path/to/manifests}/<taskId>.json written

@@ -33,6 +33,15 @@ Pre-spawn imposes a small upfront cost (seconds for LOW risk, hours
 for CRITICAL risk) to avoid much larger downstream costs (failed QA
 loops, rolled-back commits, escalation theater).
 
+> Implementation note: The full three-step protocol as specified
+> here is the framework target. Adopters may apply a streamlined
+> subset — for example, running Step 1 risk classification only for
+> tasks touching code, and skipping Step 2 /spec when acceptance
+> criteria are already well-established. The protocol scales to
+> the risk level: LOW-risk work may complete Steps 1-3 in under
+> three minutes. CRITICAL-risk work may take hours. The gradient
+> is intentional.
+
 ---
 
 ## The Three Steps
@@ -188,19 +197,6 @@ the gate at step 3.
 
 Gate types are detailed in `hitl-gates.md`.
 
-### Dependency Install Rule
-
-Adding, removing, or upgrading runtime or build dependencies is treated
-as MEDIUM risk by default and elevates to HIGH if the dependency is
-used in a HIGH-risk domain (auth, payment, schema, audit, public-API
-surface). HITL is required at HIGH; the manifest must list the package
-name, version, and reason. Transitive dependency upgrades through a
-lockfile-only operation follow the same rule.
-
-This rule exists because dependency changes are the most common silent
-risk amplifier a routine "bump versions" operation can move a
-project's effective trust posture without any visible behavior change.
-
 ### When a Boardroom Session is Required
 
 The Boardroom is the highest-cost gate. It is reserved for:
@@ -216,6 +212,26 @@ The Boardroom is the highest-cost gate. It is reserved for:
 Boardroom sessions are decision points, not status meetings. A
 Boardroom session that does not produce a recorded decision was not a
 Boardroom session.
+
+---
+
+## Dependency Install Rule
+
+Adding, removing, or upgrading runtime or build dependencies is
+treated as MEDIUM risk by default and elevates to HIGH if the
+dependency is used in a HIGH-risk domain (auth, payment, schema,
+audit, public-API surface).
+
+HITL is required at HIGH. The manifest must list the package name,
+version, and reason before installation begins.
+
+Transitive dependency upgrades through a lockfile-only operation
+follow the same rule.
+
+This rule exists because dependency changes are the most common
+silent risk amplifier — a routine version bump can shift a
+project's effective trust posture without any visible behavior
+change.
 
 ---
 

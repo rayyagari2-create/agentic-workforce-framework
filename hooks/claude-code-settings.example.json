@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/check-agent-spawn.example.js"
+            "command": "node .claude/hooks/check-agent-spawn.js"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/check-subagent-start.example.js"
+            "command": "node .claude/hooks/check-subagent-start.js"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/check-agent-spawn-result.example.js"
+            "command": "node .claude/hooks/check-agent-spawn-result.js"
           }
         ]
       }
