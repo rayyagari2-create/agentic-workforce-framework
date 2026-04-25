@@ -1,283 +1,317 @@
 # Hook System
 
-**OS-level enforcement for agent actions: PreToolUse, PostToolUse,
-fail-closed by default.**
+**OS-level enforcement: PreToolUse, PostToolUse, fail-closed, and the
+override pattern.**
 
-Hooks are the deterministic backstop. When higher layers fail —
-classification missed, gate skipped, manifest forgotten — hooks fire at
-the moment the agent attempts the action. They are the layer that
-makes "you cannot do that" mean cannot.
+Hooks are the deterministic backstop. Where the build state machine and
+HITL gates are policy, hooks are the wire fence. They run outside the
+agent process, so an agent cannot reason its way around them.
 
----
-
-## Why OS-Level
-
-Hooks live below the model. They run as small programs invoked at
-defined moments by the agent runtime. The model cannot persuade them.
-The agent cannot rewrite them. They produce binary outcomes — allow
-or block — regardless of how convincing the agent's reasoning is.
-
-This is the property that distinguishes the control plane from the
-operating model. Operating model rules can be argued with. Hooks
-cannot.
+A hook decision is binary: `exit(0)` allows the action; `exit(2)`
+blocks it. There is no soft-fail.
 
 ---
 
-## The Two Hook Points
+## The PreToolUse / PostToolUse Model
+
+The agent runtime invokes hooks at two moments per tool call:
 
 ```
-agent decides action ──► PreToolUse hook ──► action runs ──► PostToolUse hook
-                              │                                      │
-                              │                                      │
-                          allow / block                          audit / annotate
+        agent calls a tool
+                │
+                ▼
+       ┌─────────────────┐
+       │  PreToolUse hook │
+       │   exit(0) →      │ ─────► tool executes
+       │   exit(2) →      │ ─────► tool BLOCKED; agent receives error
+       └─────────────────┘
+                │
+                ▼ (only if PreToolUse passed)
+        tool runs to completion
+                │
+                ▼
+       ┌─────────────────┐
+       │  PostToolUse hook│
+       │   exit(0) →      │ ─────► result returned to agent
+       │   exit(2) →      │ ─────► result REJECTED; logged; agent receives error
+       └─────────────────┘
 ```
 
-### PreToolUse
+**PreToolUse** is the primary enforcement surface. It validates that
+the agent has the right to perform the action it just requested, given
+the current state of the bulletin, locks, manifest, and policy
+artifacts.
 
-Runs **before** an action executes. Receives the action description as
-input, exits with a status code. The runtime interprets the status
-code and either permits or blocks the action.
+**PostToolUse** validates the result. The most common case is
+verifying that an audit-relevant action (a write to a governance file,
+a commit attempt, a session-complete declaration) was accompanied by
+the required side effects (audit log entry, bulletin entry, QA
+verdict).
 
-Use cases:
-
-- Validate the action is permitted (e.g., file lock held, manifest
-  attached)
-- Enforce ordering rules (bulletin written before commit, lock
-  acquired before edit)
-- Check pre-task failure retrieval was performed
-- Block subagent spawning from within a subagent
-
-### PostToolUse
-
-Runs **after** an action completes. Cannot block the action that just
-ran, but can:
-
-- Write audit log entries
-- Annotate the action with metadata
-- Trigger follow-on checks (e.g., audit-write hook always runs after
-  any tool use)
-- Surface anomalies to the next PreToolUse
+Both can block. PreToolUse blocks an action before it happens;
+PostToolUse blocks a result from being returned and forces the agent
+to retry or escalate.
 
 ---
 
-## Exit Code Protocol
+## The exit(0) / exit(2) Protocol
 
-| Exit Code | Meaning |
-|---|---|
-| `0` | Allow — action proceeds |
-| `2` | **Hard block** — action does not run |
-| any other (1, 3, ...) | Treated as error → **fail-closed** → block |
+```
+exit(0)  →  ALLOW. Hook ran cleanly; no policy violation found.
+exit(2)  →  BLOCK. Hook ran cleanly; policy violation detected.
+exit(*)  →  BLOCK. Hook itself failed (parse error, missing dependency,
+            unhandled exception). Treated as exit(2) — fail closed.
+```
 
-This is non-negotiable. A hook that crashes does not allow the action;
-it blocks. The fail-closed default is what makes the system robust to
-hook bugs.
+There is no `exit(1)` for "warning" or "advisory." A hook that found
+something it did not like must block. If the policy itself is uncertain,
+the hook author has not written the policy correctly.
 
-### Why Fail-Closed
+### Why Two Exit Codes Only
 
-The alternative (fail-open: hook crashes → allow) treats the hook as
-advisory. That is what happens by accident in most agent systems:
-"the check broke, but the work still got through." This framework
-inverts the default — broken check stops the work.
+The temptation to add an "exit(1) = warn" path is exactly the failure
+mode the hook system exists to prevent. A warning that the agent can
+choose to ignore is not enforcement; it is decoration. Either the
+action is permitted or it is not.
 
-The cost is occasional false negatives (legitimate work blocked by a
-hook bug). The mitigation is the operator override pattern below.
+If the policy genuinely needs a "soft" path — for example, a deprecation
+that should warn now and block later — the right pattern is:
+
+1. Hook runs as `exit(0)` today
+2. Hook writes a `policy_violations` record with severity=WARN
+3. Operator monitors the WARN volume
+4. When ready, the hook is updated to `exit(2)` for the same condition
+
+The decision to upgrade WARN to BLOCK lives in policy, not in the hook
+exit code.
 
 ---
 
-## Standard Hook Inventory
+## Fail-Closed Design Principle
 
-The framework ships a sanitized set of hook examples in `hooks/`. Each
-covers a specific enforcement concern.
+**Every hook fails closed.** A read error, a parse error, an
+unexpected exception — any non-zero exit that is not the deliberate
+`exit(2)` — is treated as a block.
 
-### PreToolUse Hooks
+The reason is asymmetric cost:
+
+- **False positive (block when allow was correct):** annoying. The
+  human investigates, the override pattern (below) is available, the
+  policy may be refined. Cost is bounded.
+- **False negative (allow when block was correct):** the action that
+  should not have happened, happened. State is mutated. The audit
+  trail is missing the would-have-been block. Cost is unbounded.
+
+Fail-closed keeps the worse failure mode rare.
+
+The single exception in the current implementation is one
+known-fail-open path in `check-locked-states.js` when the locked-states
+file is unreadable. It is filed as a P2 in the evolution queue and is
+the kind of remediation work the hook system itself cannot prevent —
+it requires human attention.
+
+---
+
+## Override Pattern with TTL
+
+There must be a way to override a hook block without disabling the
+hook. Disabling is permanent and silent; override is bounded and
+visible.
+
+### The Override Marker
+
+```
+Path:       .control-plane/.override-active
+Format:     a single line containing an ISO 8601 timestamp
+Lifetime:   10 minutes from creation
+Authority:  any caller with a valid unexpired marker is granted override
+```
+
+A hook that finds the marker and validates the timestamp will allow the
+action it would otherwise block. The marker is consumed on use — every
+override is logged.
+
+### Override Properties
+
+1. **TTL is short by design.** 10 minutes is enough for a single
+   targeted action; not enough to forget the marker exists.
+2. **Scope is per-marker, not per-caller.** The marker grants override
+   to whatever action runs while it is active. This was a deliberate
+   correction from earlier designs that gated by caller type — caller
+   type was a worse signal than marker presence.
+3. **Every use is logged.** `audit/overrides.log` records the marker
+   creation, the action that triggered the hook, and the outcome.
+4. **The marker is in a control-plane directory** — agent processes
+   cannot create the marker themselves. Creating an override is a
+   human-only operation.
+
+### When to Use the Override
+
+The override exists for:
+
+1. Diagnosing a hook false-positive in real time (validate the
+   block, then refine the hook)
+2. Recovering from a state where a hook is blocking work that needs to
+   be done immediately for an unrelated reason
+3. One-off operations where the hook policy does not yet have a
+   structured exception path (and where the operation is too rare to
+   justify writing one)
+
+The override is **not** for:
+
+- Routine work that "the hook is annoying about." If the hook is
+  routinely annoying, the policy is wrong; refine the hook.
+- Bypassing pre-spawn protocol. The override does not grant a path
+  around the manifest requirement.
+- Skipping QA. A SESSION COMPLETE without QA PASS is blocked by the
+  hook layer; the override would log the bypass but the trust impact
+  remains.
+
+---
+
+## Degraded Mode Behavior
+
+When the runtime policy enforcement layer (the upstream policy SDK) is
+unavailable, the system falls back to OS-level hooks alone.
+
+### What Degraded Mode Looks Like
+
+```
+Normal:    Runtime policy layer (sub-ms) → hooks (defense in depth)
+Degraded:  hooks (now the only enforcement)
+```
+
+In normal operation, hooks are a backstop — most violations are caught
+upstream by the policy SDK. In degraded mode, hooks become primary.
+
+### Degraded Mode Rules
+
+1. **The fallback is automatic.** When the policy SDK does not
+   respond, the adapter logs the unavailability and routes enforcement
+   to the hook layer.
+2. **An alert fires.** Operators are notified that the upstream layer
+   is unavailable. Degraded mode is not a quiet state.
+3. **Hooks were designed assuming this.** The hook coverage is
+   intentionally redundant with policy SDK coverage for the highest-risk
+   actions (commits, audit writes, control plane edits).
+4. **Some checks may not be available.** Cryptographic identity checks,
+   for example, depend on the policy SDK. In degraded mode, the system
+   may have to refuse certain actions entirely rather than approve
+   without identity verification.
+
+The degraded mode rule is "fail safer, not faster." If a check cannot
+be performed, the action is blocked.
+
+---
+
+## Hook Categories
+
+Hooks group into five categories by what they enforce.
+
+### Category 1 — Bulletin and Audit
 
 | Hook | Enforces |
 |---|---|
-| `check-bulletin` | Bulletin write format and required fields |
-| `check-bulletin-order` | Append-only ordering — WORKING before DONE |
-| `check-lock` | File lock held before edit |
-| `check-locked-states` | Path-qualified locked region matching |
-| `check-failure-lib` | Pre-task failure retrieval performed |
-| `check-agent-spawn` | Spawn authorization — manifest attached, parent is orchestrator |
-| `check-orchestrator-edit` | Operator-zone directories (e.g., `.claude/`) protected from agent edits |
-| `check-git` | Git operations gated on appropriate authority |
+| `check-bulletin` | Bulletin write format is well-formed |
+| `check-bulletin-order` | Append-only ordering of bulletin entries |
+| `check-audit-write` | Audit log writes match the schema and signing requirement |
+| `audit-write` | Performs the audit write itself (called by other hooks) |
 
-### PostToolUse Hooks
+These hooks make the audit trail trustworthy. A malformed bulletin
+entry is rejected before it lands; an out-of-order entry is rejected;
+an audit write that does not carry a correlation ID is rejected.
 
-| Hook | Records |
+### Category 2 — Failure Library
+
+| Hook | Enforces |
 |---|---|
-| `audit-write` | Append-only audit log entry for every tool use |
+| `check-failure-lib` | Failure library writes match the FailureRecord schema |
 
-### Utility Hooks
+Bad data in the failure library degrades pre-task retrieval, which
+degrades pre-spawn classification, which degrades risk routing. The
+failure library is too load-bearing to allow malformed entries.
 
-| Hook | Purpose |
+### Category 3 — Locks and File Scope
+
+| Hook | Enforces |
 |---|---|
-| `override-pattern.example` | Operator override with TTL — fail-closed even when overriding |
-| `fail-closed-template.example` | Starting template for any new hook |
+| `check-lock` | An agent cannot edit a file it does not hold a lock on |
+| `check-locked-states` | Path-qualified enforcement of LOCKED-STATES (region-aware basename matching) |
 
-Implementations are example-only and use template placeholders. Your
-deployment substitutes paths and identifiers.
+These hooks prevent two agents from stepping on each other and
+prevent any agent from editing a region marked as locked by an
+operator decision.
 
----
+### Category 4 — Spawn and Authority
 
-## Hook Inputs and Outputs
-
-A PreToolUse hook receives a structured payload describing the action:
-
-```
-{
-  "tool": "Edit",
-  "params": { "file": "src/billing/invoice.ts", "..." : "..." },
-  "agent_id": "agent-fe",
-  "session_id": "...",
-  "manifest_id": "...",
-  "correlation_id": "..."
-}
-```
-
-The hook reads what it needs and exits. It may also write to:
-
-- The audit log (always — every hook decision is recorded)
-- A diagnostic log (optional — for hook debugging)
-
-A hook that mutates application state is doing too much. Hooks decide;
-they do not act on the world.
-
----
-
-## Operator Override
-
-Sometimes legitimate work is blocked by a false-positive. The override
-pattern provides an escape valve **without abandoning fail-closed.**
-
-### How Override Works
-
-1. The operator places an override marker (e.g., a sentinel file with
-   a TTL) in a designated location.
-2. Affected hooks check for the marker.
-3. If the marker exists and has not expired, the hook permits the
-   action.
-4. The override use is logged to the audit trail with the operator's
-   identity and the action that was permitted.
-5. The marker auto-expires after a short TTL (default 10 minutes).
-
-### Override Rules
-
-| Rule | Detail |
+| Hook | Enforces |
 |---|---|
-| TTL-bounded | No permanent overrides ever |
-| Audit on every use | Every action permitted by override is logged |
-| Subagents do not inherit | Override applies to the operator's actions, not to spawned agents acting on their own |
-| Single override at a time | Granular overrides preferred over broad ones |
-| Override use is a tracked metric | Frequent override is a signal to refine hooks, not a steady state |
+| `check-agent-spawn` | A spawn must reference a complete AgentTaskManifest |
+| `check-subagent-start` | Subagents may not spawn subagents |
+| `check-agent-spawn-result` | The spawn result is well-formed |
 
-### Why Subagents Do Not Inherit
+These are the hook-level expression of the pre-spawn protocol and the
+"orchestrator owns routing" invariant.
 
-If an override granted to the operator transitively applied to all
-spawned agents, the override would become a backdoor: spawn an agent
-during an override window, and the agent runs unchecked. The framework
-prevents this — the override checks the immediate caller's identity,
-not the session.
+### Category 5 — Git and Control Plane
 
-This rule is enforced in the override hook itself. See
-`hooks/utils/override-pattern.example.js` for the pattern.
-
----
-
-## Degraded Mode
-
-When the runtime that supports hooks is itself unavailable or
-malfunctioning, the framework enters **degraded mode**.
-
-### Degraded Mode Behavior
-
-- All higher-risk actions are blocked (default-deny)
-- LOW-risk actions may proceed if a fallback hook is available
-- The operator is alerted
-- A degraded-mode event is logged
-- No work moves to COMPLETE while degraded
-
-### Recovery
-
-Recovery is operator-initiated. The framework does not silently
-"recover" — every entry into and exit from degraded mode is logged
-and reviewed.
-
----
-
-## Hook Governance
-
-Hooks are themselves governance artifacts. They are also code, and
-therefore can have bugs. The framework treats them with the same
-discipline applied to any code path.
-
-| Rule | Detail |
+| Hook | Enforces |
 |---|---|
-| Hooks live in operator-zone | Agents cannot read or modify hooks |
-| Hook changes go through normal review | Manifest, QA, audit |
-| Hook bugs produce FailureRecords | Same lifecycle as any other defect |
-| New hooks start fail-closed | Use the template; do not invent your own default |
-| Hook performance is a tracked metric | A slow hook silently degrades agent throughput |
+| `check-git` | Git operations require explicit human authorization for commits to protected branches |
+| `check-orchestrator-edit` | The control plane directory is human-only — no agent edits |
+| `check-override` | Validates the override marker (TTL, log record) |
 
-A hook that is treated as "cannot be wrong" eventually is wrong, and
-when it fails, fails silently. The discipline above prevents that.
-
----
-
-## Hooks vs Runtime Policy Layer
-
-The framework's hook system is separate from a runtime policy layer
-(such as a runtime governance / identity / sandboxing layer in your
-infrastructure). They are complementary, not competing.
-
-| Layer | What It Governs |
-|---|---|
-| Runtime policy layer | What agents are permitted to do — identity, capabilities, network |
-| Hooks (this framework) | Whether the agent followed the operating model — manifest attached, bulletin written, lock held |
-
-Hooks operate at the action-level inside an agent session. The
-runtime policy layer operates at the agent-level — defining what
-the agent is allowed to attempt at all. Both are needed; neither
-replaces the other. See `docs/guides/runtime-policy-integration.md`.
+Category 5 protects the artifacts that the rest of the system depends
+on. An agent that could edit the control plane directory could disable
+its own enforcement; the hook prevents that class of failure
+categorically.
 
 ---
 
-## Hook Performance
+## Hook Governance Rules
 
-Hooks run synchronously on the agent's critical path. A 200ms hook
-multiplied by 50 actions per session is 10 seconds of overhead. Two
-slow hooks compound.
+These apply across all categories.
 
-Performance discipline:
-
-- Hooks should complete in ≤ 50ms typical, ≤ 200ms worst case
-- A hook that needs network access should fail fast on timeout
-- Database queries from hooks should be index-only
-- File-based reads should be small (line-by-line, not whole-file)
-
-A hook that exceeds these budgets is itself a candidate for FailureRecord.
+1. **All hooks are operator-zone.** They live in a control-plane
+   directory. Agents have no access to read or edit the hook source.
+2. **All hooks fail-closed.** Read or parse errors `exit(2)`, never
+   `exit(0)`. Repeated for emphasis because this is the most important
+   single rule.
+3. **Override marker grants any caller override access.** Scope is
+   controlled by TTL (10 minutes), not by caller type.
+4. **Every override is logged** to the override log on every use.
+5. **Hook updates require the same governance as control plane
+   changes.** A hook change is a CRITICAL-risk action — it touches the
+   enforcement layer. Boardroom session required.
 
 ---
 
-## Common Hook Mistakes
+## What Hooks Do Not Do
 
-| Mistake | Effect |
-|---|---|
-| Fail-open by accident — exit(0) on error path | The check silently doesn't run |
-| Mutating state inside a hook | Hooks should decide, not act |
-| Forgetting to audit override use | Backdoor with no record |
-| Subagent inherits override | Spawn-then-act bypass |
-| Slow hook with a critical-path query | Throughput degrades; pressure builds to disable hooks |
-| New hook without the fail-closed template | Drifts from the framework default |
+- **Hooks do not assess intent.** They check observable conditions
+  (manifest presence, lock ownership, format conformance). They do not
+  ask "is this the right thing to do."
+- **Hooks do not score.** Trust scoring belongs in the autonomy plane.
+  Hooks may flag a violation; the trust impact is computed by the
+  scoring layer.
+- **Hooks do not negotiate.** A hook cannot ask the agent to refine
+  and retry. It blocks; the agent's caller (the orchestrator or the
+  human) decides what to do.
+- **Hooks do not replace runtime policy.** When both layers are
+  available, runtime policy is primary; hooks are defense in depth.
+  Degraded mode inverts that, with the limitations noted above.
 
 ---
 
 ## Related
 
-- `docs/control-plane/audit-trail-patterns.md` — what hooks write to
-  the audit log.
-- `docs/control-plane/meta-governance.md` — "hook bypass via override"
-  is failure mode #3.
-- `docs/guides/runtime-policy-integration.md` — separation between
-  hook layer and runtime policy layer.
-- `hooks/` — sanitized example implementations.
+- `pre-spawn-protocol.md` — defines the manifest that
+  `check-agent-spawn` validates.
+- `build-state-machine.md` — defines the QA invariants
+  PostToolUse hooks enforce on session-complete.
+- `audit-trail-patterns.md` — defines the audit format that
+  `check-audit-write` enforces.
+- `hitl-gates.md` — defines the gate decisions that hooks check the
+  presence of.
+- `meta-governance.md` — addresses the hook false-positive failure
+  mode in the broader governance failure context.

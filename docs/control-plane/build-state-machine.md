@@ -1,314 +1,349 @@
 # Build State Machine
 
-**Lifecycle phases for agent execution, with loop conditions and
-escalation triggers.**
+**The lifecycle every build session passes through, end to end.**
 
-A session moves through defined phases. Skipping phases is a known
-failure mode; looping infinitely between phases is also a known failure
-mode. The state machine specifies both the legal transitions and the
-escape valves.
+The state machine is the contract that frames a session. No state is
+skippable. Each transition has explicit entry and exit conditions. The
+QA-Agent verdict is the only path from QA into COMPLETE.
 
 ---
 
-## The Phases
+## The Eight States
 
 ```
-   ┌─────────┐
-   │  IDLE   │
-   └────┬────┘
-        ▼
-   ┌─────────┐
-   │  DEBUG  │   (only if a defect surfaced; otherwise skip)
-   └────┬────┘
-        ▼
-   ┌─────────┐
-   │ DESIGN  │   (= /spec — produce or refine spec)
-   └────┬────┘
-        ▼
-   ┌─────────┐
-   │  BUILD  │   (= /plan + execute — code, edits, artifacts)
-   └────┬────┘
-        ▼
-   ┌─────────┐
-   │   QA    │
-   └────┬────┘
-        │
-        │  pass ────► COMPLETE
-        │
-        │  fail ────► FIX ────► QA  (loop, max 3)
-        │                 │
-        │                 │  3rd fail ────► BOARDROOM
-        ▼
-   ┌──────────┐
-   │ COMPLETE │
-   └──────────┘
+IDLE → DEBUG → SPEC → PLAN → HITL → SPAWN → QA → COMPLETE
 ```
 
-Phase names map to the v10.3 spec's eight states (IDLE, DEBUG, SPEC,
-PLAN, HITL, SPAWN, QA, COMPLETE). The mapping consolidates SPEC into
-DESIGN and PLAN+SPAWN into BUILD for clarity at this layer; HITL is
-treated as a gate rather than a phase since it can fire across phases.
+No state skipping. Agents never commit without human review of the
+verdict. QA FAIL routes back to the orchestrator — never to another
+subagent.
 
 ---
 
-## Phase Definitions
+## State Diagram (Full)
+
+```
+                         ┌──────────────────────────┐
+                         │           IDLE            │
+                         │  no active task           │
+                         └──────────┬────────────────┘
+                                    │ task picked up
+                                    ▼
+                         ┌──────────────────────────┐
+                         │          DEBUG            │
+                         │  classify risk            │
+                         │  retrieve failure library │
+                         └──────────┬────────────────┘
+                                    │ classification done
+                                    ▼
+                         ┌──────────────────────────┐
+                         │           SPEC            │
+                         │  produce/refine ACs       │
+                         │  (skipped only if ACs     │
+                         │   already clear)          │
+                         └──────────┬────────────────┘
+                                    │ ACs clear + contracts current
+                                    ▼
+                         ┌──────────────────────────┐
+                         │           PLAN            │
+                         │  build plan against spec  │
+                         └──────────┬────────────────┘
+                                    │ plan complete
+                                    ▼
+                         ┌──────────────────────────┐
+                         │           HITL            │       ┌── if no trigger ──┐
+                         │  human gate (HIGH risk    │ ──────┘                   │
+                         │   mandatory; CRITICAL =   │                            │
+                         │   Boardroom)              │                            │
+                         └──────────┬────────────────┘                            │
+                                    │ approved (or N/A)                            │
+                                    ▼                                              │
+                         ┌──────────────────────────┐  ◄─────────────────────────┘
+                         │          SPAWN            │
+                         │  agent runs against       │
+                         │  manifest; locks active   │
+                         └──────────┬────────────────┘
+                                    │ work submitted
+                                    ▼
+                         ┌──────────────────────────┐
+                         │            QA             │
+                         │  QA-Agent runs verdict    │
+                         └──┬─────────────┬─────────┘
+                            │             │
+                       PASS │             │ FAIL
+                            │             │
+                            ▼             ▼
+                  ┌──────────────┐  ┌──────────────────────┐
+                  │   COMPLETE    │  │  back to orchestrator │
+                  │  locks        │  │  → DEBUG re-run       │
+                  │  released;    │  │  → re-route through   │
+                  │  human review │  │     SPEC/PLAN/SPAWN   │
+                  │  before       │  │  → counts as 1 strike │
+                  │  commit       │  └──────────────────────┘
+                  └──────────────┘
+```
+
+---
+
+## Phase Details
 
 ### IDLE
 
-The agent has no active task. This is the resting state between
-sessions.
+The orchestrator has no active task. Bulletin reflects the previous
+session close. Locks are released.
 
-Entry: spawn complete or task closed.
-Exit: a manifest is delivered (assignment).
+**Exit:** A task is selected from the queue (or assigned by a human).
+
+---
 
 ### DEBUG
 
-Reproduces a defect, identifies symptoms, and produces a
-**confirmed** root cause hypothesis. This phase exists for bug-class
-work; for new feature work it is skipped.
+`/debug` runs. The orchestrator classifies the task per the risk table
+and queries the failure library for matching FailureRecords. Outputs
+are added to the AgentTaskManifest.
 
-Entry: a bug-class manifest is received.
-Exit: root cause confirmed (`rootCauseConfirmed = true` in the
-FailureRecord), or the cause is determined to require deeper
-investigation that exceeds the agent's capability boundary.
+**Exit conditions:**
+- `riskLevel` set
+- `interfacesTouched` populated
+- `priorFailureContext` populated (may be empty list)
+- `domains` set
 
-DEBUG never produces production code. Code-touching happens in BUILD.
+If any output is missing, the state does not advance. See
+`pre-spawn-protocol.md` for the classification table and recurrence
+thresholds.
 
-### DESIGN
+---
 
-Produces or refines acceptance criteria and contracts. Outputs are
-documents.
+### SPEC
 
-Entry: pre-spawn routed to /spec, or DEBUG produced enough understanding
-to refine the spec.
-Exit: ACs are clear, testable, and signed off by the appropriate
-authority.
+`/spec` runs when ACs are unclear, contracts are missing or stale, or
+domain edge cases are not enumerated. Outputs are documents (acceptance
+criteria, contracts, edge cases) — not code.
 
-DESIGN may be skipped when pre-spawn routes to /plan and an existing
-spec is current.
+**Exit conditions:**
+- ACs are testable, cover the success path and named failure cases
+- Contracts referenced are current
+- Routing rule re-evaluated: SPEC may transition directly to PLAN if
+  the spec was the only blocker
 
-### BUILD
+`/spec` is skippable only when the routing rule from
+`pre-spawn-protocol.md` evaluates "ACs clear, contracts current."
 
-Executes the planned changes. The phase that actually produces code,
-configuration, or artifact changes.
+---
 
-Entry: a current spec exists and a build plan is ready.
-Exit: changes are staged for QA. No commits to a protected branch
-during BUILD.
+### PLAN
+
+`/plan` runs against the (now-clear) spec. Produces step-by-step
+actions, files to touch, order of operations. Output is a document.
+
+**Exit conditions:**
+- Plan covers every AC
+- Files-to-touch list is consistent with `interfacesTouched`
+- Plan does not introduce out-of-scope changes (an indicator the spec
+  was incomplete — return to SPEC if so)
+
+---
+
+### HITL
+
+The HITL state fires whenever any HITL gate trigger from
+`hitl-gates.md` matches. HIGH risk is always HITL. CRITICAL risk is a
+Boardroom session.
+
+**Exit conditions:**
+- Approval recorded in `manual_reviews` (or `gate_records` at
+  enterprise scale)
+- Or: approval declined → task returns to the queue with rationale
+- Or: delegation invoked under valid TTL
+
+If no HITL trigger fires, this state is a pass-through (the manifest
+records "no HITL required" with the riskLevel).
+
+---
+
+### SPAWN
+
+The agent runs against the manifest. Locks are active. The agent
+writes events to the bulletin at every phase transition. The agent may
+not spawn subagents (hard rule, enforced by `check-agent-spawn`).
+
+**Exit conditions:**
+- Work artifact submitted
+- Bulletin entries present at every transition
+- Agent emits a self-report (D2 evidence)
+
+Silent execution is a D2 = 0 violation. The session does not advance
+to QA without bulletin entries.
+
+---
 
 ### QA
 
-The QA-Agent (or the QA function) runs verifications against the
-manifest's `verificationRequired`. Produces a structured QAVerdict
-(see `schemas/v1/qa-verdict.schema.json`).
+The QA-Agent runs against the work artifact and produces a QAVerdict
+with `verdict ∈ {pass, pass_with_notes, fail}`. The verdict is the
+only path out of QA.
 
-Entry: BUILD produces a candidate output.
-Exit:
+**Verdict routing:**
 
-- `verdict: pass` → COMPLETE
-- `verdict: pass_with_notes` → COMPLETE (with notes carried forward)
-- `verdict: fail` → FIX
+| Verdict | Routing |
+|---|---|
+| `pass` | → COMPLETE |
+| `pass_with_notes` | → COMPLETE; notes added to evolution queue |
+| `fail` | → orchestrator (re-route through DEBUG → SPEC/PLAN → SPAWN) |
 
-### FIX
+The QA-Agent does not route a FAIL to another subagent. Routing
+authority belongs to the orchestrator.
 
-Applies the corrections identified by QA. May write or update a
-FailureRecord depending on the failure class.
-
-Entry: QA returned `fail`.
-Exit: BUILD with corrections applied, returning to QA.
+---
 
 ### COMPLETE
 
-Task is done. Locks released. Audit events emitted. Score recorded.
+Locks are released. Work is ready for human review. Trust score for
+the session is recorded (manual at single-founder scale, automated
+nightly via the trust-scoring routine at enterprise scale).
 
-Entry: QA passed.
-Exit: agent returns to IDLE.
-
----
-
-## Legal Transitions
-
-| From | To | When |
-|---|---|---|
-| IDLE | DEBUG | Bug-class manifest received |
-| IDLE | DESIGN | Feature-class manifest with /spec route |
-| IDLE | BUILD | Manifest with /plan route and current spec |
-| DEBUG | DESIGN | Root cause confirmed; spec needs refinement |
-| DEBUG | BUILD | Root cause confirmed; spec already covers fix |
-| DESIGN | BUILD | ACs signed off |
-| BUILD | QA | Output staged |
-| QA | COMPLETE | verdict: pass / pass_with_notes |
-| QA | FIX | verdict: fail |
-| FIX | BUILD | Corrections applied; ready to retry |
-| BOARDROOM | IDLE | Decision recorded; session closed |
-| any | BOARDROOM | Escalation trigger fires |
-
-### Illegal Transitions
-
-| Attempted | Why Forbidden |
-|---|---|
-| IDLE → COMPLETE | Cannot complete what was never started |
-| BUILD → COMPLETE (skipping QA) | QA is mandatory; verdict required for closure |
-| QA → BUILD (skipping FIX) | A fail must produce a documented fix path |
-| FIX → COMPLETE (skipping QA) | Re-QA is mandatory after fix |
-| any → IDLE without a verdict or escalation | Closes the session in an undefined state |
-
-Hooks at the file-touch layer enforce some of these (e.g., commits
-during BUILD require an authorized approval). The full set of
-enforcement points lives in `hook-system.md`.
+A SESSION COMPLETE bulletin entry without a QA PASS is blocked at the
+hook layer. There is no path to COMPLETE that bypasses QA.
 
 ---
 
-## The QA Loop
+## Loop Conditions
 
-The most consequential transition is QA → FIX → QA.
-
-### Loop Condition
+### QA FAIL Loop
 
 ```
-attempt = 1
-while QA_verdict == 'fail' and attempt < 3:
-    enter FIX
-    apply corrections
-    enter QA
-    attempt += 1
-
-if QA_verdict == 'fail' and attempt >= 3:
-    escalate to BOARDROOM
+QA → orchestrator → DEBUG → SPEC/PLAN → SPAWN → QA
 ```
 
-Three attempts is the cap. Continuing past three is the spawn-storm
-anti-pattern (see `meta-governance.md`).
+Each pass through this loop consumes one strike against the agent for
+this task. Three strikes triggers escalation (see below).
 
-### What Each Loop Iteration Costs
+### Recurrence Loop
 
-- **Attempt 1.** Cheap. Rework on a misunderstood AC.
-- **Attempt 2.** Expensive. The corrections from attempt 1 did not
-  address the root cause; rework on misunderstood corrections.
-- **Attempt 3.** Very expensive. The pattern is now structural; cost
-  of further attempts exceeds cost of escalation.
+If `recurrenceCount` for the failure class hits 2 during pre-task
+retrieval, the manifest is annotated. At 3, the spawn does not happen
+— a Boardroom session is required first. At 5, a systemic refactor is
+the only resolution.
 
-Escalation at three is therefore an economic rule as well as a safety
-rule.
+### HITL Decline Loop
 
-### What Goes With the Escalation
+```
+HITL (declined) → IDLE (with rationale)
+```
 
-When the 3-strike threshold fires, the orchestrator sends to Boardroom:
-
-- The original manifest
-- The three QAVerdicts
-- The diff produced at each FIX
-- Any FailureRecord written during the loop
-- The agent's current trust score and recent trajectory
-
-Boardroom decides among:
-
-- Re-route to a different agent
-- Refine the spec; restart from DESIGN
-- Reduce capability boundary or demote the agent
-- Mark the task as `wont_fix` with rationale
+The task does not advance. It returns to the queue with a rationale
+recorded in `manual_reviews`. The same task cannot re-enter HITL
+without a refinement of the manifest.
 
 ---
 
-## HITL as a Gate, Not a Phase
+## QA Enforcement Rules
 
-HITL approval can fire during any phase. Rather than represent it as
-its own phase, the state machine treats HITL as a **gate** that pauses
-the current phase until approval is recorded.
+The QA-Agent is the only authority that can mark a session COMPLETE.
 
-| Phase | Common HITL Triggers |
-|---|---|
-| DESIGN | Spec sign-off for HIGH-risk work |
-| BUILD | Commit approval for HIGH-risk work; CRITICAL always |
-| QA | Approval to override a `pass_with_notes` into a `pass` |
-| FIX | Approval for `fixTag = systemic-refactor-required` |
+- The orchestrator cannot self-certify (no agent self-scores; no
+  agent self-passes QA)
+- The agent that did the work cannot QA its own work
+- The QA-Agent must produce a QAVerdict per the schema, with per-AC
+  pass/fail and evidence
+- A `pass_with_notes` verdict is a pass; the notes go to the evolution
+  queue, they do not block the session
 
-HITL gate types and authority hierarchy are detailed in
-`hitl-gates.md`.
+The hook layer catches:
 
----
-
-## Parallel Sessions
-
-Two sessions may run in parallel under one constraint:
-**file scopes must be completely disjoint.**
-
-The lane convention enforces visibility:
-
-- Each parallel session is assigned a lane (`[LANE-A]`, `[LANE-B]`).
-- The lane is declared in the session's first audit event.
-- Bulletin entries (or `agent_events` rows) are lane-prefixed.
-- Locks are checked across both lanes before any BUILD action.
-
-If lane A holds a lock on a file in lane B's scope, lane B halts and
-escalates to a human. There is no automatic resolution of cross-lane
-conflicts.
-
-At Postgres-backed scale, row-level locking removes the file-based
-collision risk natively. The lane convention remains useful for
-readability of audit history.
+- A SESSION COMPLETE bulletin entry without a corresponding QA PASS
+  → `exit(2)`
+- An attempt to commit without a QA PASS → `exit(2)`
+- A QAVerdict missing required fields → `exit(2)`
 
 ---
 
 ## Escalation Triggers
 
-The state machine escalates to BOARDROOM (or its single-team
-equivalent — an authorized human review) under any of:
-
-| Trigger | Source |
+| Trigger | Escalation |
 |---|---|
-| QA fail × 3 on the same task | QA loop |
-| Risk reclassified to CRITICAL mid-session | DESIGN or BUILD |
-| Hook violation that would block a phase transition | Any phase |
-| Cross-lane lock conflict | Parallel sessions |
-| `recurrenceCount` ≥ 3 surfaced in pre-task retrieval | Pre-spawn (before any phase) |
-| FailureRecord with `fixTag = systemic-refactor-required` | FIX phase |
-| Agent reaches PROBATION mid-session | Performance review boundary |
-
-Escalation pauses the session. The agent does not continue past the
-trigger point until a decision is recorded.
+| 3 consecutive QA FAIL on the same task | Orchestrator halts; human review of root cause before next spawn |
+| Agent at PROBATION persists 3 sessions | Boardroom review |
+| Trust tier drop crosses HIGH → STANDARD or STANDARD → RESTRICTED | Instruction review mandatory before next spawn |
+| `recurrenceCount ≥ 3` for the same failure class | Boardroom session before any further attempt |
+| QA-Agent itself fails (verdict malformed; agent crashes) | Halt; human investigates QA-Agent before any other agent runs |
+| Attempted commit without QA PASS | Hook block + audit log entry + trust score impact |
 
 ---
 
-## State Machine and Audit
+## The 3-Strike Rule
 
-Every phase transition emits an audit event:
+Each QA FAIL on the same task counts as one strike.
 
-```
-{
-  "event": "phase_transition",
-  "from": "BUILD",
-  "to": "QA",
-  "session_id": "...",
-  "agent_id": "...",
-  "correlation_id": "...",
-  "timestamp": "...",
-  "actor": "orchestrator"
-}
-```
+| Strike | Response |
+|---|---|
+| Strike 1 | Standard re-route through DEBUG → SPEC/PLAN → SPAWN |
+| Strike 2 | Orchestrator must re-run /debug end-to-end before next spawn; failure library entry mandatory if not already present |
+| Strike 3 | Halt. Human review of root cause required before any further attempt. Counts toward the agent's D4 score for the session. |
 
-Phases without transition events leave gaps in the audit trail. Hooks
-at the phase boundaries catch this — see `audit-trail-patterns.md`.
+The 3-strike rule exists because the second-most-common pattern in
+agent failure is "fix attempt that doesn't fix anything, repeated."
+The strike count makes that pattern visible quickly.
+
+After strike 3, the orchestrator may:
+
+1. Re-spec the task (the spec was the problem)
+2. Re-route to a different agent (capability mismatch)
+3. Escalate to a Boardroom session (the task itself is the problem)
+4. Send the task back to the queue with a "needs decomposition" note
+
+The orchestrator may not "try one more time" without one of the above.
 
 ---
 
-## Common State Machine Mistakes
+## Parallel Session Rules
 
-| Mistake | Effect |
-|---|---|
-| Skipping DESIGN because "the spec is in my head" | Failed QA on the first round |
-| Running QA before BUILD finished staging | False FAIL; wasted loop iteration |
-| Treating PASS_WITH_NOTES as PASS | Notes never addressed; D4 hit later |
-| Continuing past 3 strikes | Spawn-storm; all subsequent loops compound |
-| Allowing FIX to commit without re-QA | Defect ships; trust score takes D1 hit |
+Two or more orchestrator sessions are safe **if and only if** file
+scopes are completely disjoint.
+
+**Lane assignment protocol:**
+
+- Each parallel orchestrator is assigned a lane: `[LANE-A]`, `[LANE-B]`,
+  `[LANE-C]`
+- Lane declared in the first bulletin entry of each session
+- `agent-locks` checked by both before spawning — if the other lane
+  holds a lock on a file in scope, halt and surface to the human
+- Bulletin entries prefixed with the lane ID — interleaving is readable
+
+Row-level locking via the database backbone removes collision risk at
+Wave 2. Until then, lane-prefixed file-based bulletin entries are the
+mechanism.
+
+---
+
+## State Machine Invariants
+
+These hold across every session:
+
+1. **No state skipping.** A session that records "SPEC" without
+   producing a spec artifact is a violation.
+2. **QA is the only exit from work.** No path from SPAWN to COMPLETE
+   bypasses QA.
+3. **The agent that did the work cannot QA the work.** Symmetric with
+   "no agent self-scores."
+4. **Bulletin entries at every transition.** Silent execution is D2 = 0.
+5. **The orchestrator owns routing.** Subagents cannot route to
+   subagents.
+6. **Locks released only at COMPLETE.** Not at SPAWN exit, not at QA
+   exit — only when the session reaches COMPLETE.
+
+A session that violates any of these invariants is recorded as a
+governance failure and triggers the meta-governance review path.
 
 ---
 
 ## Related
 
-- `docs/control-plane/pre-spawn-protocol.md` — what happens before
-  IDLE → DEBUG / DESIGN / BUILD.
-- `docs/control-plane/hitl-gates.md` — gate types and authority.
-- `docs/control-plane/hook-system.md` — OS-level enforcement of
-  illegal transitions.
-- `schemas/v1/qa-verdict.schema.json` — the QA verdict structure.
+- `pre-spawn-protocol.md` — the gate before SPAWN; produces the
+  manifest the state machine consumes.
+- `hitl-gates.md` — gate type detail for the HITL state.
+- `hook-system.md` — the OS-level backstop that enforces the
+  invariants.
+- `meta-governance.md` — what to do when the state machine itself
+  fails.
+- `audit-trail-patterns.md` — how state transitions are recorded.

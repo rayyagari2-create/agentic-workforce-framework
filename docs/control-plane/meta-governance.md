@@ -1,373 +1,333 @@
 # Meta-Governance
 
-**The eight failure modes of governance itself.**
+**The eight failure modes of governance itself, the recovery
+protocols, and the escape hatches.**
 
-A governance system can fail in two ways: failing to catch a problem,
-and being so heavy that the team works around it. This document
-enumerates the eight failure modes specific to governance, the
-anti-patterns that produce each, and the hierarchy of responses.
+The most important question for any enterprise governance system is
+*what happens when the governance system breaks?* This document is the
+answer.
 
-This is the answer to the most important question about any governance
-framework: **what happens when your governance system breaks?**
-
----
-
-## Why Meta-Governance Exists
-
-Governance frameworks tend to assume their own correctness. They
-specify how agents must behave; they rarely specify what to do when
-the governance layer itself becomes the problem.
-
-The 8 failure modes below are the patterns observed across agent
-systems, including the reference implementation behind this framework.
-Each has a detection signal and a response. Together they form a
-discipline of watching the watchers.
+If governance can fail silently, it is not governance — it is theatre.
+If it can fail loudly but not be recovered from, it becomes a liability.
+The framework treats meta-governance as a first-class concern, and
+this document specifies the failure modes, the detection signal for
+each, the response, and the bounded escape hatches.
 
 ---
 
-## The Eight Failure Modes
+## The Eight Failure Mode Classes
 
-| # | Mode | One-line summary |
-|---|---|---|
-| 1 | Governance Theater | Approvals without scrutiny; ceremony without effect |
-| 2 | Score Inflation | All scores drift upward; band loses meaning |
-| 3 | Hook Bypass via Override | Override used routinely instead of exceptionally |
-| 4 | Silent Audit Suppression | Events not logged because logging "broke" |
-| 5 | Role Drift | Agents acting outside their instruction file |
-| 6 | Agent Spawn-Storm | Cascading subagent creation without checks |
-| 7 | Manifest Skipping | Tasks dispatched without manifests |
-| 8 | Recurrence Overlooked | Same failure repeats; library not consulted |
+Each row is a class of failure that the governance system itself can
+exhibit. Rows are not anti-patterns of the agents — they are
+anti-patterns of the governance layer.
 
-Each is detailed below.
+| # | Failure Mode | Detection | Response |
+|---|---|---|---|
+| 1 | Authority unavailable to score | Sessions accumulate without trust score update | Chief-of-Staff Agent flags in next session; scores batch-assigned on return |
+| 2 | D1-D4 score inconsistency over time | Confidence band LOW + recency weight drift | Trust-scoring routine flags anomalies; calibration review triggered |
+| 3 | Failure record root cause wrong | Same failure class recurs after "resolved" | `recurrenceCount` increments → auto-escalation catches it |
+| 4 | Pre-spawn protocol produces wrong recommendation | QA fails post-spawn | Fix-Agent writes FailureRecord; `/debug` re-run mandatory before next spawn |
+| 5 | Trust score drives wrong autonomy gate | Agent at HIGH causes regression | D4 = 0 that session; trust tier drops; instruction review mandatory |
+| 6 | Runtime policy too restrictive | Legitimate agent action blocked | Shadow mode diagnostic; policy refined in `agent_policies` table |
+| 7 | Parallel session bulletin collision | Interleaved bulletin entries | Lane-prefix convention; database-backed bulletin permanent fix |
+| 8 | Hook false-positive blocks legitimate work | Agent stopped on a non-locked file | Override marker (TTL 10 min); override logged to audit |
 
----
-
-## 1. Governance Theater
-
-**Symptom:** HITL approvals are happening but reviewers are not
-actually reviewing. Rationales are boilerplate. Approval timestamps
-correlate with end-of-day rather than with the action.
-
-**Anti-pattern:** "I trust this agent, just approve."
-
-**Detection:**
-
-- Reviewer approves > 95% of HITL gates with the same one-line
-  rationale.
-- Approval-to-incident correlation is zero.
-- Reviewers do not catch issues that are visibly in the diff.
-
-**Response:**
-
-- Sample 10% of approvals weekly; do a real review afterward.
-- If the sample reveals issues that the original review missed, the
-  gate is theater.
-- Either remove the gate (it isn't catching anything) or escalate
-  reviewer authority to someone with capacity.
-- A theater gate is worse than no gate — it produces false confidence.
+These eight are not exhaustive. They are the eight that have been
+observed in practice often enough to warrant explicit recovery
+protocols. New failure modes are added to this table when they are
+observed, with the detection signal and response defined before the
+next session in which they could recur.
 
 ---
 
-## 2. Score Inflation
+## Anti-Patterns of the Governance Layer
 
-**Symptom:** D1-D4 averages drift upward across the team over time.
-Confidence band moves into HIGH faster than evidence warrants.
+These are the failure modes restated as the patterns to avoid.
 
-**Anti-pattern:** "Everyone is doing well; 25 across the board."
-
-**Detection:**
-
-- Mean score across the team trends upward for 10+ sessions
-- D4 = 25 in nearly every session despite recurrences in the failure
-  library
-- Calibration spot-check vs anchor table reveals systematic
-  over-scoring
-
-**Response:**
-
-- Recalibrate against `calibration/d1-d4-rubric.md` anchor examples.
-- Walk through three recent sessions; rescore using the rubric.
-- If the rescored values differ by ≥ 5 points on average, calibration
-  drift is confirmed.
-- Update scoring discipline; notify the scorer; spot-check follow-up
-  sessions.
-
----
-
-## 3. Hook Bypass via Override
-
-**Symptom:** The operator override marker is being placed routinely.
-Override events appear in the audit log every session, not occasionally.
-
-**Anti-pattern:** "The hook keeps blocking; I'll just override."
-
-**Detection:**
-
-- Override events ≥ 1 per session, sustained
-- Same hook overridden repeatedly — indicates a hook bug or a workflow
-  gap
-- Override applied broadly rather than narrowly
-
-**Response:**
-
-- Investigate the hook that is being overridden. If it is producing
-  false-positives, fix the hook.
-- If the hook is correct and the workflow is the problem, fix the
-  workflow.
-- If neither is the case, the override is the problem. Tighten override
-  scope (TTL, target hooks, narrower conditions).
-- Track override frequency as a quarterly metric. Trending up is the
-  signal to act.
-
----
-
-## 4. Silent Audit Suppression
-
-**Symptom:** Audit log gaps. Events that should be present are not.
-The team explains "the logger had an issue."
-
-**Anti-pattern:** "We'll just retry without the audit; it won't matter
-this time."
-
-**Detection:**
-
-- `audit-write` PostToolUse hook reports failures
-- Correlation IDs in the trust ledger have no matching audit events
-- Phase transitions visible in the bulletin have no audit row
-
-**Response:**
-
-- The audit log is the source of truth for "what happened." Gaps are
-  not tolerable.
-- Treat any silent audit suppression as a P1 incident — write a
-  FailureRecord with `failureClass: data_loss`.
-- Restore audit completeness before any further work proceeds.
-- If the underlying cause is the audit infrastructure (storage,
-  network), this is a degraded-mode condition. See
-  `hook-system.md`.
-
----
-
-## 5. Role Drift
-
-**Symptom:** An agent is acting outside its instruction file. A
-QA-Agent is writing code; an executor is making routing decisions; an
-orchestrator is editing hooks.
-
-**Anti-pattern:** "It was the closest agent, so I asked it to do this
-adjacent thing."
-
-**Detection:**
-
-- Files modified by an agent fall outside its declared capability
-  boundary
-- An agent's bulletin entries describe activities not in its
-  instruction file
-- Trust score average for the agent diverges from the score for its
-  declared role
-
-**Response:**
-
-- Stop the agent. Read the instruction file.
-- If the activity is genuinely required, change the instruction file
-  through the normal Evolution process (human-approved, separate
-  session).
-- If the activity was role drift, write a FailureRecord with
-  `failureClass: truth_ownership`. The drift is a specific failure
-  class, not a "general issue."
-- Capability boundary breach is a Boardroom-level event if it
-  recurs.
-
----
-
-## 6. Agent Spawn-Storm
-
-**Symptom:** Cascading subagent creation. One agent spawns another to
-handle a sub-task; that agent spawns another; total session depth
-exceeds 2 levels.
-
-**Anti-pattern:** "Let me have this agent spawn a helper to do that
-part."
-
-**Detection:**
-
-- `check-agent-spawn` hook firing on subagents (subagents may not
-  spawn)
-- Audit log shows spawn events nested 3+ levels deep
-- Session correlation IDs branching uncontrollably
-
-**Response:**
-
-- Subagents cannot spawn subagents. This is enforced at the hook
-  layer (`check-subagent-start`).
-- A spawn-storm is a sign that work was decomposed wrong. Re-plan at
-  the orchestrator level rather than letting subagents subdivide.
-- If the workload genuinely needs deeper decomposition, restructure
-  with multiple sequential spawns from the orchestrator, not with
-  nested spawns.
-
----
-
-## 7. Manifest Skipping
-
-**Symptom:** Tasks dispatched without an `AgentTaskManifest`. The
-agent is told what to do in a chat message; no manifest exists.
-
-**Anti-pattern:** "It's a quick task; manifest is overhead."
-
-**Detection:**
-
-- `check-agent-spawn` hook reports missing manifest
-- Audit log has session events with no associated `taskId`
-- QA-Agent has no acceptance criteria to verify against
-
-**Response:**
-
-- No manifest, no dispatch. This is a hard rule.
-- "Quick task" is the most common rationalization for skipping. The
-  manifest for a quick task is short. It is still required.
-- Backfilling a manifest after the fact is permitted but logged as a
-  process violation. Do this only when the spawn already happened
-  and stopping mid-action would lose more than the violation costs.
-
----
-
-## 8. Recurrence Overlooked
-
-**Symptom:** A failure recurs and nobody notices. The failure library
-contains a record for the same pattern; pre-task retrieval did not
-surface it.
-
-**Anti-pattern:** "Pre-task retrieval is too slow; we'll skip it for
-now."
-
-**Detection:**
-
-- New FailureRecord matches an existing one on (`failureClass`,
-  `domain`, files) but `recurrenceCount` is 1
-- The matching record exists but was not in `priorFailureContext`
-- D4 = 25 was scored despite a known pattern repeating
-
-**Response:**
-
-- Audit pre-task retrieval logs. Was retrieval performed? Did it
-  return results?
-- If retrieval was skipped: hook violation, FailureRecord, retraining.
-- If retrieval ran but missed the match: classifier or query is
-  broken; tighten matching rules.
-- Recurrences that were overlooked must be reclassified retroactively
-  with the correct `recurrenceCount`.
-
----
-
-## Anti-Patterns Cross-Reference
-
-Anti-patterns recur across the failure modes. Watch for these phrases:
-
-| Phrase | Suggests |
+| Anti-Pattern | Why It Is Dangerous |
 |---|---|
-| "Just approve" | Mode 1 — Governance Theater |
-| "Everyone scored 25" | Mode 2 — Score Inflation |
-| "I'll just override" | Mode 3 — Hook Bypass |
-| "The logger had an issue" | Mode 4 — Audit Suppression |
-| "It's the closest agent" | Mode 5 — Role Drift |
-| "Spawn a helper" | Mode 6 — Spawn-Storm |
-| "Manifest is overhead" | Mode 7 — Manifest Skipping |
-| "Retrieval is too slow" | Mode 8 — Recurrence Overlooked |
+| Approval theater | Approver signs without scrutiny — the audit trail records "reviewed" but the human did not actually decide |
+| Score inflation | All sessions get high D1-D4 because the human does not want to seem critical — the autonomy gate signal degrades |
+| Failure library overgeneralization | Vague failure entries match too broadly; pre-task retrieval becomes noise |
+| Hook bypass via "just this once" | The override pattern was used for routine work; it stops being an exception |
+| Pre-spawn becoming ceremony | The protocol is run but the outputs are not used to refine the manifest |
+| Trust score and capability boundary out of sync | Agent at HIGH tier with a capability boundary that no longer matches its role |
+| Ungoverned governance changes | Hook updates, policy edits, and audit format changes applied without HITL — the enforcement layer drifts |
+| "We'll add the audit log entry later" | A control plane action without immediate audit is unrecoverable; the trail can never be reconstructed |
+| Treating shadow mode as the destination | Runtime policy stays in shadow forever because enforcement is "scary"; the system runs without enforcement indefinitely |
 
-These are observed phrases, not strawmen. Each is the natural argument
-that produces the corresponding failure mode.
+The single most common anti-pattern across all categories is **using
+the existence of a control instead of the result of a control**. A
+hook that always fires `exit(0)` is not a hook. A HITL gate that is
+always approved is not a gate. A trust score that does not vary is
+not a score.
 
 ---
 
 ## Enforcement Hierarchy
 
-When a meta-governance failure is detected, the response follows a
-hierarchy:
+When a governance failure is detected, the response escalates through
+a fixed hierarchy. Each level has explicit authority and explicit cost.
 
 ```
-LAYER 1 — TIGHTEN THE OPERATING DISCIPLINE
-   (recalibration, instruction update, training)
-       ↓ if persists
-LAYER 2 — TIGHTEN THE SCHEMA OR HOOK
-   (add a check that catches the specific failure)
-       ↓ if persists
-LAYER 3 — REDUCE SCOPE OR DEMOTE
-   (smaller capability boundary, lower trust tier)
-       ↓ if persists
-LAYER 4 — BOARDROOM REVIEW
-   (instruction rewrite, retirement, structural change)
+LEVEL 1 — Automated correction
+   Trust tier drop, hook block, recurrence flag
+   No human intervention; logged to audit
+
+LEVEL 2 — Operator review at next session
+   Chief-of-Staff Agent surfaces the issue
+   Operator decides on instruction refinement, capability boundary
+   change, or no action
+
+LEVEL 3 — Boardroom session
+   Triggered by 3+ session probation, recurrence ≥ 3, control plane
+   change, or cross-team CRITICAL
+   Decision is recorded; outcome is one of: instruction rewrite,
+   capability boundary reduction, agent retirement, or escalation
+
+LEVEL 4 — Compliance / risk escalation
+   Triggered when a governance failure has produced an externally
+   visible incident (regulatory, customer, contract)
+   Outside the scope of the framework; the framework provides the
+   audit trail evidence for the external process
 ```
 
-Each layer is more disruptive than the prior. Apply the cheapest layer
-first; escalate only when the cheaper layer fails.
+Levels 1–3 live inside the framework. Level 4 is the boundary at which
+the framework hands evidence to whatever external process exists at the
+host organization.
 
-The hierarchy is not "always apply layer 4." That is its own anti-pattern
-(over-correction creates governance theater of a different kind).
+---
+
+## Recovery Protocols
+
+### Trust Tier Degradation
+
+```
+1. Detect:    D4 = 0, or recurrenceCount ≥ 2
+2. Immediate: Trust tier drops one level automatically
+3. Review:    Orchestrator reads failure library before next spawn
+4. Persist:   If PROBATION persists 3 sessions → Boardroom review
+5. Boardroom: Either instruction rewrite, capability boundary
+              reduction, or retirement
+```
+
+Trust tier degradation is **automatic at step 2**. The human
+intervention is at step 3 (read the failure library) and step 5
+(Boardroom decision). Steps 1, 2, and 4 happen without human action.
+
+### Governance Data Loss
+
+The recovery path depends on the storage medium.
+
+```
+File-based (current):
+   Git history is the recovery path. All governance files committed.
+
+Postgres-backed (Wave 2):
+   Point-in-time recovery. Audit log is cryptographically chained —
+   cannot be silently corrupted.
+```
+
+Either way, the governance store is recoverable. The framework requires
+that the governance store live somewhere with point-in-time recovery
+or version history; in-memory or unversioned storage is not permitted.
+
+### Hook False-Positive
+
+```
+1. Detect:    Agent reports it cannot proceed on a file that should
+              be in scope
+2. Triage:    Operator examines the hook output
+3. Override:  If the action is correct, operator creates the override
+              marker (10-minute TTL)
+4. Log:       Override is recorded in the override log automatically
+5. Refine:    Hook is updated to handle the case; refinement happens
+              in a separate session, not under override pressure
+```
+
+The 10-minute TTL on the override marker is intentional. It is enough
+time to perform the immediate action. It is not enough time to forget
+the marker exists. Step 5 is mandatory — an override that is not
+followed by a hook refinement is a governance failure on its own.
+
+### Pre-Spawn Wrong Recommendation
+
+```
+1. Detect:    QA FAIL on a task that pre-spawn classified as LOW or
+              MEDIUM with high confidence
+2. Capture:   Fix-Agent writes a FailureRecord including the pre-spawn
+              classification and the actual outcome
+3. Re-run:    /debug must re-run end-to-end before the next spawn for
+              the same task; no "try one more time" without it
+4. Update:    The classifier inputs (file list, domain detection)
+              are reviewed; if a heuristic was wrong, it is updated
+5. Score:     The orchestrator's D1 takes a hit for the misclassification
+```
+
+This is the protocol for the most common single failure mode — the
+"the orchestrator was confident and wrong" case.
+
+### Runtime Policy Too Restrictive
+
+```
+1. Detect:    Legitimate agent action blocked by upstream policy SDK
+2. Diagnose:  Adapter logs the block with full payload; operator
+              reviews
+3. Decision:  Either (a) the action is genuinely blocked-correct and
+              the agent's plan was wrong, or (b) the policy is wrong
+4. Refine:    If (b), the policy is updated in agent_policies; the
+              update itself is a control plane change → HITL required
+```
+
+The refinement step requires HITL because policy changes are control
+plane changes. A policy change applied without HITL is itself a
+governance failure (failure mode #6's anti-pattern).
 
 ---
 
 ## Governance Escape Hatches
 
-Sometimes the operating model needs to be broken intentionally. A
-genuine emergency, a one-off corner case, a system that has not yet
-incorporated a new pattern. The framework permits this — but
-disciplines it.
+There are exactly three escape hatches built into the framework. They
+exist because the alternative (no escape) makes the framework
+brittle. They are bounded in scope and observable in use.
 
-### When to Break the Rule
+### Escape Hatch 1 — Hook Override Marker
 
-- Genuine production incident requiring action faster than gate
-  resolution
-- The framework has not yet handled this case (a known gap)
-- Operator judgment that the rule produces worse outcomes here
+**What:** A 10-minute TTL marker that grants override on any hook
+block.
 
-### How to Break the Rule
+**Bounded by:** TTL (10 minutes); single marker per active session;
+mandatory audit log entry on use.
 
-| Requirement | Detail |
-|---|---|
-| Rationale documented | Free-text, recorded in the audit log |
-| Audit log entry | Every escape-hatch use is logged with operator identity |
-| Time-bounded | The exception applies to this action, not to future actions |
-| Follow-up FailureRecord | Within 24 hours, write a record describing the gap |
-| Schema or hook update proposed | If this is a recurring case, the framework needs to absorb it |
+**When to use:** Diagnosing a false positive; recovering from a
+blocking state where the action genuinely needs to happen now.
 
-### What to Avoid
+**When not to use:** Routine work; bypassing pre-spawn; bypassing QA.
 
-- Repeated use of the escape hatch in the same shape — that is a
-  governance gap, not an exception
-- Escape hatch with no follow-up FailureRecord
-- Escape hatch invoked by an agent — only humans may break governance
-  rules; agents cannot
+The override does not weaken the audit trail — every override is
+logged. It creates a visible record that an exception was made.
 
-The escape hatch exists because rigid rules are themselves a failure
-mode. It is disciplined because undisciplined exceptions become the
-rule.
+### Escape Hatch 2 — Operator Reclassification (Upward Only)
+
+**What:** A human can override the orchestrator's risk classification.
+
+**Bounded by:** Upward only without justification (LOW → MEDIUM → HIGH
+→ CRITICAL); downward requires written rationale logged to audit.
+
+**When to use:** When the orchestrator has missed a domain dependency
+or a regulatory implication.
+
+**When not to use:** To "speed up" by downgrading. The downward path
+is heavily logged precisely because it is the dangerous direction.
+
+### Escape Hatch 3 — Boardroom Decision to Retire an Agent
+
+**What:** A Boardroom session can decide to retire an agent — remove
+it from active use, archive its instruction file, redirect work to
+other agents.
+
+**Bounded by:** Boardroom-level authority; recorded decision with
+rationale; cannot be reversed without another Boardroom session.
+
+**When to use:** PROBATION persists 3 sessions; capability boundary
+no longer matches role; the agent is not improving despite refinement.
+
+**When not to use:** As a substitute for instruction refinement. Most
+failing agents do not need to be retired; they need a better
+instruction set.
+
+These three escape hatches are the only ways out of the protocol once
+it is started. Adding a fourth requires a control plane change, which
+itself requires HITL — the constraint is recursive on purpose.
 
 ---
 
-## Watching the Watchers
+## Self-Reporting Protocol
 
-The team should review meta-governance signals quarterly:
+Agents are required to self-report. The protocol has three
+mandatory components.
 
-- Override frequency trend
-- Theater rate (gates that approved without catching anything)
-- Score inflation rate (mean drift over rolling window)
-- Audit log completeness
-- Manifest coverage
-- Recurrence detection rate
+### Mandatory Bulletin Writes
 
-Each becomes a leading indicator. A trend going wrong on one of these
-is a much earlier signal than waiting for an incident to occur.
+Every agent writes to the bulletin at every phase transition. Silent
+execution is a D2 = 0 violation. The bulletin is the primary
+observability channel for the agent's reasoning state.
+
+A bulletin entry includes:
+
+- The agent's identity (`agent_instance_id`)
+- The phase transition (`from_state` → `to_state`)
+- The artifact produced (link or content reference)
+- A timestamp
+- A correlation ID
+
+A phase transition without a bulletin entry is treated as if the
+transition did not happen — the next hook check that depends on the
+state being current will block.
+
+### SESSION COMPLETE Blocked Without QA PASS
+
+The agent cannot declare a session complete without a corresponding
+QA-Agent verdict of `pass` or `pass_with_notes`. This is enforced at
+the hook layer:
+
+```
+PostToolUse on SESSION COMPLETE:
+   - Verify QAVerdict exists for the session
+   - Verify QAVerdict.verdict ∈ {pass, pass_with_notes}
+   - If either check fails: exit(2) and log the attempt
+```
+
+This is the single most important self-reporting rule. An agent that
+could declare itself done without independent verification could
+silently bypass the entire QA layer.
+
+### Evolution Queue Writes
+
+Findings, observations, and "this is working but could be better"
+notes that the QA-Agent records as `pass_with_notes` are written to
+the evolution queue. The queue is reviewed periodically (typical:
+weekly) by an authorized human, and items are either:
+
+- Promoted to a task and routed through pre-spawn
+- Marked as accepted-as-is (with rationale)
+- Rejected (with rationale)
+
+The evolution queue is the place where "we noticed this but it's not
+urgent" lives. Without it, observations either get lost or get
+escalated as urgent — both are failure modes.
+
+---
+
+## When Meta-Governance Itself Fails
+
+The recursive question is: what happens when the meta-governance
+system fails — when a governance failure is not detected, or is
+detected but the response is not executed?
+
+The framework's answer is that meta-governance failures are
+**externally visible**. The audit trail is append-only and
+cryptographically chained (Wave 2). A governance failure that is not
+detected internally will be visible to any external party reviewing
+the audit trail — typically during a compliance review, an incident
+investigation, or a post-mortem.
+
+This is the explicit boundary of the framework: it does not claim
+that nothing can go wrong. It claims that anything that goes wrong
+**leaves a trail**. The trail is the precondition for any external
+recovery process.
 
 ---
 
 ## Related
 
-- `docs/operating-model/incident-management.md` — the incident flow
-  for failures (including governance failures).
-- `docs/control-plane/hook-system.md` — fail-closed defaults and
-  override pattern.
-- `calibration/anti-patterns.md` — scoring-specific anti-patterns
-  (overlap with mode 2).
-- `docs/control-plane/audit-trail-patterns.md` — the log that detects
-  several of these modes.
+- `pre-spawn-protocol.md` — failure mode #4 lives here
+- `build-state-machine.md` — failure modes #4, #5, #7 manifest in the
+  state machine
+- `hitl-gates.md` — failure modes #1, #5 manifest at gates
+- `hook-system.md` — failure mode #8 lives here; the override pattern
+  is detailed there
+- `audit-trail-patterns.md` — the trail that makes every failure
+  externally observable
+- `compliance-evidence.md` — what the audit trail provides to
+  external compliance frameworks

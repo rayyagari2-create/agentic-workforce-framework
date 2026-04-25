@@ -1,320 +1,363 @@
 # Audit Trail Patterns
 
-**Append-only design, event sourcing path, before/after state capture,
-correlation ID threading.**
+**Append-only design, before/after state capture, correlation IDs,
+event sourcing path, and the immutable-fields rule.**
 
-The audit log is the framework's foundation for accountability. If
-the log is incomplete, governance is opinion. If the log is mutable,
-governance is whatever someone decided to remember. This document
-specifies the discipline that keeps the log usable.
+The audit trail is the foundation everything else in the control plane
+sits on. Pre-spawn produces records, the state machine emits
+transitions, gates write decisions, hooks log overrides — all of it
+lands in a single append-only stream that can never be mutated.
 
----
-
-## The Single Property That Matters
-
-**Append-only.** Once an event is written, it cannot be modified or
-deleted.
-
-Every other property of the audit log derives from this one. Without
-append-only, the log is just another mutable record subject to drift,
-"corrections," and silent suppression. With append-only, the log is
-ground truth.
-
-### What Append-Only Forbids
-
-- `UPDATE` on existing rows
-- `DELETE` on existing rows
-- "Correction" by writing a corrected version of an old event without
-  preserving the original
-- Bulk archival that removes events from query
-- Soft-delete (a flag that hides events from default queries)
-
-If a fact in the log is wrong, the response is to write a new event
-that supersedes it — preserving the original. The original is part of
-the historical record.
-
-### What Append-Only Permits
-
-- INSERT, always
-- Read, always
-- Cryptographic chaining (each event references the prior event's
-  hash)
-- Partitioning for performance (newer events in hot partition; older
-  events in cold storage that is still queryable)
+If the audit trail can be silently rewritten, every other guarantee in
+this framework is a guess.
 
 ---
 
-## What Goes In the Log
+## Append-Only Design
 
-The audit log captures:
-
-- **Tool use events.** Every PreToolUse and PostToolUse hook fires;
-  every action that ran or was blocked.
-- **Phase transitions.** Build state machine moves (DEBUG → DESIGN →
-  BUILD → QA → COMPLETE).
-- **Gate events.** HITL approvals, delegations, escalations, denials.
-- **Spawn events.** Agent creation, with parent/child relationships.
-- **Trust score changes.** Tier promotions and demotions.
-- **FailureRecord lifecycle.** Created, status changes, closed.
-- **Override events.** Operator overrides, with TTL and rationale.
-- **Lifecycle events.** Agent onboarding, restriction, retirement.
-- **Policy violations.** From the runtime policy layer if integrated.
-
-Each event has the same minimal envelope (below).
-
----
-
-## The Event Envelope
-
-Every audit event includes:
+The audit log is **append-only**. There is no `UPDATE`. There is no
+`DELETE`. The only operation is `INSERT`.
 
 ```
-{
-  "event_id":       "ULID — unique, monotonic",
-  "event_type":     "phase_transition / spawn / gate / ...",
-  "timestamp":      "ISO 8601",
-  "actor_id":       "agent ID or human user ID",
-  "actor_type":     "agent / human / service",
-  "session_id":     "session this event belongs to",
-  "correlation_id": "groups related events across components",
-  "before_state":   "captured state before this event (for mutations)",
-  "after_state":    "captured state after this event",
-  "rationale":      "free text — required for some event types",
-  "prev_event_hash": "(optional) cryptographic chain reference"
-}
+audit_log:
+  Operations permitted:  INSERT
+  Operations forbidden:  UPDATE, DELETE, TRUNCATE
+  Enforcement layer:     database role permissions + application
+                         layer + hook layer
 ```
 
-Some fields are required for all events (`event_id`, `event_type`,
-`timestamp`, `correlation_id`). Others are required for specific event
-classes (`rationale` for HITL approvals, `before_state` and
-`after_state` for status transitions).
+The append-only constraint is enforced at three layers because
+defense-in-depth is the only acceptable posture for an audit trail.
+
+### Layer 1 — Database Role Permissions
+
+The role used by application code to write the audit log has `INSERT`
+only. No `UPDATE`, `DELETE`, or `TRUNCATE` privilege. A row that lands
+cannot be removed by any code path the application has access to.
+
+### Layer 2 — Application Layer
+
+The audit-write helper is the only sanctioned path to the table. It
+validates the schema, attaches the correlation ID, and signs the
+entry (Wave 1 onward). No other code path may write to `audit_log`.
+
+### Layer 3 — Hook Layer
+
+`check-audit-write` validates every audit write attempt. A write that
+does not include a correlation ID, a `before_state` (when applicable),
+an `after_state`, an `actor_id`, and a timestamp is rejected at
+`exit(2)`.
+
+### What "Append-Only" Means at Different Storage Tiers
+
+| Storage Tier | Append-Only Mechanism |
+|---|---|
+| File-based (current single-workspace) | Files are git-committed; history is the recovery path; rewrite shows in `git log` |
+| Postgres (Wave 2+) | Database role + cryptographic chaining of audit entries |
+| Object store (export tier) | WORM bucket policy; immutable retention period |
+
+The mechanism varies; the property does not. An entry that has been
+appended cannot be silently removed at any tier.
 
 ---
 
 ## Before/After State Capture
 
-For any mutation event — a status change, a tier move, an assignment —
-the log captures the state before and after.
-
-### Why Both
-
-Capturing only "after" is insufficient. To audit "did this transition
-make sense?" you need to compare what was true with what became true.
-
-Example — a trust tier move:
+Every mutation to a governance-relevant entity must record both the
+before-state and the after-state. The mutation row in the entity table
+is paired with an audit row that captures the transition.
 
 ```
-{
-  "event_type": "trust_tier_change",
-  "before_state": {
-    "tier": "STANDARD",
-    "score": 86,
-    "n_sessions": 12,
-    "confidence_band": "MEDIUM"
-  },
-  "after_state": {
-    "tier": "HIGH",
-    "score": 92,
-    "n_sessions": 13,
-    "confidence_band": "MEDIUM"
-  },
-  "rationale": "Sustained ≥90 across last 5 weighted sessions.",
-  "actor_id": "operator-rayyagari"
-}
+audit_log entry (canonical fields):
+  id              UUID  (immutable, generated)
+  timestamp       TIMESTAMPTZ (immutable)
+  actor_id        UUID  (who initiated the action)
+  correlation_id  UUID  (threads through related entries)
+  entity_type     TEXT  (e.g. 'gate_records', 'agent_instances')
+  entity_id       UUID  (which row was mutated)
+  action          TEXT  ('CREATE' | 'UPDATE' | 'STATE_TRANSITION' | ...)
+  before_state    JSONB (the row state before mutation; NULL on CREATE)
+  after_state     JSONB (the row state after mutation)
+  signature       BYTEA (cryptographic signature, Wave 1+)
 ```
 
-A reviewer reading this can verify the rationale matches the data —
-that it was genuinely sustained, not a single-session jump.
+### Why Both States, Not Just the Diff
 
-### What to Snapshot
+A diff is reconstructable from `before_state` and `after_state`, but
+the reverse is not true — given a diff, you cannot validate the
+starting point was correct. Storing both states makes every entry
+self-contained.
 
-Snapshot only fields that changed and the fields needed to evaluate
-the change. Snapshotting the entire record bloats the log and obscures
-what mattered.
+If the table being audited is later corrupted or its schema migrated,
+the audit log still has the full picture of what happened, in the
+schema that was current at the time of the mutation.
+
+### When Before/After Capture is Required
+
+| Mutation Type | Before/After Required |
+|---|---|
+| `CREATE` (new row) | After only; before is `NULL` |
+| `UPDATE` (lifecycle field change) | Both required |
+| `STATUS_TRANSITION` (e.g. PENDING → APPROVED) | Both required, full row |
+| Sensitive field update (trust score, capability boundary) | Both required, full row |
 
 ---
 
-## Correlation ID Threading
+## Correlation ID Pattern
 
-A correlation ID is a single value that follows a unit of work through
-every layer.
+Every action threads a correlation ID through every related entry.
 
 ```
-session starts                  →   correlation_id = corr-9X7
-  task assignment               →   corr-9X7 attached to manifest
-    pre-spawn protocol          →   corr-9X7 in pre-spawn audit events
-      agent spawned             →   corr-9X7 inherited
-        tool use #1             →   corr-9X7 in PreToolUse hook event
-        tool use #2             →   corr-9X7 in PreToolUse hook event
-        QA verdict produced     →   corr-9X7 attached
-      session scored            →   corr-9X7 in trust ledger
-    FailureRecord (if any)      →   corr-9X7 in failure record
-session closes                  →   corr-9X7 in close event
+A single user action that triggers:
+  1. A pre-spawn manifest write
+  2. A HITL gate fire
+  3. A gate decision
+  4. A spawn record
+  5. A state transition into SPAWN
+  6. A bulletin entry
+  7. A QA verdict
+  8. A state transition into COMPLETE
+
+…all carry the SAME correlation_id. Reconstruction of "what happened"
+is a single query: SELECT * FROM audit_log WHERE correlation_id = ?
 ```
 
-### Why Threading Matters
+### Correlation ID Properties
 
-Without correlation IDs, an audit log is a stream of events that no
-one can reconstruct into stories. With correlation IDs, you can ask
-"show me everything that happened in session corr-9X7" and get a
-complete, ordered narrative.
+1. **Generated at the entry point.** The orchestrator assigns the
+   correlation ID when it picks up the task. The same ID propagates
+   through every subsequent action.
+2. **Carried in every cross-component call.** When the orchestrator
+   spawns a subagent, the manifest carries the correlation ID; when
+   the QA-Agent fires, it inherits the ID; when the hook layer logs
+   an override, it logs against the same ID.
+3. **Externally visible in every record.** The correlation ID is a
+   first-class column in `audit_log`, `gate_records`,
+   `manual_reviews`, `agent_runs`, `agent_events`, and
+   `routine_runs`.
+4. **Never reused.** Each task gets its own correlation ID, even
+   re-runs of the same task after a QA FAIL.
 
-This is the property that makes the log **investigable**, not just
-recorded.
+### Threading Across Routines
 
-### Threading Rules
-
-| Rule | Detail |
-|---|---|
-| One correlation_id per session | Don't reuse across sessions |
-| Inherited by spawned agents | Subagent uses the parent's correlation_id |
-| Carried into FailureRecords | The record's `correlationId` field links to the session |
-| Carried into trust ledger | The session's score row references it |
-| Visible in QAVerdicts | Verdicts produced during the session reference it |
-
-A spawn that does not inherit the correlation_id breaks the thread.
-This is enforced — see the `check-agent-spawn` hook.
+Routines (the automation plane) carry their own correlation IDs.
+When a routine fires as a result of an upstream action (for example,
+a deploy verification routine fired by the deploy pipeline), the
+upstream correlation ID is recorded in `routine_runs` alongside the
+routine's own correlation ID. The audit trail can join across both.
 
 ---
 
 ## Event Sourcing Path
 
-The framework's design is event-sourcing-ready. State can be
-reconstructed by replaying events from the log.
+The current model is "operational tables + audit log" — operational
+tables hold current state; audit log holds the immutable history.
 
-### What "Event Sourcing Path" Means
+The Wave 3+ migration path is to **strict event sourcing**, in which
+operational tables become projections rather than primary storage.
 
-- Every state change emits an event before the change is reflected in
-  the application's primary state.
-- The primary state can be rebuilt by replaying the event stream from
-  the beginning.
-- New aggregates (or read models) can be added later by replaying the
-  same stream.
-
-### Why "Path" Rather Than "Pattern"
-
-Strict event sourcing — where every read goes through projections of
-the event log — is heavyweight. The framework's v1.0 design supports
-the path without mandating the destination.
-
-| Approach | When |
-|---|---|
-| **Operational tables with audit log** | v1.0 default. Tables hold current state; the log captures every change. |
-| **Strict event sourcing** | v3.0+ option. Tables become projections; events are the only source of truth. |
-
-The migration from approach 1 to approach 2 requires no schema
-rewrite — just a different read path. Because every state change
-already emits an event, the projections can be built from existing
-data.
-
-### Operational Lifecycle Mutability Rule
-
-To support the path while keeping operational tables practical, the
-framework defines a mutability rule:
+### Current Model
 
 ```
-Append-only applies to: audit_log, agent_events, and event-history tables.
+gate_records, agent_instances, work_queue_items
+   ↑ mutable lifecycle fields (status, resolved_at, ...)
+   │
+   └── every mutation emits an immutable audit_log event
+       containing before_state, after_state, actor_id, correlation_id
 
-Operational tables (e.g., work queue, agent instances, gate records)
-may update only specific lifecycle fields:
-  - status transitions
-  - resolved_at / closed_at / archived_at
-  - assigned_to / current_workspace
-  - updated_at
+audit_log
+   ↑ append-only forever
+```
 
-Identity and creation fields are immutable:
-  - id, tenant_id, created_at, registered_at, role_type
+The operational tables track current state directly. The audit trail
+gives the history. Reading current state is fast; reconstructing
+history requires a query.
 
-Every lifecycle update emits an audit_log event with:
+### Strict Event Sourcing (Wave 3+ Option)
+
+```
+audit_log (event store)
+   ↑ append-only forever; primary storage of state transitions
+
+operational tables become projections:
+   - Materialized views over audit_log
+   - Refreshed on every audit_log write
+   - Operational tables themselves become immutable
+   - Status transitions live in dedicated event tables
+```
+
+Strict event sourcing removes the operational mutability entirely.
+Every state of the system is a function of the audit log; the
+operational tables are caches.
+
+The migration is optional. The current model meets the audit
+requirements as long as the operational lifecycle mutability rule is
+followed (below). The benefit of strict event sourcing is reduced
+complexity around mutability rules; the cost is materialized view
+infrastructure.
+
+---
+
+## Operational Lifecycle Mutability Rule
+
+This is the rule that makes the current model work. It is stated
+verbatim because it is load-bearing.
+
+```
+Append-only applies to: audit_log, agent_events, and all event
+                        history tables.
+
+Operational lifecycle tables (work_queue_items, gate_records,
+agent_instances) may update LIMITED LIFECYCLE FIELDS only:
+
+  Permitted mutable fields: status, resolved_at, relieved_at,
+                            assigned_to, assigned_at, updated_at,
+                            current_workspace, operator_assignment,
+                            archived_at
+
+  Immutable fields:         id, tenant_id, workspace_id,
+                            registered_at, created_at, and all
+                            identity fields
+
+Every lifecycle update MUST emit an immutable event to audit_log
+containing:
   before_state, after_state, actor_id, correlation_id, timestamp
+
+This preserves full audit traceability without requiring strict event
+sourcing on all tables. If strict event sourcing is adopted in
+Wave 3+, operational tables become immutable and status transitions
+move to dedicated event tables.
 ```
 
-This is the practical compromise: operational ergonomics with full
-audit traceability.
+### What This Rule Permits
 
----
+The status of a work queue item moves from `CREATED` →
+`ASSIGNED` → `IN_PROGRESS` → `QA_IN_PROGRESS` → `COMPLETE` over the
+life of the work. The `status` column on the operational row mutates
+through these values. Each transition emits an audit log entry with
+before/after.
 
-## Replay
+### What This Rule Forbids
 
-Because the log is append-only and ordered, any state can be
-reconstructed by replaying.
+The `id` of a work queue item never changes. The `tenant_id` never
+changes. The `created_at` never changes. The `description` (the
+task definition) never changes. If the task needs to be redefined,
+a new row is created — the original is preserved with whatever final
+status it reached.
 
-### What Can Be Replayed
+### How It Is Enforced
 
-- An agent's trust trajectory across N sessions
-- A specific session's full execution sequence
-- The state of the failure library at any past timestamp
-- The set of permissions an agent held at any past moment
-- The chain of approvals leading to a specific commit
-
-### Replay Performance
-
-Replay is a read pattern. It does not require special infrastructure
-beyond the log itself, but it benefits from:
-
-- Indexes on `correlation_id`, `event_type`, `actor_id`
-- Partitioning by time (so replays of recent events are fast)
-- A "snapshot" pattern for very long-lived aggregates (snapshot at T,
-  replay only events after T)
-
-A team that has never needed to replay should expect to need it the
-first time something goes seriously wrong. The cost of preparing for
-replay is much smaller than the cost of not being able to.
-
----
-
-## Cryptographic Chaining (Optional)
-
-For higher-assurance deployments, each event references the prior
-event's hash:
-
-```
-event_n.prev_event_hash = sha256(event_(n-1) bytes)
-```
-
-This makes silent tampering detectable: changing event_(n-1) breaks
-the chain at event_n, which breaks the chain at event_(n+1), and so on.
-
-Chaining is optional in v1.0. It becomes important when the audit log
-itself must withstand insider threats or compliance scrutiny that
-demands tamper-evidence.
-
----
-
-## What the Audit Log Is Not
-
-- **Not a debug log.** Debug output goes elsewhere; the audit log is
-  for accountability events.
-- **Not a metrics store.** Aggregate metrics (latency, throughput) live
-  in a metrics system; the audit log records facts about specific
-  events.
-- **Not a UI substitute.** Reading the raw log is for forensics; the
-  Command Center (v3.0+) is for daily operation.
-
-Mixing these concerns produces a log that is too noisy for forensics
-and too narrow for observability. Keep them separate.
-
----
-
-## Common Audit Trail Mistakes
-
-| Mistake | Effect |
+| Layer | Mechanism |
 |---|---|
-| Mutating events to "correct" them | Breaks append-only; loses history |
-| Forgetting correlation_id on spawn | Thread breaks; replay fragments |
-| Snapshotting only "after" state | Cannot evaluate whether transition made sense |
-| Allowing the audit writer to fail silently | Failure mode #4 — silent audit suppression |
-| Mixing audit, debug, metrics in one log | Each becomes harder to query |
-| Bulk archival with deletion | Old incidents become uninvestigable |
+| Database | Triggers (or application contract) reject UPDATE on immutable columns |
+| Application | The mutation helper accepts only the permitted fields |
+| Audit | A mutation that lands without a corresponding audit log entry is detectable by reconciliation queries |
+| Hook | `check-audit-write` validates the audit entry's `before_state` matches the prior row state |
+
+---
+
+## Immutable Fields Rule (Per-Table Reference)
+
+Each governance table has an explicit immutable-fields list. The most
+common cases:
+
+| Table | Immutable Fields | Rationale |
+|---|---|---|
+| `audit_log` | All fields | Append-only by definition |
+| `agent_events` | All fields | Append-only by definition |
+| `agent_instances` | `id`, `tenant_id`, `role_type`, `original_workspace`, `agt_did`, `registered_at` | Identity must persist; trust history follows the instance |
+| `work_queue_items` | `id`, `workspace_id`, `tenant_id`, `created_at`, `title`, `description` | The task definition is what was assigned |
+| `gate_records` | `id`, `workspace_id`, `work_item_id`, `gate_type`, `risk_level`, `requested_by`, `created_at` | The gate was triggered for a reason; that reason is permanent |
+| `delegation_rules` | All fields | Delegation history is itself audit-relevant |
+| `failure_records` | `id`, `domain`, `failureClass`, `agentsInvolved`, `createdAt` | Recurrence detection requires stable identity |
+| `trust_scores` | `id`, `agent_id`, `session_id`, `scored_at`, all D1-D4 values | A score that can be rewritten is not a score |
+
+### Why Identity Fields Are Always Immutable
+
+Identity fields anchor the foreign-key relationships that make the
+audit graph navigable. If `agent_instances.id` could change, every
+historical reference to that agent in the audit log would become
+stale. The trust history that "follows the instance" only works
+because the instance's identity is permanent.
+
+The same logic applies to any table that participates in
+correlation-ID threading: the immutable fields are precisely the
+fields that other entries reference.
+
+---
+
+## What the Audit Trail Captures
+
+The audit trail captures every action a control plane component took.
+Concretely:
+
+| Source | Recorded | Frequency |
+|---|---|---|
+| Pre-spawn manifest creation | Full manifest as `after_state` | Every spawn |
+| Risk classification override (downward) | Before/after with rationale | Every override |
+| HITL gate fire | Gate trigger + risk level + requesting agent | Every gate |
+| HITL decision | Approver, decision, rationale, delegation context | Every decision |
+| State machine transition | from_state, to_state, agent_instance_id | Every transition |
+| QA verdict | Full QAVerdict | Every QA run |
+| Hook block | Hook name, action attempted, reason for block | Every block |
+| Override marker use | Marker creation time, action allowed, hook overridden | Every use |
+| Trust score assignment | Agent, dimensions, score, scorer | Every score |
+| Failure record creation | Full FailureRecord | Every record |
+| Routine fire | Routine ID, trigger type, payload, result | Every fire |
+| Lifecycle field mutation (operational table) | Before/after of the row | Every mutation |
+
+### What the Audit Trail Does Not Capture
+
+The audit trail is for **control plane actions**. It does not capture:
+
+- Application data writes (those go to product schemas with their own
+  audit posture)
+- Read operations (audit logging every read is too noisy to be useful;
+  the framework relies on field-level access controls instead)
+- Internal agent reasoning (the bulletin captures the observable
+  reasoning state; private chain-of-thought is not stored)
+
+If a regulatory or contractual requirement mandates capturing reads or
+internal reasoning, that is an extension of the audit trail and
+follows the same patterns (append-only, before/after where applicable,
+correlation ID threading).
+
+---
+
+## Audit Trail as Forensic Record
+
+When something goes wrong, the audit trail is the primary
+investigation tool. The reconstruction pattern is:
+
+```
+1. Identify the affected entity (work queue item, agent instance,
+   session)
+2. Look up the correlation_id from the entity's last known state
+3. Query audit_log WHERE correlation_id = ?
+4. Order by timestamp
+5. Read the sequence of before_state → after_state transitions
+6. Cross-reference with bulletin entries (agent_events) for the same
+   correlation_id to recover reasoning context
+7. If the issue is a missed gate, query gate_records WHERE
+   correlation_id = ? to confirm gate state at the time
+```
+
+A complete forensic reconstruction should not require any other source
+than the audit log + the bulletin (which is itself append-only and
+correlation-ID-threaded). If reconstruction requires guessing or
+inferring missing context, the audit trail has a gap that needs to be
+filled at the source.
 
 ---
 
 ## Related
 
-- `docs/control-plane/hook-system.md` — the PostToolUse audit-write
-  hook fires for every action.
-- `docs/control-plane/meta-governance.md` — failure mode #4 covers
-  silent audit suppression.
-- `database/governance/001_audit_log.sql` — the audit log schema.
-- `docs/architecture/decision-records/0004-append-only-audit-log.md` —
-  the ADR documenting this decision.
+- `hook-system.md` — `check-audit-write` enforces audit format on
+  every write
+- `hitl-gates.md` — gate decisions land in `gate_records` and emit
+  audit entries on lifecycle mutation
+- `build-state-machine.md` — every state transition is an audit entry
+- `meta-governance.md` — recovery protocols depend on audit trail
+  reconstructability
+- `compliance-evidence.md` — what the audit trail provides to
+  external compliance frameworks

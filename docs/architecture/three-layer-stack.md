@@ -1,240 +1,248 @@
-# The Three-Layer Governance Stack
+# The Three-Layer Infrastructure Stack
 
-This framework is one of three governance layers that operate together when
-you run autonomous agents. Each layer governs a distinct concern. None of
-the layers replaces the others, and none of them is sufficient on its own.
+This framework is one of three governance and operations layers that
+operate together when you run autonomous agents in production. Each
+layer governs a distinct concern. None of the layers replaces the
+others, and none of them is sufficient on its own.
 
-This document explains what each layer governs, where the responsibilities
-sit, and why the boundaries are drawn the way they are.
+This document explains what each layer governs, how they complement one
+another, and where the protocol roles (MCP and A2A) fit into the stack.
 
 ---
 
-## The Three Layers
+## 1. The Three Layers
 
-| Layer | Technology Class | What It Governs |
+| Layer | Technology | What It Governs |
 |---|---|---|
-| **Runtime policy layer** | AGT-style identity + policy + sandboxing (e.g., Microsoft AGT) | What agents are **permitted** to do |
-| **Scheduled automation** | Routines (e.g., Claude Code Routines) | **When** lightweight tasks run |
-| **Behavioral accountability** | This framework | Whether agents **can be trusted** to do it |
+| **Runtime governance** | Microsoft AGT | What agents can do — identity, policy, sandboxing |
+| **Scheduled automation** | Claude Code Routines | When lightweight tasks run — scheduled, event-triggered |
+| **Behavioral accountability** | Agentic Workforce Framework | Whether agents can be trusted — trust over time, failure memory |
 
-Read the table top to bottom. The runtime policy layer is the most
-granular: per tool call, per file, per network request. The automation
-layer is the most periodic: scheduled checks, event triggers. The
-behavioral accountability layer is the longest-running: trust earned over
-sessions, failure memory accumulated over time.
+These three layers are complementary. AGT and Routines are external
+infrastructure operated by their respective vendors. The behavioral
+accountability layer is the framework you are reading.
 
 ---
 
-## Layer 1 — Runtime Policy Layer
+## 2. Runtime Governance — What Agents Can Do
 
-**Class:** AGT-style runtime policy enforcement. The reference
-implementation uses Microsoft AGT in shadow mode. Other policy layers
-exist; the framework is designed to sit above any of them.
+The runtime governance layer answers the question: *what is this agent
+permitted to do right now, in this call, with these inputs?*
 
-**What it governs:**
+It enforces identity, policy, and sandboxing at sub-millisecond
+latency, deterministically, with no model inference in the hot path.
+It produces an append-only, cryptographically chained audit log of
+every permission check.
 
-- **Identity.** Each agent has a cryptographic DID. Tool calls are signed.
-- **Policy.** YAML or rule-driven policy decides whether a given tool call
-  is permitted given the agent's role, the file in scope, and the
-  workspace context.
-- **Sandboxing.** Permission levels constrain what an agent can read,
-  write, and execute.
-- **Audit.** Append-only, cryptographically chained log of every policy
-  decision.
-- **Protocol bridges.** Adapters for A2A, MCP, IATP.
+**Today, the canonical implementation is Microsoft AGT** (April 2026,
+MIT-licensed). AGT provides:
 
-**Cadence:** Sub-millisecond. Every tool use is a policy decision.
-
-**What it does not govern:** The runtime policy layer does not know
-whether the agent is good at its job. It only knows whether the agent is
-allowed to attempt the action. An agent that has failed seventeen times
-in a row is still permitted to try the same tool call, as long as
-policy allows it. That is by design — the policy layer is a deterministic
-gate, not a behavioral judgment.
+- DID-based agent identity with Ed25519 cryptographic signing.
+- Sub-millisecond deterministic policy enforcement, 0.00% bypass rate.
+- Five-level execution sandboxing.
+- OWASP top-10 coverage with 9,500+ tests.
+- Append-only audit trail, cryptographically chained.
+- Protocol bridges (A2A, MCP, IATP).
+- Control evidence supporting EU AI Act, NIST AI RMF, HIPAA, SOC 2.
 
 **Operating modes:**
 
-- *Shadow.* Intercepts and logs, does not block. Used during validation.
-- *Enforce.* Intercepts and blocks. The production default.
-- *Degraded.* Falls back to OS-level hooks if the policy layer is
-  unavailable. Alerts the operator.
+| Mode | Behavior | When |
+|---|---|---|
+| Shadow | Intercepts, logs, does not block | During rollout; calibration |
+| Enforce | Intercepts and blocks — production default | After shadow validation |
+| Degraded (unavailable) | Falls back to OS-level hooks, alerts operator | AGT outage |
+
+The runtime governance layer is binary: a request is permitted or it is
+not. There is no concept of "permitted with low trust" at this layer.
+Trust does not enter the runtime decision.
+
+**Adapter pattern:** This framework expects an adapter (e.g.,
+`agtAdapter.js`) that wraps the AGT SDK. Internal callers never reach
+AGT directly. The adapter absorbs SDK breaking changes and provides a
+single integration surface for permission checks.
 
 ---
 
-## Layer 2 — Scheduled Automation
+## 3. Scheduled Automation — When Tasks Run
 
-**Class:** Routines — saved configurations of prompt + repos + MCP
-connectors that fire on schedule, API call, or GitHub event.
+The scheduled automation layer answers the question: *what work should
+happen on a schedule, on an event, or in response to an external
+signal?*
 
-**What it governs:**
+It runs short-lived, stateless, trigger-driven jobs on cloud
+infrastructure. It is the right home for the recurring work that sits
+around the agent system: nightly checks, PR scans, alert triage,
+deploy verification.
 
-- **When** lightweight, repeatable, unattended tasks run.
-- **Filter rules** — for example, a GitHub-triggered Routine that only
-  runs on `claude/`-prefixed branches to avoid consuming the daily cap on
-  external PRs.
-- **The narrow contract** that Routines write only to `routine_runs` and
-  surface output for human review.
+**Today, the canonical implementation is Claude Code Routines.** A
+Routine is a saved configuration — a prompt, one or more repositories,
+and a set of MCP connectors — packaged once and executed automatically
+on Anthropic-managed cloud infrastructure.
 
-**Cadence:** Trigger-driven. Cron, API, or repository event.
+**Three trigger types:**
 
-**What it does not govern:** A Routine cannot reason about whether an
-agent should be promoted. It cannot block a tool call. It cannot enforce
-a HITL gate. Routines are work, not governance — they are the
-"scheduled tasks" of the agent workforce, not its supervisors.
+- **Schedule.** Recurring cadence (hourly, daily, weekdays, weekly, or
+  custom cron). Minimum interval: 1 hour.
+- **API.** Dedicated HTTP endpoint per Routine. POST with bearer token
+  starts a new session.
+- **GitHub.** Repository events (pull request opened/synchronized,
+  release events). Requires the GitHub App installed on the repository.
 
-**Why it is its own layer:** Scheduled automation is qualitatively
-different from agent work. The Orchestrator + QA loop is too stateful and
-too governance-heavy to run on a cron timer. Routines fill the gap where
-short, stateless, repeatable tasks need to happen unattended. Putting
-them in their own layer keeps that distinction visible.
+A single Routine can combine all three trigger types.
 
-See [ADR-0002](decision-records/0002-routines-are-not-agents.md) for the
-full rationale on routines vs agents.
+**Routines are not full agents.** They are stateless per run, run as
+the invoking user's identity, and accumulate no D1-D4 trust history.
+Output review by a human (or a higher-tier agent) replaces the
+pre-spawn protocol. They write only to a routine-runs log; they never
+write to canonical truth tables directly.
 
----
+A routine that needs to compute a trust scoring payload sends that
+payload to the Eval/Telemetry Service — the service is the only writer
+to `trust_scores`. Routines never write to `trust_scores` directly. No
+exceptions.
 
-## Layer 3 — Behavioral Accountability (This Framework)
-
-**Class:** The Agentic Workforce Framework. Identity, trust scoring,
-failure memory, autonomy gates, pre-spawn protocol, HITL gates, and the
-operating model that wraps all of those.
-
-**What it governs:**
-
-- **Identity over time.** Persistent agent identity across sessions.
-- **Trust history.** D1-D4 scoring per session, accumulated.
-- **Failure memory.** 17-class taxonomy, recurrence detection, pre-task
-  retrieval — agents check their own failure history before starting.
-- **Autonomy gates.** HIGH / STANDARD / RESTRICTED / PROBATION /
-  PROVISIONAL. The gate widens or narrows based on demonstrated
-  behavior.
-- **Pre-spawn protocol.** A three-step decision tree before any agent
-  spawns.
-- **HITL gates.** Human-in-the-loop approval chains, with TTL-bounded
-  delegation and 3-strike escalation.
-- **Failure-to-prevention pipeline.** Every failure produces a
-  prevention rule that the next pre-spawn check enforces.
-
-**Cadence:** Per session for trust scoring. Per task for pre-spawn and
-HITL gates. Per incident for failure records.
-
-**What it does not govern:** This framework does not enforce policy at
-the tool-call level. That is Layer 1's job. This framework does not run
-scheduled work. That is Layer 2's job. This framework does not produce
-agent output. That is the workforce plane within this framework's own
-architecture.
-
-**Why it is its own layer:** Behavioral accountability is the layer
-agent frameworks usually skip. Most teams have a runtime policy layer (or
-will get one). Most teams have scheduled automation (or will get it).
-What is missing is the layer that asks: *Is this agent becoming more or
-less trustworthy over time? Should it be doing this task at all, given
-its history?* That question requires identity, evidence, and a
-long-running trust signal. That is what this framework provides.
+**Cap management:** The Routines tier has a daily run cap. To prevent
+every external PR from consuming the cap, GitHub-trigger Routines are
+filtered to claude-prefixed branches only.
 
 ---
 
-## How the Layers Complement
+## 4. Behavioral Accountability — Whether Agents Can Be Trusted
 
-A practical example, walking through how the layers cooperate on a
-single task:
+The behavioral accountability layer answers the question: *over time,
+is this agent becoming more trustworthy or less? And how should that
+change what we let it do unsupervised?*
 
-1. The Orchestrator decides to spawn a Backend Agent on a task that
-   touches `server/auth/`.
-2. **Layer 3 (this framework) — pre-spawn protocol** runs first. The
-   Backend Agent's trust tier is checked against the task's risk
-   classification. The failure library is queried for prior incidents in
-   `server/auth/`. The pre-spawn protocol decides whether to /spec, /plan,
-   or escalate to a Boardroom session.
-3. **Layer 1 (runtime policy)** registers the Backend Agent's identity
-   for this session. Policy rules decide which tool calls are permitted
-   for this agent in this workspace.
-4. The Backend Agent works. Every tool call goes through **Layer 1**,
-   which permits or blocks based on policy.
-5. **Layer 2 (scheduled automation)**, on the resulting PR, fires the
-   R1 PR Test Routine and the R4 Security Scan Routine. Output is posted
-   to the PR for human reviewer review.
-6. The QA Agent verifies. **Layer 3** records the QA Verdict and writes
-   the D1-D4 trust score for this session.
-7. At session close, **Layer 3** evaluates whether the trust tier should
-   change.
+It is the layer the public framework occupies. It governs:
 
-Each layer fired at its own cadence. None of them tried to do another
-layer's job. The result is an audit trail across all three layers that
-combines: identity (who), policy decision (whether allowed), trust score
-(how well), failure records (what went wrong), and routine runs (what
-checks passed).
+- **D1-D4 trust scoring** per session, with calibration anchors and a
+  one-line evidence requirement per dimension.
+- **Trust tiers** (HIGH, STANDARD, RESTRICTED, PROBATION,
+  PROVISIONAL) that gate autonomy at the work-routing layer.
+- **Failure memory** — a structured taxonomy of past failures, with
+  pre-task retrieval and recurrence escalation.
+- **Pre-spawn protocol** — `/debug → /spec → /plan → HITL → SPAWN` —
+  applied before any agent is dispatched on non-trivial work.
+- **HITL gates** — human-in-the-loop checkpoints classified by risk
+  level (LOW / MEDIUM / HIGH / CRITICAL).
+- **Build state machine** — eight states, no skipping, agents never
+  commit without human approval.
 
----
+This layer is observer-assigned. No agent self-scores. Trust is
+recorded by the QA Agent and the human reviewer; failure records are
+written by the Fix Agent; the Eval/Telemetry Service is the only
+writer to `trust_scores` (Wave 3+).
 
-## What Each Layer Does Not Do
-
-Equally important: what each layer is **not** responsible for.
-
-| Layer | Does Not Do |
-|---|---|
-| Runtime policy layer | Long-running trust signals. Agent retirement. Pre-task failure retrieval. |
-| Scheduled automation | Block tool calls. Score agents. Spawn agents. Write to governance tables (other than `routine_runs`). |
-| Behavioral accountability (this framework) | Per-tool-call enforcement. Cryptographic identity. Sandboxing. Network policy. |
-
-Each row is a real source of confusion in adoption. A team that expects
-the runtime policy layer to give them trust history ends up
-re-implementing trust history at the policy layer — badly. A team that
-expects this framework to enforce per-tool-call policy ends up writing
-hooks that duplicate what AGT already does. Read the table, then read it
-again.
+The behavioral layer is what makes the agents-as-employees model real
+rather than metaphorical. An agent has a job description (its
+capability boundary), a performance review (D1-D4), a personnel file
+(its trust history and failure records), and an autonomy gate that
+expands or contracts based on demonstrated behavior.
 
 ---
 
-## Why None Replaces the Others
+## 5. How the Layers Complement One Another
 
-A common misconception is that a sufficiently powerful runtime policy
-layer makes behavioral accountability unnecessary. It does not. Here is
-why.
+The three layers govern orthogonal concerns. Each is necessary; none
+is sufficient.
 
-**Policy enforcement is per-action.** It says yes or no to a single
-tool call given the current state. It does not look across sessions.
-A perfectly enforced policy still permits an agent that has failed
-seventeen times to try the same thing again — because policy does not
-encode "this agent is bad at this kind of task."
+**Runtime governance without behavioral accountability:**
+A perfectly enforced policy with no signal about whether the agent is
+becoming more or less reliable over time. Eventually you either let
+risky agents run anyway (because policy doesn't capture the
+trajectory) or you set policy so conservatively that nothing
+useful runs unsupervised.
 
-**Trust history is per-agent over time.** It says: this agent has done
-this kind of work fifteen times. It has succeeded thirteen times and
-failed twice. Both failures involved a recurring pattern that is now
-recorded in the failure library. The autonomy gate has narrowed
-accordingly. The next task it picks up at HIGH risk will require human
-approval — not because policy says so, but because behavior says so.
+**Behavioral accountability without runtime governance:**
+A trust score that nobody enforces. The agent earns HIGH trust over
+twenty sessions, then exfiltrates a secret on session twenty-one
+because nothing was actually preventing the action. The trust score
+described what was happening; it did not prevent what shouldn't.
 
-**Scheduled automation is for the work around the work.** Tests,
-scans, alerts, reports. It is not where governance lives.
+**Either of the above without scheduled automation:**
+You have a governance system but no infrastructure for the recurring
+work that sits around it — the nightly checks, the PR scans, the
+alert triage. You end up running a build agent when you should be
+running a routine, and the build agent's expensive governance overhead
+gets applied to work that does not warrant it.
 
-The three layers are orthogonal. Each captures a kind of signal the
-others cannot capture cleanly. Combining all three is what makes
-autonomous agent operation safe at scale.
+**All three together:**
+AGT decides whether the action is permitted (now). The framework
+records whether the agent is becoming more or less trustworthy (over
+time) and gates its autonomy accordingly. Routines handle the
+scheduled and event-triggered work that does not need a full agent.
+Each layer can change without forcing changes in the others, because
+their concerns are separate.
 
 ---
 
-## Reference Implementation Status
+## 6. Protocol Roles — MCP and A2A
 
-The reference implementation runs:
+Two protocols cross all three layers. They are complementary, not
+competing.
 
-| Layer | Status |
-|---|---|
-| Runtime policy layer | Microsoft AGT in shadow mode. Enforcement mode pending shadow validation. |
-| Scheduled automation | R1 and R4 templates published. Cloud execution next. |
-| Behavioral accountability (this framework) | Live. Manual D1-D4 scoring across 15+ sessions. File-based failure memory. 13 hooks. |
+| Protocol | Role | Layer it Sits In |
+|---|---|---|
+| **MCP** (Model Context Protocol) | Intelligence gathering — read external sources | Intelligence layer |
+| **A2A** (Agent-to-Agent) | Execution — agent spawning, task handoff | Execution layer |
 
-See `docs/reference-implementation.md` for the sanitized description of
-the private reference implementation that informs this framework.
+**MCP fills context.** When an agent needs to read from a database,
+hit a third-party API, or pull repository state, MCP is the protocol
+that brokers the read. MCP connections are configured per workspace
+and per Routine; AGT mediates the permission checks at the runtime
+governance layer.
+
+**A2A executes work.** When the Orchestrator dispatches a task to an
+executing agent, the dispatch goes through A2A. AGT registers the
+spawned agent's identity at spawn time. The behavioral layer applies
+the pre-spawn protocol before A2A is invoked.
+
+The two protocols sit at different points in the request flow:
+
+```
+[ behavioral layer ] →   pre-spawn protocol decides whether to dispatch
+[ A2A ]              →   the dispatch happens
+[ AGT ]              →   permission check on the spawn
+[ MCP ]              →   the spawned agent reads its context
+[ AGT ]              →   permission check on each MCP read
+[ work executes ]
+[ A2A ]              →   handoff back to Orchestrator
+[ behavioral layer ] →   QAVerdict, trust score, failure record
+```
+
+A request that fails AGT's check at any step is blocked at runtime,
+regardless of trust score. A request that succeeds at AGT but
+produces a poor outcome contributes to D1-D4 and the trust trajectory
+at the behavioral layer.
+
+For deeper detail on MCP and A2A patterns, see
+[mcp-a2a-integration.md](mcp-a2a-integration.md).
+
+---
+
+## 7. Layer Ownership
+
+| Layer | Owner | Public Framework Stake |
+|---|---|---|
+| Runtime governance | Microsoft (AGT) — open source, MIT | Adapter pattern only |
+| Scheduled automation | Anthropic (Claude Code Routines) | Adapter + R1 / R4 templates |
+| Behavioral accountability | This framework | Full ownership |
+
+The public framework defines the behavioral layer end-to-end. It
+defines the integration *patterns* for the other two layers — adapters,
+expected interfaces, write-rule discipline — without owning the
+underlying implementations.
+
+This is intentional. AGT and Routines move on their own release
+schedules. The framework absorbs their change rate through adapters,
+which is the same pattern this framework recommends for any external
+dependency.
 
 ---
 
 ## Related
 
-- [four-plane-model.md](four-plane-model.md) — How this framework is
-  organized internally.
-- [mcp-a2a-integration.md](mcp-a2a-integration.md) — How MCP and A2A
-  protocols sit relative to the three layers.
-- `docs/guides/runtime-policy-integration.md` — How to integrate this
-  framework with a runtime policy layer in adapter / shadow / enforce
-  modes.
+- [mcp-a2a-integration.md](mcp-a2a-integration.md) — MCP and A2A in detail.
+- [agent-vs-service.md](agent-vs-service.md) — Component classification.
+- `docs/concepts/trust-scoring.md` — D1-D4 trust scoring.

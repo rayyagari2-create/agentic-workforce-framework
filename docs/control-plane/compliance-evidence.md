@@ -1,282 +1,274 @@
 # Compliance Evidence
 
-**What each control plane capability contributes to compliance frameworks.**
+**What each control plane capability contributes to EU AI Act,
+NIST AI RMF, SOC 2, and HIPAA readiness.**
 
-This framework is not a compliance product. It does not certify
-anything. But the artifacts the control plane produces — audit log,
-trust scores, FailureRecords, gate records, override logs — are
-exactly the kinds of evidence compliance frameworks ask for.
+This document maps the framework's control plane to the evidence each
+of four major compliance frameworks expects. The framework
+**contributes evidence supporting** these frameworks; it does not, on
+its own, constitute end-to-end compliance.
 
-This document maps the framework's outputs to the relevant frameworks
-so that adopters know what they get for free and what they still owe.
+The distinction is load-bearing: an organization's compliance posture
+is the responsibility of that organization. The framework provides
+the artifacts (audit trails, gate records, trust scores, failure
+records, policy logs) that those compliance processes consume.
 
 ---
 
-## Caveat — Read First
+## How to Read This Document
 
-The framework provides **control evidence**. It does not provide
-compliance certifications. EU AI Act high-risk system status, NIST AI
-RMF maturity, SOC 2 attestation, and HIPAA readiness all require
-organizational processes that go beyond what any single framework can
-deliver. The contribution is concrete: defined evidence with defined
-schemas, ready to be presented to auditors.
+Each framework section answers two questions:
 
-Always verify with your compliance, legal, and audit teams before
-representing any of this as certified status.
+1. **What does the framework expect?** A short, accurate restatement
+   of the relevant control area.
+2. **What does the control plane contribute?** The specific
+   capability, the artifact it produces, and the limitation on what
+   that artifact alone can show.
+
+The phrasing convention is **"contributes evidence supporting"** —
+not "complies with" and not "satisfies." Every claim is bounded.
 
 ---
 
 ## EU AI Act
 
-The EU AI Act treats certain agent systems as **high-risk AI systems**.
-High-risk systems carry obligations including risk management, data
-governance, human oversight, accuracy/robustness, and post-market
-monitoring.
+The EU AI Act establishes a risk-tiered regulatory regime for AI
+systems. The control plane contributes evidence to the obligations
+applicable to high-risk AI systems and general-purpose AI systems.
 
-### What This Framework Contributes
-
-| EU AI Act Requirement | Framework Capability | Evidence Produced |
+| AI Act Obligation Area | Control Plane Contribution | Limitation |
 |---|---|---|
-| Risk management system (Art. 9) | Pre-spawn protocol; risk classification; HITL gates | `gate_records`, manifest with `riskLevel`, audit log |
-| Data governance and quality (Art. 10) | Truth ownership matrix; single-writer rules per data store | Schema definitions; write-rule documentation |
-| Technical documentation (Art. 11) | Architecture, operating model, control plane docs | This repo, plus reference implementation docs |
-| Record-keeping (Art. 12) | Append-only audit log; correlation ID threading | `audit_log` rows; replayable session histories |
-| Transparency to deployers (Art. 13) | Capability boundaries; agent rosters; trust tier visibility | Instruction files; trust ledger |
-| Human oversight (Art. 14) | HITL gates; APPROVAL gates; Boardroom escalation | Gate records; approval rationale fields |
-| Accuracy, robustness, cybersecurity (Art. 15) | Hook system; fail-closed defaults; audit log integrity | Hook configurations; degraded-mode events |
-| Post-market monitoring (Art. 17) | Trust scoring; FailureRecords; recurrence detection | Trust ledger; failure library |
-| Reporting of serious incidents (Art. 62) | Incident management flow; FailureRecord with severity | Failure records with P0/P1 severity flagged |
+| Risk management system | Pre-spawn risk classification (LOW / MEDIUM / HIGH / CRITICAL) per task; risk-tier escalation; recurrence detection | Risk classification is per-task; framework does not produce the system-level risk assessment the Act requires |
+| Data and data governance | Failure library taxonomy provides traceable failure-class records; trust scores capture per-agent behavioral evolution | Does not address training-data lineage or representativeness |
+| Technical documentation | Audit trail captures every control plane action with before/after state and correlation IDs | Documentation requirements extend beyond audit logs (e.g., model cards, system architecture descriptions) |
+| Recordkeeping | Append-only audit log; per-session agent runs; per-decision gate records; immutable failure records | Records cover agent operation; do not cover end-user interactions unless those are routed through the framework |
+| Transparency / instructions for use | Manifest format captures task definition, risk level, and prior-failure context; trust tier visible to operators | The framework does not generate end-user-facing transparency artifacts |
+| Human oversight | HITL gates at HIGH risk; APPROVAL gates at CRITICAL risk; Boardroom sessions; override marker creates auditable exception path | Oversight mechanisms are evidence; effectiveness depends on the human reviewers' actual scrutiny |
+| Accuracy, robustness, cybersecurity | Trust scoring D1 (correctness) and D2 (observability) capture per-session quality; failure memory drives recurrence detection | Does not measure model-level accuracy or hallucination rates — those are model-provider concerns |
+| Post-market monitoring | Trust score evolution over time; failure record recurrence; routine-based alerting | Framework provides the operational data feed; the post-market monitoring system itself is organizational |
+| Serious incident reporting | Audit trail provides reconstructable forensic record per correlation ID; failure records capture incident classification | Reporting workflow to authorities is outside framework scope |
 
-### What You Still Owe
-
-- A documented risk management process at the organizational level
-  that uses these artifacts
-- Conformity assessment procedures
-- Quality management system
-- Notification to supervisory authorities for serious incidents
-
-The framework gives you the data inputs. The compliance program is
-yours.
+**What the framework contributes most directly:** A defensible answer
+to "show me the human oversight" and "show me the audit trail." Both
+are append-only, correlation-ID-threaded, and reconstructable.
 
 ---
 
-## NIST AI RMF
+## NIST AI RMF (AI 100-1)
 
-The NIST AI Risk Management Framework organizes AI risk activities
-into four functions: **Govern, Map, Measure, Manage**.
+The NIST AI Risk Management Framework organizes AI risk management
+into four functions: GOVERN, MAP, MEASURE, MANAGE. The control plane
+contributes evidence across all four.
 
-### What This Framework Contributes — Per Function
+### GOVERN
 
-#### Govern
-
-| RMF Govern subcategory | Framework Capability |
+| RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| GOVERN 1.1 — legal and regulatory requirements understood | Compliance evidence section (this document) |
-| GOVERN 1.2 — risk management policies | Pre-spawn protocol; HITL gates |
-| GOVERN 2 — accountability structures | Manager agent pattern; agents-as-employees model |
-| GOVERN 3 — workforce diversity, equity (org concern) | (out of scope for technical framework) |
-| GOVERN 4 — culture of risk consciousness | Failure memory; recurrence detection; meta-governance section |
-| GOVERN 5 — engagement with relevant AI actors | Reference implementation status; case studies |
-| GOVERN 6 — third-party risk policies | Runtime policy integration; adapter pattern |
+| GV-1 — Policies, processes, procedures | Pre-spawn protocol, build state machine, HITL gates, hook system are documented procedures with enforcement |
+| GV-3 — Roles and responsibilities | Approval authority levels (Team / Division / Enterprise); delegation rules with TTL; role-gated authority distinct from invocation rights |
+| GV-4 — Accountability structures | Audit trail with `actor_id` on every entry; Boardroom decision records; trust score evolution per agent instance |
+| GV-6 — Stakeholder engagement | Self-reporting protocol mandates bulletin writes at every transition (operator visibility) |
 
-#### Map
+### MAP
 
-| RMF Map subcategory | Framework Capability |
+| RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| MAP 1 — context characterization | Capability boundaries; domain enums; risk classification |
-| MAP 2 — categorization of AI systems | Agent vs service rubric; classification table |
-| MAP 3 — capabilities and characteristics | Agent roster; instruction files; trust history |
-| MAP 4 — risks and benefits to all relevant AI actors | Pre-spawn risk classification; gate types per risk |
-| MAP 5 — impacts to individuals and society | Customer impact field on FailureRecords; severity classification |
+| MP-1 — AI system context | AgentTaskManifest captures task scope, domain, files in scope, prior failure context |
+| MP-3 — Risk identification | Risk classification table; pre-task failure retrieval; recurrence escalation thresholds |
+| MP-5 — Impacts characterization | Risk levels are explicit (LOW → CRITICAL); higher levels require explicit human acknowledgment |
 
-#### Measure
+### MEASURE
 
-| RMF Measure subcategory | Framework Capability |
+| RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| MEASURE 1 — appropriate methods identified | D1-D4 trust scoring with calibration anchors |
-| MEASURE 2 — trustworthiness evaluated | Score evolution over n_sessions; confidence band |
-| MEASURE 3 — mechanisms for tracking risks over time | Trust ledger; FailureRecord recurrenceCount; audit log replay |
-| MEASURE 4 — feedback about effectiveness | Failure library; pre-task retrieval as feedback to next session |
+| MS-1 — Methods identified for testing | QAVerdict format captures per-AC pass/fail with evidence; trust score evidence requirement (one line per dimension) |
+| MS-2 — Performance assessed | D1-D4 trust scoring with calibration anchors; confidence band reflects sample size; recency weighting decays old data |
+| MS-4 — Feedback mechanisms | Failure library with three-tag close; evolution queue captures `pass_with_notes` observations |
 
-#### Manage
+### MANAGE
 
-| RMF Manage subcategory | Framework Capability |
+| RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| MANAGE 1 — risks prioritized and treated | risk_level enum; trust gates; HITL gating |
-| MANAGE 2 — strategies to maximize benefits | Promotion process; autonomy gate expansion |
-| MANAGE 3 — risks of third-party entities | Runtime policy adapter; shadow-to-enforce migration |
-| MANAGE 4 — risk treatments documented and monitored | FailureRecord prevention artifacts; closure tags |
+| MG-1 — Risk responses | Trust tier degradation is automatic; Boardroom escalation is explicit; agent retirement is a recorded decision |
+| MG-2 — Risk treatment documented | Manifest captures decisions; gate records capture rationale; audit log captures before/after on every mutation |
+| MG-3 — Risks from third-party AI | Runtime policy adapter wraps upstream policy SDK; degraded mode behavior defined when third-party layer unavailable |
+| MG-4 — Risk treatment monitored | Recurrence count drives escalation; routine layer enables scheduled monitoring |
 
-### What You Still Owe
-
-- Organizational policy that ties these technical artifacts to
-  decision-making
-- Stakeholder engagement processes
-- Risk tolerance definitions specific to your domain
-- Periodic review cycles at the organization level
+**What the framework contributes most directly to NIST AI RMF:** A
+working implementation of GOVERN-3 (roles and responsibilities) and
+MEASURE-2 (performance assessed) that is observable, append-only, and
+defensible.
 
 ---
 
 ## SOC 2
 
-SOC 2 evaluates controls relevant to **Security, Availability,
-Processing Integrity, Confidentiality, and Privacy**. The trust
-service criteria most relevant to agent systems are Security,
-Availability, and Processing Integrity.
+SOC 2 is organized around five trust service criteria. The framework
+is most relevant to **Security**, **Availability**, and **Processing
+Integrity**, with auxiliary contribution to **Confidentiality**.
 
-### What This Framework Contributes
+### Security (Common Criteria)
 
-#### Security
-
-| SOC 2 Concern | Framework Capability |
+| Criterion (selected) | Control Plane Contribution |
 |---|---|
-| Logical access controls | Capability boundaries; hook-enforced operator-zone |
-| Change management | Pre-spawn protocol; HITL approval; manifest required for medium/high risk |
-| Audit logging | Append-only audit log; correlation ID; before/after state |
-| Incident response | Incident management flow; FailureRecord lifecycle |
+| CC2.1 — Information communicated to those responsible | Self-reporting protocol; bulletin writes at every transition; Chief-of-Staff Agent flags anomalies for operator review |
+| CC4.1 — Internal control monitoring | Trust scoring captures per-session performance; failure library captures recurrence; routine layer runs scheduled monitoring |
+| CC5.1 — Logical access controls | Capability boundaries per agent; role-gated approval authority; control plane directory is operator-zone (no agent access) |
+| CC6.1 — Logical access — provisioning | Persistent agent identity with cryptographic DID; agent instance lifecycle (active / suspended / archived); workspace assignment |
+| CC6.6 — Logical access — modifications | Operational lifecycle mutability rule limits which fields can change; every mutation emits an audit entry |
+| CC7.2 — System monitoring | Routine-based scheduled checks; PR scan routines; alert triage routine |
+| CC7.3 — Detection and monitoring of incidents | Failure library with classification; recurrence escalation; 3-strike rule on QA failures |
+| CC8.1 — Change management | HITL gates at HIGH/CRITICAL; control plane changes require Boardroom session; hook updates are CRITICAL-risk by default |
+| CC9.1 — Risk mitigation activities | Pre-spawn risk classification; failure retrieval; trust tier downgrade on D4 violations |
 
-#### Availability
+### Availability
 
-| SOC 2 Concern | Framework Capability |
+| Criterion | Control Plane Contribution |
 |---|---|
-| Recovery from incidents | Recovery protocols (operating model § agent lifecycle); degraded mode |
-| System monitoring | Audit log; meta-governance signals; trust score drift detection |
+| A1.2 — Environmental protections, software, data backup | Audit log append-only with point-in-time recovery (database tier); cryptographic chaining (Wave 1+) |
+| A1.3 — Recovery testing | Recovery protocols defined per failure mode in `meta-governance.md` |
 
-#### Processing Integrity
+### Processing Integrity
 
-| SOC 2 Concern | Framework Capability |
+| Criterion | Control Plane Contribution |
 |---|---|
-| Inputs valid and authorized | AgentTaskManifest schema validation; hook-enforced manifest |
-| Processing complete and accurate | QA verdict; verification required field; trust scoring D1 |
-| Outputs delivered to right destinations | Truth ownership matrix; single-writer rules |
+| PI1.1 — System processing accuracy | Build state machine has no skippable states; QA-Agent verdict is the only path to COMPLETE; hook layer enforces invariants |
+| PI1.2 — Processing input validation | AgentTaskManifest schema validation; QAVerdict schema validation; FailureRecord schema validation |
+| PI1.3 — Processing completeness | SESSION COMPLETE blocked without QA PASS; bulletin entries required at every transition |
+| PI1.4 — Processing output validity | PostToolUse hooks validate side effects of audit-relevant actions |
+| PI1.5 — Processing output stored completely | Audit trail captures before/after for every lifecycle mutation; correlation ID threading enables reconstruction |
 
-### Evidence Outputs
+### Confidentiality
 
-For a SOC 2 audit period, the framework produces:
+| Criterion | Control Plane Contribution |
+|---|---|
+| C1.1 — Confidential information identified | Capability boundaries identify which agents may access which data scopes; cross-schema writes prohibited |
+| C1.2 — Disposal of confidential information | Agent instance archived state; delegation TTL prevents indefinite extension of authority |
 
-- Audit log rows for the audit window (append-only, queryable)
-- Trust ledger entries per session
-- FailureRecords with prevention artifacts
-- Gate records (HITL, delegation, escalation, approval)
-- Override usage log (operator overrides with rationale and TTL)
-- Hook configuration history (kept under version control)
-
-These are the inputs to a SOC 2 control narrative. They are not a
-SOC 2 attestation by themselves.
-
-### What You Still Owe
-
-- Control descriptions written for your environment
-- Continuous monitoring and management responses
-- Independent auditor engagement
-- Sample selection and walk-through preparation
+**What the framework contributes most directly to SOC 2:** Strong
+evidence for CC2 (communication), CC4 (monitoring), CC5 (access),
+CC6 (provisioning/modifications), CC8 (change management), and the
+Processing Integrity criteria. These are the areas where a working
+operational system + audit trail is exactly the artifact a SOC 2
+auditor expects.
 
 ---
 
 ## HIPAA Readiness
 
-HIPAA applies when the system processes Protected Health Information
-(PHI). The framework's contributions to HIPAA readiness center on the
-**administrative, physical, and technical safeguards** required by the
-Security Rule.
+HIPAA's Security Rule applies to electronic Protected Health
+Information (ePHI). The framework does not, on its own, make a system
+HIPAA-compliant — that requires the entire data handling stack
+(encryption at rest and in transit, BAA contracts, ePHI segregation,
+breach notification process, etc.) to be in scope.
 
-### What This Framework Contributes
+The framework contributes evidence to several **Administrative
+Safeguards** and the **Audit Controls** technical safeguard.
 
-| HIPAA Concern | Framework Capability |
+### Administrative Safeguards (45 CFR § 164.308)
+
+| Standard | Control Plane Contribution |
 |---|---|
-| Access controls (164.312(a)) | Capability boundaries; hook-enforced operator-zone; trust tier gating |
-| Audit controls (164.312(b)) | Append-only audit log; correlation IDs; replayable history |
-| Integrity controls (164.312(c)) | Truth ownership; cryptographic chaining option; before/after capture |
-| Authentication (164.312(d)) | Operator identity in actor_id; subagent inheritance rules; override identity capture |
-| Transmission security (164.312(e)) | (delegated to runtime policy layer; not in this framework) |
-| Information access management (164.308(a)(4)) | Promotion/demotion process; capability boundary changes audited |
-| Audit log retention | Append-only design supports long retention; partitioning for cost |
-| Incident reporting (164.308(a)(6)) | Incident management flow; FailureRecord severity flagging |
+| § 164.308(a)(1)(ii)(D) — Information system activity review | Audit trail with append-only retention; routine-based scheduled review |
+| § 164.308(a)(2) — Assigned security responsibility | Approval authority levels; Boardroom session as final escalation point |
+| § 164.308(a)(3) — Workforce security | Role-gated authority distinct from invocation; trust tier as evidence of demonstrated trustworthiness |
+| § 164.308(a)(4) — Information access management | Capability boundaries per agent; cross-schema writes prohibited |
+| § 164.308(a)(5)(ii)(C) — Log-in monitoring | Audit trail captures every action with `actor_id` and timestamp |
+| § 164.308(a)(6) — Security incident procedures | Failure library captures incidents; meta-governance recovery protocols |
+| § 164.308(a)(7)(ii)(B) — Disaster recovery plan | Recovery protocols in `meta-governance.md`; audit trail point-in-time recovery |
+| § 164.308(a)(8) — Evaluation | Trust scoring with calibration anchors; recurrence detection drives improvement |
 
-### What You Still Owe
+### Technical Safeguards (45 CFR § 164.312)
 
-- Business associate agreements
-- PHI flow diagrams
-- Risk analysis specific to PHI handling
-- Workforce training
-- Physical safeguards
-- Encryption and transmission security at the infrastructure layer
-- Breach notification procedures
+| Standard | Control Plane Contribution |
+|---|---|
+| § 164.312(b) — Audit controls | Append-only audit log with cryptographic signing (Wave 1+); correlation-ID threading enables reconstruction |
+| § 164.312(c)(1) — Integrity (ePHI alteration/destruction) | Operational lifecycle mutability rule + audit before/after capture provides evidence of every mutation |
+| § 164.312(d) — Person or entity authentication | AGT DID for agent identity; `actor_id` on every audit entry — note: this addresses agent-actor authentication, not end-user authentication |
 
-The framework operates at the agent governance layer; PHI handling
-infrastructure is a separate concern that this framework can sit
-above but does not implement.
+**Key limitation for HIPAA readiness:** The framework provides the
+audit, integrity, and oversight mechanisms. It does **not** address:
+
+- Encryption of ePHI at rest or in transit
+- Business Associate Agreements with subprocessors
+- ePHI minimum-necessary disclosure logic
+- Breach notification workflow
+- Patient access rights (45 CFR § 164.524) and amendment rights
+  (§ 164.526)
+
+A HIPAA readiness assessment must address those areas through other
+controls. The framework's contribution is bounded to the
+administrative-and-audit surface.
 
 ---
 
-## Cross-Framework Evidence Inventory
+## Cross-Framework Mapping (At a Glance)
 
-The same artifacts serve multiple frameworks. Build the artifact once;
-present it to each.
-
-| Artifact | EU AI Act | NIST AI RMF | SOC 2 | HIPAA |
+| Control Plane Capability | EU AI Act | NIST AI RMF | SOC 2 | HIPAA |
 |---|---|---|---|---|
-| Audit log (append-only) | Art. 12 | Measure 3 | Audit logging | 164.312(b) |
-| Trust ledger | Art. 9, 17 | Measure 2 | Processing integrity | — |
-| Failure library | Art. 17, 62 | Govern 4; Manage 4 | Incident response | 164.308(a)(6) |
-| AgentTaskManifest | Art. 11 | Map 1 | Change management | — |
-| Gate records | Art. 14 | Govern 2 | Logical access | 164.308(a)(4) |
-| Override log | Art. 14 | Manage 1 | Logical access | 164.312(a) |
-| Capability boundaries | Art. 13 | Map 1 | Logical access | 164.312(a) |
-| Truth ownership matrix | Art. 10 | Map 1 | Processing integrity | 164.312(c) |
-
-This is the framework's central proposition for compliance: one
-disciplined operating model produces evidence usable by multiple
-frameworks simultaneously.
+| Pre-spawn protocol | Risk management; recordkeeping | MAP-3, MAP-5 | CC9.1, PI1.1 | § 164.308(a)(1) |
+| Build state machine | Recordkeeping; transparency | MEASURE | PI1.1, PI1.3 | § 164.312(b) |
+| HITL gates | Human oversight | GOVERN-3, MANAGE-1 | CC5, CC8 | § 164.308(a)(3) |
+| Hook system | Cybersecurity (enforcement) | GOVERN-1 | CC5, CC6, CC8 | § 164.312(c)(1) |
+| Audit trail | Recordkeeping; serious incident reporting | GOVERN-4, MEASURE | CC2, CC4, PI1.5, A1.2 | § 164.312(b) |
+| Trust scoring | Accuracy; post-market monitoring | MEASURE-2 | CC4, CC7 | § 164.308(a)(8) |
+| Failure library | Post-market monitoring | MAP-3, MEASURE-4, MANAGE-4 | CC7.3 | § 164.308(a)(6) |
+| Capability boundaries | Robustness | GOVERN-3 | CC5, CC6 | § 164.308(a)(4) |
+| Meta-governance recovery protocols | Risk management | MANAGE-1 | A1.3 | § 164.308(a)(7) |
 
 ---
 
-## Evidence Hygiene
+## What This Document Is Not
 
-To remain auditable, the evidence has to retain certain properties:
+This document is **not**:
 
-- **Append-only.** Already covered. The most consequential property.
-- **Time-bounded.** Each event is timestamped to the second.
-- **Identity-bound.** Every event has an actor.
-- **Correlation-traceable.** A correlation ID links related events.
-- **Schema-validated.** Records conform to schemas; malformed records
-  do not enter the log.
+- A compliance certification
+- A substitute for organizational compliance assessment
+- A claim that adopting the framework satisfies any of these
+  frameworks end-to-end
+- Legal or regulatory advice
 
-A pile of unstructured text is not evidence; it is something an
-auditor will discount. Schemas and append-only-ness are what turn
-records into evidence.
+The framework's value to compliance is **operational evidence**.
+Compliance frameworks audit organizations for whether the right
+practices are in place and whether the evidence supports the claim.
+The control plane produces the evidence in a form that is append-only,
+threaded by correlation ID, and reconstructable. That is what a
+compliance review consumes.
+
+If a regulator or auditor asks "show me how a HIGH-risk AI action was
+reviewed and approved," the framework produces an answer. If they
+ask "are you EU AI Act compliant," that is a question for the
+organization's compliance function, not the framework.
 
 ---
 
-## Limitations
+## Wave Status of Compliance-Relevant Capabilities
 
-This framework's contributions to compliance are real but bounded:
+| Capability | Status | Notes |
+|---|---|---|
+| Audit trail (file-based) | LIVE | Git history is recovery path |
+| Audit trail (database, append-only) | Wave 2 | Cryptographic chaining; point-in-time recovery |
+| Trust scoring with evidence requirement | LIVE | Manual scoring; automated nightly routine in Wave 3+ |
+| HITL gates | LIVE (single-workspace) / Wave 3+ (chains) | Gate chains and delegation TTL are enterprise-scale extensions |
+| Hook layer | LIVE | OS-level enforcement, fail-closed |
+| Runtime policy SDK adapter | LIVE shadow / Wave 1 enforcement | Provides upstream evidence (sub-ms enforcement; OWASP coverage) |
+| Persistent agent identity + DID | Wave 1 | Identity persists across workspaces |
+| Approval gate chains | Wave 3+ | Multi-authority delegation chains |
+| Routine-based scheduled monitoring | Wave 1 | PR scans; alert triage |
 
-- It governs agent behavior. It does not govern model selection,
-  training data, or model output safety.
-- It captures evidence. It does not interpret regulations for you.
-- It operates above runtime infrastructure. Network security, key
-  management, encryption-in-transit are runtime concerns, not
-  framework concerns.
-- It tracks behavioral trust. It does not certify that an agent's
-  outputs are factually correct, unbiased, or non-discriminatory.
-  Those are concerns for the model layer and the application layer.
-
-The framework's claim is narrow and specific: **whether agents can be
-trusted to do what they do, over time, with auditable evidence.** Read
-the safety separation statement in
-`docs/control-plane/meta-governance.md` and the framework's main
-README for the full distinction.
+The maturity gradient matters for compliance evidence: capabilities
+labeled `Wave 3+` are designed but not field-proven. A compliance
+assessment must reflect actual implementation maturity, not the
+designed end state.
 
 ---
 
 ## Related
 
-- `docs/control-plane/audit-trail-patterns.md` — the audit log design
-  that produces most of the evidence above.
-- `docs/control-plane/hitl-gates.md` — the gate types referenced
-  throughout.
-- `docs/operating-model/incident-management.md` — the incident
-  reporting flow.
-- `docs/concepts/trust-scoring.md` — the scoring model whose outputs
-  appear in the evidence inventory.
+- `audit-trail-patterns.md` — the trail that compliance evidence
+  draws from
+- `hitl-gates.md` — the human oversight mechanism
+- `hook-system.md` — the enforcement layer
+- `meta-governance.md` — failure-mode recovery protocols
+- `pre-spawn-protocol.md` — risk management at the per-task level
+- `build-state-machine.md` — processing integrity surface

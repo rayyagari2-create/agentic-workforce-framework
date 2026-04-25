@@ -2,33 +2,50 @@
 
 **The three-step decision tree before any agent spawns.**
 
-Pre-spawn is the cheapest place to catch errors. Decisions made here
-prevent expensive errors downstream — a misclassified task, a missing
-contract, a recurring failure that nobody flagged. This document
-specifies the protocol.
+Pre-spawn governance is the cheapest place to catch routing errors,
+unclear specifications, and recurring failure patterns. A spawn that
+skips pre-spawn is a hook violation — the agent does not start.
+
+The protocol formalizes a single sequence:
+
+```
+/debug → /spec → /plan → HITL (HIGH risk) → SPAWN
+```
+
+The build state machine that follows pre-spawn is specified in
+`build-state-machine.md`. Pre-spawn is the gate at the front of that
+machine.
 
 ---
 
 ## Why Pre-Spawn Exists
 
-The bias for action in agent systems is to "just spawn and see."
-Pre-spawn imposes a small upfront cost (seconds to minutes) to avoid
-much larger downstream costs (failed QA loops, rolled-back commits,
-escalation theater).
+Without pre-spawn, the bias for action is "just spawn and see." That
+bias produces:
 
-The protocol is not optional. A spawn without a completed pre-spawn
-sequence is a hook violation; the agent does not start.
+- Misclassified tasks routed to the wrong agent
+- Agents building against unclear specs, hitting gaps mid-build
+- Recurring failure patterns repeated because nobody checked the
+  failure library
+- HIGH-risk work attempted without human review
+
+Pre-spawn imposes a small upfront cost (seconds for LOW risk, hours
+for CRITICAL risk) to avoid much larger downstream costs (failed QA
+loops, rolled-back commits, escalation theater).
 
 ---
 
 ## The Three Steps
 
 ```
-STEP 1 — RISK CLASSIFICATION
+STEP 1 — /debug
+    Risk classification + pre-task failure retrieval
     ▼
-STEP 2 — /spec vs /plan ROUTING
+STEP 2 — /spec vs /plan routing
+    Specification mode or build mode
     ▼
-STEP 3 — GATE TRIGGERS
+STEP 3 — HITL gate triggers
+    HIGH risk → human approval required
     ▼
 SPAWN
 ```
@@ -38,49 +55,68 @@ returns to the queue with a refinement note or escalates.
 
 ---
 
-## Step 1 — Risk Classification
-
-### What to Classify
+## Step 1 — /debug: Risk Classification
 
 The output of step 1 is a single attribute: `riskLevel`, one of
-LOW / MEDIUM / HIGH / CRITICAL.
+`LOW / MEDIUM / HIGH / CRITICAL`.
 
-### Classification Criteria
+### Risk Classification Table
 
-| Risk | Criteria |
-|---|---|
-| LOW | Single file; no locked region; no policy domain (auth, payment, schema, audit) |
-| MEDIUM | Multi-file; standard domains; reversible without data migration |
-| HIGH | Touches payment, auth, entitlement, schema, or any locked region |
-| CRITICAL | Cross-schema; runtime policy change; public-API change; audit log structure change |
+| Risk Level | Trigger | Default Gate |
+|---|---|---|
+| LOW | Single-file, no locked regions | No HITL required |
+| MEDIUM | Multi-file, standard domains | Executing agent default: HITL required |
+| HIGH | Payment flow, auth, entitlement, schema change | Always HITL — no exceptions |
+| CRITICAL | Cross-schema, runtime policy change, public-API change | Boardroom review before proceed |
 
 ### Required Inputs at Step 1
 
-The classifier needs:
+The orchestrator needs three things to classify:
 
 1. **A list of files in scope** (`interfacesTouched`). Hand-waving here
-   is the most common failure mode.
+   is the most common failure mode at step 1.
 2. **The domain(s) the task touches.** Used to detect locked regions
-   and trigger pre-task failure retrieval.
-3. **The agent likely to be assigned.** Trust and capability gates
-   apply at routing.
+   and to drive pre-task failure retrieval.
+3. **The agent likely to be assigned.** Trust tier and capability
+   boundaries gate routing.
+
+### Pre-Task Failure Retrieval
+
+Step 1 always runs the failure library check. The orchestrator queries
+for FailureRecords matching:
+
+- `domain` from the classification
+- `files` overlapping with `interfacesTouched`
+- `agentsInvolved` matching the assigned agent
+
+Matches are written into the manifest's `priorFailureContext`. The
+agent reads them at spawn — this is the reference check before
+assignment.
+
+### Recurrence Implications
+
+| Match Found | Effect |
+|---|---|
+| `recurrenceCount = 1` | Surface in manifest; agent reads pre-spawn |
+| `recurrenceCount ≥ 2` | Manifest annotated; orchestrator notes elevated risk (systemic flag) |
+| `recurrenceCount ≥ 3` | Boardroom session triggered; spawn does not proceed without it |
+| `recurrenceCount ≥ 5` | Systemic refactor required — unavoidable |
 
 ### Classification Authority
 
 The orchestrator classifies. A human may override the classification
 upward (more strict) without justification. Downward overrides require
-written rationale and are logged.
+written rationale and are logged to the audit trail.
 
 ### Step 1 Failure Modes
 
 - **Underclassification.** A schema change classified as MEDIUM. This
-  is the dominant failure mode and is what hooks at the file-touch
-  layer are designed to catch.
+  is the dominant failure mode. Hooks at the file-touch layer are the
+  backstop.
 - **Overclassification.** Less harmful — a LOW classified as MEDIUM
   consumes review time but produces no incident.
-- **Indeterminate.** The orchestrator cannot decide because the task
-  is too vague. The right answer is to return to the queue and refine,
-  not to guess.
+- **Indeterminate.** The task is too vague to classify. The right
+  answer is to return to the queue and refine, not to guess.
 
 ---
 
@@ -99,7 +135,7 @@ Two pre-execution modes are available:
 Neither produces code. Both are checkpoints between "task" and "agent
 running."
 
-### Routing Rule
+### The Routing Rule
 
 ```
 IF acceptance criteria are clear, complete, and testable
@@ -111,14 +147,14 @@ ELSE route to /spec
 The default is /spec when in doubt. Building from an unclear spec is
 the most common cause of failed QA loops.
 
-### What Counts as "Clear ACs"
+### What Counts as Clear ACs
 
 Clear acceptance criteria:
 
 - Are testable (a QA-Agent can produce a binary verdict per AC)
 - Cover the success path and at least the named failure cases
-- Specify required verification (unit test? integration test? schema
-  validation?)
+- Specify required verification (unit test, integration test, schema
+  validation)
 - Reference contracts where applicable
 
 ACs that depend on the agent's "judgment" are not clear ACs.
@@ -126,8 +162,8 @@ ACs that depend on the agent's "judgment" are not clear ACs.
 ### Step 2 Failure Modes
 
 - **/plan when /spec was needed.** Agent builds against an incomplete
-  spec, hits a gap mid-build, has to escalate. The cost has already
-  been paid.
+  spec, hits a gap mid-build, has to escalate. The cost is already
+  paid.
 - **/spec when /plan was sufficient.** Cheap; produces an extra review
   cycle but no incident.
 - **Skipping both.** The "just go" path. Highest variance in
@@ -135,63 +171,51 @@ ACs that depend on the agent's "judgment" are not clear ACs.
 
 ---
 
-## Step 3 — Gate Triggers
+## Step 3 — HITL Gate Triggers
 
-### What Gates Fire
+The risk level from step 1 plus the routing decision from step 2 drive
+the gate at step 3.
+
+### Gate Trigger Matrix
 
 | Gate Type | Triggered When |
 |---|---|
-| HITL | riskLevel = HIGH; or agent is at RESTRICTED tier; or task touches a locked region |
-| DELEGATION | An authorized human is unavailable but a delegate exists with TTL |
+| HITL | `riskLevel = HIGH`; or agent at RESTRICTED tier; or task touches a locked region |
+| DELEGATION | An authorized human is unavailable but a delegate exists with valid TTL |
 | ESCALATION | A prior gate has timed out, or the 3-strike threshold has been hit |
-| APPROVAL | riskLevel = CRITICAL; or task affects public-API surface |
-| BOARDROOM SESSION | riskLevel = CRITICAL combined with cross-team scope; or recurrenceCount ≥ 3 in pre-task retrieval |
+| APPROVAL | `riskLevel = CRITICAL`; or task affects public-API surface |
+| BOARDROOM SESSION | `riskLevel = CRITICAL` combined with cross-team scope; or `recurrenceCount ≥ 3` |
 
 Gate types are detailed in `hitl-gates.md`.
 
-### Pre-Task Failure Retrieval Runs Here
+### Dependency Install Rule
 
-Step 3 includes the recurrence check. The orchestrator queries the
-failure library for FailureRecords matching:
+Adding, removing, or upgrading runtime or build dependencies is treated
+as MEDIUM risk by default and elevates to HIGH if the dependency is
+used in a HIGH-risk domain (auth, payment, schema, audit, public-API
+surface). HITL is required at HIGH; the manifest must list the package
+name, version, and reason. Transitive dependency upgrades through a
+lockfile-only operation follow the same rule.
 
-- `domain` from step 1
-- `files` overlapping with `interfacesTouched`
-- `agentsInvolved` matching the assigned agent
+This rule exists because dependency changes are the most common silent
+risk amplifier — a routine "bump versions" operation can move a
+project's effective trust posture without any visible behavior change.
 
-Matches are written into the manifest's `priorFailureContext`. The
-agent reads them at spawn — this is the reference check before
-assignment.
-
-### Recurrence Implications at Step 3
-
-| Match Found | Effect |
-|---|---|
-| recurrenceCount = 1 | Surface in manifest; agent reads pre-spawn |
-| recurrenceCount ≥ 2 | Manifest annotated; orchestrator notes the elevated risk |
-| recurrenceCount ≥ 3 | Boardroom session triggered; spawn does not proceed without it |
-
-The threshold logic is symmetric with the recurrence thresholds in
-`docs/operating-model/incident-management.md`. A pattern that hit the
-benchmark threshold cannot be re-attempted by the same agent without
-explicit escalation.
-
----
-
-## When to Require a Boardroom Session
+### When a Boardroom Session is Required
 
 The Boardroom is the highest-cost gate. It is reserved for:
 
-1. **CRITICAL risk on a task that crosses workspaces or schemas.**
-2. **Recurrence count ≥ 3 surfaced in pre-task retrieval.**
-3. **An agent at PROBATION attempting to take a HIGH-risk task.**
-4. **A task that would commit changes to control plane artifacts** (hooks,
-   policy files, audit log structure).
-5. **An explicit escalation from a Team Orchestrator to Division
-   Orchestrator** (enterprise scale only).
+1. CRITICAL risk on a task that crosses workspaces or schemas
+2. `recurrenceCount ≥ 3` surfaced in pre-task retrieval
+3. An agent at PROBATION attempting a HIGH-risk task
+4. A task that would commit changes to control plane artifacts (hooks,
+   policy files, audit log structure)
+5. An explicit escalation from a Team Orchestrator to Division
+   Orchestrator (enterprise scale only)
 
-Boardroom sessions are not status meetings. They are decision points.
-A Boardroom session that does not produce a recorded decision was not
-a Boardroom session.
+Boardroom sessions are decision points, not status meetings. A
+Boardroom session that does not produce a recorded decision was not a
+Boardroom session.
 
 ---
 
@@ -199,27 +223,27 @@ a Boardroom session.
 
 Pre-spawn produces three artifacts, in order:
 
-1. **A classified task** (`riskLevel` set, `domains` set,
-   `interfacesTouched` populated).
-2. **A routing decision** (/spec or /plan).
-3. **An AgentTaskManifest** with all gate triggers resolved
-   (`priorFailureContext` populated, HITL approvals recorded if any
-   were obtained, evalPlan present for MEDIUM and HIGH).
+1. **A classified task** — `riskLevel`, `domains`, and
+   `interfacesTouched` populated.
+2. **A routing decision** — /spec or /plan.
+3. **An AgentTaskManifest** — all gate triggers resolved,
+   `priorFailureContext` populated, HITL approvals recorded if any
+   were obtained, `evalPlan` present for MEDIUM and HIGH.
 
 If any of these is missing, the spawn does not happen. The hook layer
 (`check-agent-spawn`) checks for the manifest; the absence of one
-produces exit(2).
+produces `exit(2)`.
 
 ---
 
 ## Pre-Spawn at Different Risk Levels
 
-The full protocol runs every time. The work distributes differently by
+The full protocol runs every time. Work distributes differently by
 risk.
 
 ### LOW Risk Pre-Spawn
 
-- Step 1: confirmed LOW
+- Step 1: confirmed LOW; failure library still queried
 - Step 2: usually /plan (ACs typically clear for low-risk work)
 - Step 3: no HITL, no Boardroom; recurrence check still runs
 - Time cost: 1–3 minutes
@@ -227,10 +251,9 @@ risk.
 ### MEDIUM Risk Pre-Spawn
 
 - Step 1: classification with file-list scrutiny
-- Step 2: /spec for new behaviors, /plan for bug fixes against existing
+- Step 2: /spec for new behaviors; /plan for bug fixes against existing
   specs
-- Step 3: HITL fires for agents at STANDARD with low confidence band;
-  recurrence check
+- Step 3: HITL fires by default for executing agents at STANDARD tier
 - Time cost: 5–15 minutes
 
 ### HIGH Risk Pre-Spawn
@@ -259,15 +282,14 @@ The cost gradient is intentional. CRITICAL risk should feel slow.
 | Skipping step 1 because the task "feels" low risk | Underclassification; HITL gate doesn't fire |
 | /plan when ACs are vague | Failed QA loops; rework |
 | Treating recurrence retrieval as advisory | D4 hits when the pattern repeats |
-| Using HITL approval as a checkpoint, not a decision | Approval theater; signature without scrutiny |
-| Asking the human to "just approve so we can move" | Pre-spawn becoming ceremony, not control |
+| HITL approval as a checkpoint, not a decision | Approval theater; signature without scrutiny |
+| "Just approve so we can move" | Pre-spawn becoming ceremony, not control |
+| Dependency change merged without manifest review | Silent risk amplification |
 
 ---
 
 ## Related
 
-- `docs/operating-model/task-assignment.md` — where pre-spawn fits in
-  the assignment pipeline.
 - `docs/control-plane/build-state-machine.md` — the lifecycle pre-spawn
   feeds into.
 - `docs/control-plane/hitl-gates.md` — the gate types step 3 may fire.

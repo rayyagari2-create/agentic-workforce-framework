@@ -1,4 +1,4 @@
-# Agent vs Service vs Hybrid vs Routine
+# Agent vs Service Classification
 
 The framework names four kinds of components: **agents**, **services**,
 **hybrids**, and **routines**. The names are not interchangeable, and the
@@ -10,7 +10,18 @@ what to call a new component.
 
 ---
 
-## The Rubric
+## 1. The Rubric
+
+**Agent:** reasons under uncertainty, chooses among options, benefits from
+trust scoring.
+
+**Service:** deterministic logic, owns canonical truth, tightly
+policy/schema-bound.
+
+**Hybrid:** reasoning is agentic; truth-handling must remain service-like.
+
+**Routine:** short-lived, trigger-driven, stateless per-run — not a
+long-running agent.
 
 | Kind | Reasoning | Identity | Trust History | Writes Canonical Truth |
 |---|---|---|---|---|
@@ -24,71 +35,78 @@ one of these rows.
 
 ---
 
-## Agent
+## 2. Framework Plane Classification
 
-An **agent** is a component that reasons under uncertainty, chooses among
-options, has a persistent identity, and accumulates a trust history.
+Every framework-plane component carries one of these four classifications.
+The classification is fixed when the component is named. Reclassifying
+a component is a non-trivial governance event — it implies the
+write-access boundary is changing.
 
-**Defining properties:**
+| Name | Classification | Reason |
+|---|---|---|
+| Orchestrator | Agent | Reasons about task routing, risk, spawn decisions |
+| QA Agent | Agent | Reasons about defect classification, novelty, escalation |
+| Fix Agent | Agent | Reasons about root cause, fix strategy, prevention |
+| Code Review Agent | Agent | Reasons about code quality, contract stability, risk |
+| Security Check Agent | Agent | Reasons about security posture and violation severity |
+| Boardroom Agent | Agent | Reasons about escalation decisions, agent retirement |
+| Deep Research Agent | Agent | Reasons over evidence, produces synthesis |
+| Chief of Staff Agent | Agent | Reasons about session state, task prioritization |
+| Frontend Agent | Agent | Exercises judgment on complex frontend changes |
+| Backend Agent | Agent | Exercises judgment on complex server-side changes |
+| Evolve Service | Service | Applies approved changes mechanically — no discretion |
+| Eval/Telemetry Service | Service | Computes trust scores from defined inputs — deterministic |
+| Deploy Service | Service | Executes defined deployment steps — deterministic |
+| Routines (framework plane) | Routine | Short-lived, trigger-driven, stateless |
 
-- **Reasons under uncertainty.** An agent picks among options when the
-  correct answer is not deterministic. The Orchestrator picks among
-  routing options. The QA Agent classifies defects. The Fix Agent picks a
-  remediation strategy.
-- **Persistent identity.** An agent has an ID that survives across
-  sessions. In v1.0 this is a string ID; in Wave 1 the AGT adapter adds a
-  cryptographic DID.
-- **Trust history.** An agent accumulates D1-D4 scores per session and
-  carries an autonomy gate that expands or contracts based on
-  demonstrated behavior. See [docs/concepts/trust-scoring.md].
-- **Pre-spawn protocol applies.** Spawning an agent goes through the
-  three-step pre-spawn decision tree.
-
-**Examples in this framework:** Orchestrator, Frontend Agent, Backend
-Agent, QA Agent, Fix Agent. Optional Wave 2 entries: Code Review Agent,
-Boardroom.
-
-**Write rules:** Agents write to their domain artifacts (code, test
-results, handoff records). Agents never self-score — trust is
-observer-assigned. Agents never write to `trust_scores`, `failure_records`,
-or `audit_log` directly except through the designated owner.
-
----
-
-## Service
-
-A **service** is a component with deterministic logic, no reasoning, and
-ownership of canonical truth.
-
-**Defining properties:**
-
-- **Deterministic.** Given the same input, the service produces the same
-  output. There is no LLM-driven judgment.
-- **Owns canonical truth.** A service is the sole writer to one or more
-  canonical tables. Other components may read; only the service writes.
-- **No trust history.** A service is not scored on D1-D4. Its correctness
-  is verified by tests and by schema validation, not by behavioral trust.
-- **Tightly schema-bound.** A service that drifts from its schema is a
-  bug, not a behavioral incident.
-
-**Examples in this framework:** Eval/Telemetry Service (the sole writer
-to `trust_scores`), Deploy Service (executes defined deployment steps).
-
-**Write rules:** A service is the only writer to its canonical table.
-Cross-service writes are prohibited. A service does not pick up a task
-from a queue — it is invoked directly through its API.
+The framework plane v1.0 contains 10 Agents, 3 Services, and Routines.
+Hybrids are not present at the framework plane in v1.0 — they appear in
+reference implementations that ship a product layer on top of the
+framework.
 
 ---
 
-## Hybrid
+## 3. Hybrid Sub-Boundary Rule
 
-A **hybrid** is a component whose reasoning is agent-shaped but whose
-truth-handling must remain service-shaped. This is the most common
-classification mistake in agent frameworks: treating a hybrid as one
-unified thing produces components that reason and write at the same
-time, which is exactly what causes governance failures.
+A "hybrid" without a precise internal split is a hand-wave. The
+classification carries weight only when the component spec defines
+exactly which subpart reasons and which subpart owns writes.
 
-**The universal hybrid rule:**
+A hybrid has at least two internal subparts:
+
+- **Reasoning subpart.** Agent-shaped. Produces annotations, rankings,
+  recommendations, or routing decisions. Its outputs are advisory.
+  Its outputs are scored on D1-D4. It has no direct write access to
+  canonical tables.
+- **Persistence subpart.** Service-shaped. Receives the reasoning
+  subpart's outputs and applies them to canonical storage through a
+  deterministic, schema-validated path. It is the only writer to its
+  canonical tables.
+
+Both subparts are named separately in the component spec, and each
+subpart's write access is listed explicitly. Without that explicit
+sub-boundary, the component is not a valid hybrid yet — it is an
+under-specified component that needs to be further decomposed before
+classification.
+
+**Generic sub-boundary template:**
+
+| Subpart | Type | Owns | Write Access |
+|---|---|---|---|
+| Source / option selection | Agent-shaped | Which sources to call, order, fallback | None — decisions only |
+| Evidence / confidence evaluation | Agent-shaped | Weighting freshness, source reliability, contradictions | None — annotation only |
+| Normalization | Deterministic service | Raw payload → internal schema | Writes to canonical table |
+| Cache / freshness tracking | Deterministic service | Freshness metadata, expiry, invalidation | Writes metadata fields only |
+
+Every hybrid component spec must instantiate this template with the
+component's specific subparts and tables. A hybrid without an
+instantiated template is incomplete.
+
+---
+
+## 4. Universal Hybrid Rule
+
+This rule applies to every hybrid component, without exception:
 
 ```
 Reasoning layer:   may rank · infer · annotate · recommend
@@ -96,60 +114,25 @@ Persistence layer: exclusively owns writes · deterministic · schema-validated
 Hard rule:         the reasoning layer NEVER writes to canonical tables directly
 ```
 
-A hybrid has at least two internal subparts. The reasoning subpart
-produces annotations, rankings, or recommendations. The persistence
-subpart receives those outputs and applies them to the canonical store
-through a deterministic, schema-validated path. The two subparts are
-named separately in the component spec, and their write access is listed
-explicitly.
+The reasoning layer of a hybrid never writes to a canonical table. Its
+outputs flow through the persistence layer, which validates them
+against the schema and applies them through the deterministic write
+path. This is the difference between a hybrid that holds together under
+production load and a "hybrid" that is really an agent with database
+credentials.
 
-**Why this matters:** Without an explicit sub-boundary, "hybrid" is a
-hand-wave that hides whether the reasoning side or the deterministic
-side owns the write. With an explicit sub-boundary, the answer is in the
-component definition.
-
-**Examples in this framework:** None at v1.0. Hybrids appear in the
-private reference implementation's product layer, where reasoning
-agents annotate offers or evidence and a deterministic persistence
-layer applies the writes.
-
-**Trust history:** The reasoning subpart of a hybrid is scored. The
-persistence subpart is verified by tests. They are separate.
+If the reasoning subpart and the persistence subpart are not separated —
+in code, in process, in identity, and in write-access — the component
+is not a hybrid. It is an agent with a write side, which is the
+classification mistake the rubric exists to prevent.
 
 ---
 
-## Routine
-
-A **routine** is short-lived, trigger-driven, stateless, and has no
-identity of its own.
-
-**Defining properties:**
-
-- **Trigger-driven.** Schedule, API, or GitHub event. Three trigger
-  types, documented in `routines/README.md`.
-- **Stateless.** Each run is a new session with no accumulated context.
-- **No persistent identity.** A routine runs as the invoking user's
-  identity. There is no AGT DID for the routine itself.
-- **No trust history.** A routine is not scored on D1-D4. Output review
-  by a human (or by a higher-tier agent) replaces the pre-spawn protocol.
-- **Writes only to `routine_runs`.** No exceptions. A routine that
-  computes a trust scoring payload sends it to the Eval/Telemetry Service;
-  the Service writes the score. The routine writes the run record.
-
-**Examples in this framework:** R1 PR Test (Playwright on every PR), R4
-Security Scan (sensitive data scan on every PR). Future: R10 Nightly
-Trust Score (Wave 3+), R11 Alert Triage (Wave 3+).
-
-**Write rules:** Routines write to `routine_runs` and nothing else.
-This is the most aggressively enforced rule in the framework. See
-[ADR-0002](decision-records/0002-routines-are-not-agents.md).
-
----
-
-## Decision Tree
+## 5. Decision Tree
 
 When you are deciding what to call a new component, walk through these
-questions in order. The first "no" tells you what kind of component it is.
+questions in order. The first answer that resolves tells you what kind
+of component it is.
 
 ```
 Is this trigger-driven (cron, API, GitHub event), stateless, no identity?
@@ -177,7 +160,7 @@ specified yet.
 
 ---
 
-## Tabular Decision Reference
+## 6. Tabular Decision Reference
 
 | Question | Agent | Service | Hybrid | Routine |
 |---|---|---|---|---|
@@ -192,7 +175,7 @@ specified yet.
 
 ---
 
-## Why This Distinction Matters
+## 7. Why This Distinction Matters
 
 In a framework that does not separate these kinds:
 
@@ -221,8 +204,6 @@ schemas, the audit log, the autonomy gates — to be precise.
 
 ## Related
 
-- [agent-roster.md](agent-roster.md) — The five agents at v1.0, classified.
-- [ADR-0002](decision-records/0002-routines-are-not-agents.md) —
+- [agent-roster.md](agent-roster.md) — Framework plane roster, classified.
+- [decision-records/0002-routines-are-not-agents.md](decision-records/0002-routines-are-not-agents.md) —
   Why routines are not agents.
-- `docs/concepts/agentic-workforce-model.md` — The agents-as-employees
-  framing.
