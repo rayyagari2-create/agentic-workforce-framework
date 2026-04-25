@@ -1,7 +1,7 @@
 # PostToolUse hooks
 
 PostToolUse hooks run **after** a tool call has executed. They cannot block
-the call — it has already happened. They exist to record, observe, and emit
+the call it has already happened. They exist to record, observe, and emit
 audit-grade evidence.
 
 ## Input contract
@@ -39,15 +39,15 @@ the purpose of allowing or denying the tool call (the call already ran).
 
 That said, **exit code still matters for observability**:
 
-- `exit(0)` — hook ran cleanly
-- non-zero exit — hook failed; the runtime should surface the failure to
+- `exit(0)` hook ran cleanly
+- non-zero exit hook failed; the runtime should surface the failure to
   the operator
 
 ## Failure must not be silent
 
 This is the most important rule for PostToolUse hooks: **never swallow an
 error**. A PostToolUse hook that silently drops an audit write is worse than
-no hook at all — it produces the *appearance* of an audit trail without the
+no hook at all it produces the *appearance* of an audit trail without the
 substance.
 
 If the hook hits an error:

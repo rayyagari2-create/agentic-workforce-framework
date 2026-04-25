@@ -15,13 +15,13 @@ In the four-plane model:
 
 ```
 ╔════════════════════════════════════════════════════════════════╗
-║  AGENTIC WORKFORCE PLANE — agents, roles, orchestration         ║
+║  AGENTIC WORKFORCE PLANE agents, roles, orchestration         ║
 ╠════════════════════════════════════════════════════════════════╣
-║  AUTONOMY PLANE — trust scoring, failure memory, autonomy gates ║
+║  AUTONOMY PLANE trust scoring, failure memory, autonomy gates ║
 ╠════════════════════════════════════════════════════════════════╣
-║  CONTROL PLANE — pre-spawn protocol, HITL, hooks, audit         ║
+║  CONTROL PLANE pre-spawn protocol, HITL, hooks, audit         ║
 ╠════════════════════════════════════════════════════════════════╣
-║  AUTOMATION PLANE — routines, scheduled scans, alerts           ║
+║  AUTOMATION PLANE routines, scheduled scans, alerts           ║
 ╚════════════════════════════════════════════════════════════════╝
 ```
 
@@ -40,7 +40,7 @@ Three properties distinguish enforcement from policy:
    makes leaves a trail.
 
 Concepts and operating model can be persuaded, debated, refined.
-Control plane is fences — and fences need to actually stop things.
+Control plane is fences and fences need to actually stop things.
 
 ---
 
@@ -59,7 +59,7 @@ plane is what makes it operable. Automation is what makes it scale.
 None of these is more important than the others; they are
 load-bearing in different directions.
 
-If governance becomes a bottleneck, it is failing — see
+If governance becomes a bottleneck, it is failing see
 `meta-governance.md` for the eight ways governance fails.
 
 ---
@@ -71,25 +71,25 @@ something the prior layer missed. This is intentional defense-in-depth.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  LAYER 1 — PRE-SPAWN PROTOCOL                                 │
+│  LAYER 1 PRE-SPAWN PROTOCOL                                 │
 │  Decision tree: risk classification, /spec or /plan, gates    │
 │  Catches: routing errors, missing acceptance criteria         │
 ├──────────────────────────────────────────────────────────────┤
-│  LAYER 2 — BUILD STATE MACHINE                                │
+│  LAYER 2 BUILD STATE MACHINE                                │
 │  Lifecycle phases: DEBUG → DESIGN → BUILD → QA → FIX → DONE   │
 │  Catches: skipped phases, premature commits                   │
 ├──────────────────────────────────────────────────────────────┤
-│  LAYER 3 — HITL GATES                                         │
+│  LAYER 3 HITL GATES                                         │
 │  Human approval for HIGH/CRITICAL risk; delegation chains     │
 │  Catches: agents acting beyond authority                      │
 ├──────────────────────────────────────────────────────────────┤
-│  LAYER 4 — OS-LEVEL HOOKS                                     │
-│  PreToolUse / PostToolUse — exit(2) hard block                │
+│  LAYER 4 OS-LEVEL HOOKS                                     │
+│  PreToolUse / PostToolUse exit(2) hard block                │
 │  Catches: anything that gets past the higher layers           │
 ├──────────────────────────────────────────────────────────────┤
-│  LAYER 5 — AUDIT TRAIL                                        │
+│  LAYER 5 AUDIT TRAIL                                        │
 │  Append-only event log; correlation ID threading              │
-│  Catches: nothing — but enables forensics for what was missed │
+│  Catches: nothing but enables forensics for what was missed │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -117,22 +117,22 @@ producing visible signal.
 
 For a first read, in order:
 
-1. `pre-spawn-protocol.md` — the gate at the start
-2. `build-state-machine.md` — the path through a session
-3. `hitl-gates.md` — when humans must approve
-4. `hook-system.md` — the OS-level backstop
-5. `audit-trail-patterns.md` — the record of what happened
-6. `compliance-evidence.md` — what regulatory frameworks see
-7. `meta-governance.md` — what to do when governance itself fails
+1. `pre-spawn-protocol.md` the gate at the start
+2. `build-state-machine.md` the path through a session
+3. `hitl-gates.md` when humans must approve
+4. `hook-system.md` the OS-level backstop
+5. `audit-trail-patterns.md` the record of what happened
+6. `compliance-evidence.md` what regulatory frameworks see
+7. `meta-governance.md` what to do when governance itself fails
 
 ---
 
 ## What This Section Does Not Cover
 
-- **What agents do** — see `docs/concepts/` and the workforce plane
-- **How trust is scored** — see `calibration/` and
+- **What agents do** see `docs/concepts/` and the workforce plane
+- **How trust is scored** see `calibration/` and
   `docs/operating-model/performance-review-cycle.md`
-- **The runtime policy layer** — this framework sits above any runtime
+- **The runtime policy layer** this framework sits above any runtime
   policy enforcement layer; see
   `docs/guides/runtime-policy-integration.md`
 

@@ -1,6 +1,6 @@
 # Guides
 
-**Adoption and implementation guides — pick your path.**
+**Adoption and implementation guides pick your path.**
 
 The guides in this section are organized around the question "where
 am I?" rather than "what do I want to learn?" Each guide assumes a
@@ -12,7 +12,7 @@ specific starting position and gets you to the next position.
 
 ### "I am brand new and want a working scored session in under an hour."
 
-Go to **[getting-started.md](getting-started.md)** — a 30-minute path
+Go to **[getting-started.md](getting-started.md)** a 30-minute path
 that walks through:
 
 1. Defining a five-agent roster from the example
@@ -25,7 +25,7 @@ goal is to feel the loop once before customizing.
 
 ### "I have run a few sessions and need to calibrate my scoring."
 
-Go to **[trust-calibration.md](trust-calibration.md)** — covers:
+Go to **[trust-calibration.md](trust-calibration.md)** covers:
 
 - How to calibrate D1-D4 anchors for your domain and risk tolerance
 - When to tighten anchors
@@ -51,7 +51,7 @@ recurrence detection.
 
 ### "I am a single team rolling this out for real."
 
-Go to **[single-team-adoption.md](single-team-adoption.md)** — covers:
+Go to **[single-team-adoption.md](single-team-adoption.md)** covers:
 
 - Single-workspace setup
 - What to implement first (scoring ledger, failure records, manifest)
@@ -63,11 +63,11 @@ with a clear roadmap for what comes next.
 
 ### "I am scaling up to multiple teams or divisions."
 
-Go to **[enterprise-adoption.md](enterprise-adoption.md)** — covers
+Go to **[enterprise-adoption.md](enterprise-adoption.md)** covers
 multi-workspace, Division Orchestrator, approval gate chains, and
 what "enterprise-ready" requires.
 
-**Status: [v3.0] — not yet shipped.** The model is designed but not
+**Status: [v3.0] not yet shipped.** The model is designed but not
 yet field-proven. Do not implement this layer until your single-workspace
 governance is running reliably.
 
@@ -90,13 +90,13 @@ You will end with a clean separation between behavioral accountability
 
 For a team adopting from scratch, an effective sequence is:
 
-1. **getting-started.md** — feel the loop
-2. **single-team-adoption.md** — make it real
-3. **trust-calibration.md** — make it consistent
-4. **failure-taxonomy-adoption.md** — make it fit
-5. **runtime-policy-integration.md** — make it sit cleanly above your
+1. **getting-started.md** feel the loop
+2. **single-team-adoption.md** make it real
+3. **trust-calibration.md** make it consistent
+4. **failure-taxonomy-adoption.md** make it fit
+5. **runtime-policy-integration.md** make it sit cleanly above your
    runtime layer (if applicable)
-6. **enterprise-adoption.md** — only when single-team is reliable
+6. **enterprise-adoption.md** only when single-team is reliable
 
 Skipping ahead to enterprise-adoption is a known anti-pattern. The
 single-workspace operating model is the foundation; without it, the
@@ -121,11 +121,11 @@ enterprise pattern is theory.
 
 ## Related
 
-- `docs/operating-model/README.md` — the operating model the guides
+- `docs/operating-model/README.md` the operating model the guides
   put into practice.
-- `docs/control-plane/README.md` — the enforcement layer the guides
+- `docs/control-plane/README.md` the enforcement layer the guides
   reference.
-- `examples/minimum-viable-adoption/` — the minimum viable adoption
+- `examples/minimum-viable-adoption/` the minimum viable adoption
   example pointed to by `getting-started.md`.
-- `calibration/` — the calibration artifacts referenced by
+- `calibration/` the calibration artifacts referenced by
   `trust-calibration.md`.

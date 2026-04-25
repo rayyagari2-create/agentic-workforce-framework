@@ -8,4 +8,4 @@ title: Alert Triage (placeholder)
 
 API-triggered alert classification template.
 
-Status: [v2.0] — not yet shipped
+Status: [v2.0] not yet shipped

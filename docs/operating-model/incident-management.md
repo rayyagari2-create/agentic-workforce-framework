@@ -23,7 +23,7 @@ is intentionally low. It includes:
 - A prompt injection attempt that succeeded or nearly succeeded
 - Falsified telemetry, regardless of whether it caused harm
 
-If you are unsure whether an event is an incident — write the record.
+If you are unsure whether an event is an incident write the record.
 The cost of an unnecessary FailureRecord is low. The cost of a missed
 recurrence is high.
 
@@ -57,7 +57,7 @@ Each step has owners and required outputs.
 
 ---
 
-## Step 1 — Surface
+## Step 1 Surface
 
 A failure is surfaced by one of:
 
@@ -72,11 +72,11 @@ A failure is surfaced by one of:
 
 The surface event must include enough context to identify the agent(s)
 involved, the file(s) touched, and the symptom. If any of these are
-missing, the first job is to recover them — not to write the record.
+missing, the first job is to recover them not to write the record.
 
 ---
 
-## Step 2 — Route to Fix-Agent
+## Step 2 Route to Fix-Agent
 
 The Fix-Agent owns the FailureRecord lifecycle. Other agents and
 humans may **observe** failures; only Fix-Agent **writes** them. This
@@ -94,7 +94,7 @@ goes through the same classification pipeline.
 
 ---
 
-## Step 3 — Recurrence Check
+## Step 3 Recurrence Check
 
 This is the most important step in the flow.
 
@@ -103,10 +103,10 @@ This is the most important step in the flow.
 Before writing a new FailureRecord, the Fix-Agent queries the failure
 library for matches on:
 
-- `failureClass` — same category
-- `domain` — same functional area
-- `files` — overlap with the new failure's file set
-- `agentsInvolved` — same agent(s)
+- `failureClass` same category
+- `domain` same functional area
+- `files` overlap with the new failure's file set
+- `agentsInvolved` same agent(s)
 
 A match raises the new failure's `recurrenceCount`. The first
 occurrence is recurrence 1; the second is 2; and so on.
@@ -115,7 +115,7 @@ occurrence is recurrence 1; the second is 2; and so on.
 
 | recurrenceCount | Effect |
 |---|---|
-| 1 | First occurrence — write record, propose prevention |
+| 1 | First occurrence write record, propose prevention |
 | ≥ 2 | Auto-escalation: agent's trust score takes D4 hit; instruction review required before next spawn |
 | ≥ 3 | Benchmark addition required: a regression test or schema check that catches this exact pattern in the future |
 | ≥ 5 | `systemic-refactor-required` becomes the only valid `fixTag`; fix-and-forget is no longer an option |
@@ -134,12 +134,12 @@ pattern the threshold exists to surface.
 
 ---
 
-## Step 4 — Write the FailureRecord
+## Step 4 Write the FailureRecord
 
 The schema is at `schemas/v1/failure-record.schema.json`. Required
 fields:
 
-- `failureId` — format `FAIL-YYYY-MM-DD-NNN`
+- `failureId` format `FAIL-YYYY-MM-DD-NNN`
 - `timestamp`
 - `domain`
 - `agentsInvolved`
@@ -156,9 +156,9 @@ fields:
 
 Fields commonly skipped that should not be:
 
-- `rootCauseConfirmed` — true only if verified, not hypothesized
-- `regressionTestAdded` — boolean; honest answer required
-- `correlationId` — links the record to the session that produced it
+- `rootCauseConfirmed` true only if verified, not hypothesized
+- `regressionTestAdded` boolean; honest answer required
+- `correlationId` links the record to the session that produced it
 
 ### The 17 Failure Classes
 
@@ -179,7 +179,7 @@ anti-pattern.
 
 ---
 
-## Step 5 — Propose Prevention
+## Step 5 Propose Prevention
 
 A FailureRecord is not closed by writing it. It is closed by **a
 prevention artifact** linked to it.
@@ -188,7 +188,7 @@ prevention artifact** linked to it.
 
 | Type | Used For |
 |---|---|
-| `regression_test` | The most common — a test that fails before the fix and passes after |
+| `regression_test` | The most common a test that fails before the fix and passes after |
 | `schema_validation` | When the failure is a schema-class issue and a validation rule prevents it |
 | `guardrail` | A runtime check (assertion, gate) that prevents the same shape |
 | `instruction_update` | When the agent's brief did not cover the case |
@@ -211,7 +211,7 @@ record is still queried by future recurrence checks.
 
 ---
 
-## Step 6 — The Three Fix Tags
+## Step 6 The Three Fix Tags
 
 Every closed FailureRecord receives one of three tags:
 
@@ -235,7 +235,7 @@ and a deadline.
 
 ## Pre-Task Failure Retrieval
 
-The companion to incident management is **pre-task retrieval** — the
+The companion to incident management is **pre-task retrieval** the
 mechanism that uses the failure library to prevent recurrence in the
 first place.
 
@@ -285,7 +285,7 @@ that:
 - Reviews the FailureRecord and the trailing five sessions of the
   involved agent(s)
 - Reads relevant prior FailureRecords to assess pattern depth
-- Recommends an outcome — instruction rewrite, boundary reduction,
+- Recommends an outcome instruction rewrite, boundary reduction,
   prevention investment, or retirement
 - Escalates to a human for final approval
 
@@ -343,11 +343,11 @@ detection.
 
 ## Related
 
-- `schemas/v1/failure-record.schema.json` — the schema in full.
-- `docs/concepts/failure-memory.md` — the conceptual model.
-- `docs/control-plane/pre-spawn-protocol.md` — where pre-task retrieval
+- `schemas/v1/failure-record.schema.json` the schema in full.
+- `docs/concepts/failure-memory.md` the conceptual model.
+- `docs/control-plane/pre-spawn-protocol.md` where pre-task retrieval
   runs.
-- `docs/operating-model/promotion-demotion-process.md` — how D4 hits
+- `docs/operating-model/promotion-demotion-process.md` how D4 hits
   drive demotion.
-- `docs/guides/failure-taxonomy-adoption.md` — adapting the 17 classes
+- `docs/guides/failure-taxonomy-adoption.md` adapting the 17 classes
   for your domain.

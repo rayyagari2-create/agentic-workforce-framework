@@ -1,4 +1,4 @@
-# ADR 0001 — This is an Agentic Workforce Framework, Not a Governance Framework
+# ADR 0001 This is an Agentic Workforce Framework, Not a Governance Framework
 
 ## Status
 
@@ -8,7 +8,7 @@ Accepted.
 
 Enterprise AI agents are moving from isolated tools to autonomous digital workers.
 They plan, execute, review, escalate, and collaborate across increasingly complex
-workflows. The early framing for this project was "AI governance" — the layer that
+workflows. The early framing for this project was "AI governance" the layer that
 gates what models are permitted to do.
 
 Two architectural observations made that framing wrong:
@@ -29,7 +29,7 @@ Two architectural observations made that framing wrong:
 The organizing metaphor that fits the problem is a workforce: persistent identity,
 role boundaries, task assignment, performance review, promotion and demotion,
 incident reports, and an HR policy engine. Governance is the control plane inside
-that workforce — not the architecture of the whole thing.
+that workforce not the architecture of the whole thing.
 
 ## Decision
 
@@ -38,20 +38,20 @@ is the headline: roles, agents, teams, handoffs, persistent identity.
 
 The four planes are, in order of prominence:
 
-1. **Agentic workforce plane** — agents, teams, orchestrators, role assignment,
+1. **Agentic workforce plane** agents, teams, orchestrators, role assignment,
    task execution, handoffs, persistent identity.
-2. **Autonomy plane** — trust tiers, D1-D4 scoring, failure memory, autonomy gates,
+2. **Autonomy plane** trust tiers, D1-D4 scoring, failure memory, autonomy gates,
    promotion and demotion, work queues.
-3. **Control plane** — runtime policy enforcement, HITL gates, audit log, approval
+3. **Control plane** runtime policy enforcement, HITL gates, audit log, approval
    gate chains, delegation, compliance evidence. (Commonly referred to as
    "AI governance.")
-4. **Automation plane** — routines, scheduled checks, PR scans, alert triage,
+4. **Automation plane** routines, scheduled checks, PR scans, alert triage,
    deploy verification.
 
 The public positioning is therefore:
 
 > The runtime policy layer governs *what* your agents do.
-> This framework governs *whether they can be trusted to do it* — and whether that
+> This framework governs *whether they can be trusted to do it* and whether that
 > trust is improving or degrading over time.
 
 ## Consequences

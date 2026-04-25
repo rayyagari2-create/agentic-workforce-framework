@@ -23,7 +23,7 @@ governance:
 risk_level: low
 ---
 
-# R1 — Test Suite on PR
+# R1 Test Suite on PR
 
 A GitHub-triggered routine that runs the project's test suite against
 agent-authored pull requests and reports the result back to the PR.
@@ -57,7 +57,7 @@ The trigger filter restricts execution to PRs whose head branch begins with
 `agent/`. This is the single most important configuration line in the
 template.
 
-**Why:** without the filter, the routine fires on every PR — including PRs
+**Why:** without the filter, the routine fires on every PR including PRs
 authored by humans on branches like `feature/...` or `fix/...`. That has
 two bad consequences:
 
@@ -76,7 +76,7 @@ PRs go through the standard human review path; the routine ignores them.
 
 This routine writes only to `routine_runs`. It does **not** write to
 `trust_scores`. Test pass/fail is *evidence* that contributes to the D1
-score for the agent who authored the PR — but the actual D1 write is
+score for the agent who authored the PR but the actual D1 write is
 performed by the Eval/Telemetry Service after a human reviewer signs off.
 
 The routine's role is to gather and surface evidence, not to score.
@@ -106,7 +106,7 @@ uses:
 | `routine_runs` row     | Trigger type, correlation ID, status, duration, ref    |
 | Operator alert channel | Posted only on infrastructure error (not on test fail) |
 
-The routine **does not** post to alerts on test failures — that is normal
+The routine **does not** post to alerts on test failures that is normal
 agent feedback flow, not an operational incident. It posts to alerts only
 when the routine itself is broken (cannot check out, cannot run, etc.).
 

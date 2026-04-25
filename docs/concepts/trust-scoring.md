@@ -6,7 +6,7 @@ Trust scoring is the framework's performance review mechanism. After each agent
 session, the agent is scored on a 100-point scale across four dimensions. Scores
 accumulate across sessions, are weighted by recency, and produce a confidence
 band based on session count. The trust score determines the agent's autonomy
-gate — what it can do without human approval.
+gate what it can do without human approval.
 
 Trust scoring is the bridge between observed agent behavior and the operational
 authority granted to the agent. Without it, autonomy is a guess. With it,
@@ -62,10 +62,10 @@ Hard-stops exist because some failures are categorical, not gradient.
 
 | Dimension | Hard-Stop Rule |
 |---|---|
-| D1 | Output wrong in a way that could harm a user or downstream system if not caught — D1 is 0 regardless of other dimensions. |
-| D2 | Falsified telemetry — claimed a state transition that did not happen. Automatic trust demotion. D2 is 0. |
-| D3 | Hook bypass or commit without authorization — D3 is 0 and triggers immediate manual review. |
-| D4 | Repeated a known pattern that was already documented in the agent's instruction file — D4 is 0 and a failure record is mandatory. |
+| D1 | Output wrong in a way that could harm a user or downstream system if not caught D1 is 0 regardless of other dimensions. |
+| D2 | Falsified telemetry claimed a state transition that did not happen. Automatic trust demotion. D2 is 0. |
+| D3 | Hook bypass or commit without authorization D3 is 0 and triggers immediate manual review. |
+| D4 | Repeated a known pattern that was already documented in the agent's instruction file D4 is 0 and a failure record is mandatory. |
 
 Hard-stops are not opinions. They are objectively observable and either happened
 or did not. A hard-stop in any dimension drives the trust tier down at minimum
@@ -86,10 +86,10 @@ makes the score auditable later.
 Example:
 
 ```
-D1 Correctness:    25 — 7/7 ACs met on first QA attempt, no rework required
-D2 Observability:  25 — Bulletin entries at all 4 phase transitions, handoff complete
-D3 Compliance:     22 — One initial miscategorization of riskLevel, caught pre-spawn. Minus 3.
-D4 Recurrence:     25 — No known failure pattern repeated. Novel task class.
+D1 Correctness:    25 7/7 ACs met on first QA attempt, no rework required
+D2 Observability:  25 Bulletin entries at all 4 phase transitions, handoff complete
+D3 Compliance:     22 One initial miscategorization of riskLevel, caught pre-spawn. Minus 3.
+D4 Recurrence:     25 No known failure pattern repeated. Novel task class.
 ```
 
 The evidence line answers two questions: what happened, and why does that
@@ -206,17 +206,17 @@ that is multiple sessions and multiple scores.
 ## Calibration is not optional
 
 The framework is built around the assumption that trust scores are calibrated.
-Calibration drift — different scorers assigning different scores to identical
-work — degrades the autonomy gate signal until the gate itself becomes
+Calibration drift different scorers assigning different scores to identical
+work degrades the autonomy gate signal until the gate itself becomes
 meaningless. The reference rubric in `calibration/d1-d4-rubric.md` exists to
 prevent that drift.
 
 Common drift sources:
 
-- Score inflation — scoring 25/25 because the agent finished, regardless of how.
-- Score collapse — scoring 0 on one bad transition, ignoring the rest.
-- Ignoring D4 — never checking failure memory before scoring, so D4 is always 25.
-- Scoring without evidence — assigning a score from a feeling, not a fact.
+- Score inflation scoring 25/25 because the agent finished, regardless of how.
+- Score collapse scoring 0 on one bad transition, ignoring the rest.
+- Ignoring D4 never checking failure memory before scoring, so D4 is always 25.
+- Scoring without evidence assigning a score from a feeling, not a fact.
 
 See `calibration/anti-patterns.md` for the full list.
 

@@ -25,45 +25,47 @@ Read this when:
 ## The 17 Default Classes
 
 ```
-schema_violation        — schema rule broken
-state_desync            — two stores disagree about the same fact
-reveal_leak             — restricted content shown when it shouldn't be
-payment_bypass          — payment-gated action ran without payment
-render_error            — UI failure with no recovery
-api_contract_break      — caller relies on contract that changed
-date_time_handling      — TZ, DST, or format error in dates
-null_reference          — null/undefined unhandled
-race_condition          — outcome depends on ordering
-prompt_regression       — prompt change degraded behavior
-entitlement_bypass      — restricted feature accessed without entitlement
-data_loss               — data discarded that should have been retained
-security_vulnerability  — exploitable weakness
-performance_degradation — measurable performance regression
-ux_regression           — usability regression
-truth_ownership         — wrong component wrote to canonical store
-client_side_truth       — client treated as authoritative when server should be
+schema_violation        schema rule broken
+state_desync            two stores disagree about the same fact
+reveal_leak             restricted content shown when it shouldn't be
+payment_bypass          payment-gated action ran without payment
+render_error            UI failure with no recovery
+api_contract_break      caller relies on contract that changed
+date_time_handling      TZ, DST, or format error in dates
+null_reference          null/undefined unhandled
+race_condition          outcome depends on ordering
+prompt_regression       prompt change degraded behavior
+entitlement_bypass      restricted feature accessed without entitlement
+data_loss               data discarded that should have been retained
+security_vulnerability  exploitable weakness
+performance_degradation measurable performance regression
+ux_regression           usability regression
+truth_ownership         wrong component wrote to canonical store
+client_side_truth       client treated as authoritative when server should be
 ```
 
 These are the v1.0 enum values in `failure-record.schema.json`. They
-are deliberately specific — generic class names like "bug" or "error"
+are deliberately specific generic class names like "bug" or "error"
 defeat the recurrence detection design.
 
 ---
 
-## Three Adaptation Modes
+## Four Adaptation Modes
 
-You can adapt in three ways, in order of how invasive each is:
+You can adapt in four ways, in order of how invasive each is:
 
-1. **Rename** — keep the class, change the label for your domain.
-2. **Subset** — omit classes that do not apply to your system.
-3. **Extend** — add a class for a novel failure mode.
+1. **Rename** keep the class, change the label for your domain.
+2. **Subset** omit classes that do not apply to your system.
+3. **Extend** add a class for a novel failure mode.
+4. **Retire** remove a class that has become obsolete.
 
 You can also do combinations. Most teams will rename a few, subset
-a few, and extend rarely.
+a few, extend rarely, and retire only after the taxonomy has been
+in use for a long time.
 
 ---
 
-## Mode 1 — Rename
+## Mode 1 Rename
 
 Rename when the default class is conceptually right but the vocabulary
 is wrong for your domain.
@@ -95,14 +97,14 @@ is wrong for your domain.
 
 ### What to Avoid
 
-- Renaming to a less-specific term ("error", "issue") — that loses
+- Renaming to a less-specific term ("error", "issue") that loses
   classification value.
 - Renaming the same default class to multiple new names across the
-  team — the recurrence check breaks.
+  team the recurrence check breaks.
 
 ---
 
-## Mode 2 — Subset
+## Mode 2 Subset
 
 Subset when classes clearly do not apply to your system.
 
@@ -136,7 +138,7 @@ Subset when classes clearly do not apply to your system.
 
 ---
 
-## Mode 3 — Extend
+## Mode 3 Extend
 
 Extend when a real failure pattern does not fit any existing class.
 This is the most consequential adaptation and the most disciplined.
@@ -151,22 +153,22 @@ This is the most consequential adaptation and the most disciplined.
 
 ### When NOT to Extend
 
-- The failure fits an existing class but feels "different" — usually
+- The failure fits an existing class but feels "different" usually
   an instance, not a new class
-- You want a class for "everything else" — that is the catch-all
+- You want a class for "everything else" that is the catch-all
   anti-pattern (see below)
-- The pattern has occurred once — wait for a second instance before
+- The pattern has occurred once wait for a second instance before
   extending
 
 ### How to Extend
 
 1. **Write the new class definition.** A class needs:
 
-   - **Name** — lowercase, snake_case
-   - **One-sentence definition** — what the class captures
-   - **Boundary** — what is in vs out (often by contrast with adjacent
+   - **Name** lowercase, snake_case
+   - **One-sentence definition** what the class captures
+   - **Boundary** what is in vs out (often by contrast with adjacent
      classes)
-   - **Example** — at least one realistic FailureRecord that fits
+   - **Example** at least one realistic FailureRecord that fits
 
 2. **Document in your team notes.**
 
@@ -187,7 +189,7 @@ This is the most consequential adaptation and the most disciplined.
 
 ### Constraint: All Classes Must Be Classifiable
 
-Every class — default or extended — must have:
+Every class default or extended must have:
 
 - A clear definition that distinguishes it from adjacent classes
 - An example that fits unambiguously
@@ -195,6 +197,133 @@ Every class — default or extended — must have:
 
 If you cannot write these, the class is too vague. Either tighten it
 or do not add it.
+
+---
+
+## Mode 4 Retire
+
+Retire when a class has become obsolete because the system changed
+underneath it. Retiring is distinct from subsetting: subsetting
+happens at adoption (the class never applied); retiring happens after
+the class has been in use and stops applying.
+
+### When to Retire
+
+- The system component the class describes has been removed (e.g.,
+  an entire subsystem retired)
+- A class has been split into two more-specific classes via Extend,
+  and the original is no longer used for new records
+- A class has produced zero matches in 12+ months **and** the failure
+  mode is genuinely no longer possible (not just "we got lucky")
+
+### When NOT to Retire
+
+- The class has produced zero matches recently but the failure mode
+  is still possible the absence is success, not obsolescence
+- The class is rarely used but its prevention contracts (tests, code
+  paths) still exist keep the class so future regressions can match
+- You want to consolidate "low-traffic" classes that loses
+  recurrence resolution
+
+### How to Retire
+
+1. **Mark the class deprecated.** In your team notes:
+
+   ```
+   Retired: render_error
+   Effective: 2026-Q3, taxonomy v3.0
+   Reason: frontend layer removed; system is API-only
+   Last record: FAIL-2026-02-14-003
+   ```
+
+2. **Do NOT delete historical records.** A FailureRecord with a
+   retired `failureClass` is still a valid historical record. Only
+   prevent new writes.
+
+3. **Update the schema enum** preserve the value but mark
+   deprecated. New records cannot use a deprecated class; old records
+   keep their classification.
+
+4. **Increment your taxonomy version** (see Versioning below).
+
+### What Retired Classes Still Do
+
+A retired class still participates in:
+
+- Historical recurrence reports ("we had X of these between Y and Z")
+- Trust trajectory backfill (D4 scoring of prior sessions)
+- Audit reads ("show all P0 records in 2025")
+
+It does NOT participate in:
+
+- New FailureRecord writes
+- Prospective recurrence detection on new sessions
+
+---
+
+## Versioning Your Taxonomy
+
+A taxonomy that adapts must be versioned. Without versioning, two
+problems emerge: (1) historical records become ambiguous because the
+class definitions have shifted under them, and (2) cross-team
+deployments cannot tell whether their taxonomies are aligned.
+
+### What to Version
+
+- The set of active classes (which are valid for new records)
+- Each class's definition and boundary
+- The set of retired classes (still valid for historical reads)
+- Renames (mapping from old name to new name)
+- Subsets (which default classes are explicitly omitted)
+
+### Versioning Scheme
+
+Use semantic versioning adapted for taxonomies:
+
+| Change Type | Version Bump | Example |
+|---|---|---|
+| Major | Class retired, renamed in a way that breaks historical matching, or boundary substantially redefined | v2.0 → v3.0 |
+| Minor | New class added (Extend), or boundary clarified non-disruptively | v2.0 → v2.1 |
+| Patch | Description text edited, examples added, no semantic change | v2.0 → v2.0.1 |
+
+Start at v1.0. The shipped 17-class taxonomy is your starting point;
+your first adaptation is v1.1 (minor) or v2.0 (major) depending on
+whether you retired or renamed any defaults.
+
+### Where to Record the Version
+
+- **In every FailureRecord.** Add a `taxonomyVersion` field (e.g.,
+  `v2.1`). The schema can record the active version at write time.
+- **In your team notes.** A header line: `Taxonomy version: v2.1
+  (effective 2026-Q3)`.
+- **In the schema enum file.** A comment block at the top of the enum
+  declaration.
+- **In a changelog.** A `calibration/failure-taxonomy-changelog.md`
+  with one entry per version, listing what changed and why.
+
+### Migration Discipline
+
+When you bump the major version (a retire or breaking rename):
+
+1. **Freeze writes on the old version for 24–48 hours** while the
+   schema and team notes update lands.
+2. **Do not rewrite historical records** to the new version. They
+   keep their original `taxonomyVersion` value.
+3. **Recurrence detection across versions** uses a mapping table
+   (renames map old → new; retires are dropped). The mapping is part
+   of your team notes.
+4. **Cross-team alignment** (multi-team deployments) requires every
+   team to be on a known version. A team running v3.0 cannot share
+   recurrence reports with a team on v2.1 without a translation
+   layer.
+
+### What Not to Version
+
+- Description text fixes (typos, grammar) these are patch-level at
+  most, do not require a migration
+- Adding examples to an existing class informational, not semantic
+- Calibration notes about how to apply a class those live in
+  `calibration/team-notes.md`, not in the taxonomy version
 
 ---
 
@@ -208,7 +337,7 @@ not fit. The framework explicitly forbids this.
 Reason: a catch-all class accumulates failures that should be
 classified. Once "other" exists, the discipline of looking for the
 correct class collapses. Within ten sessions, "other" becomes the
-largest class, and recurrence detection becomes impossible — every
+largest class, and recurrence detection becomes impossible every
 failure in "other" matches every other failure in "other," producing
 useless noise.
 
@@ -223,7 +352,7 @@ If you have a failure that doesn't fit any class:
 - **After two or more such cases**, extend the taxonomy with a new
   class (mode 3 above).
 - **Until extension**, the records sit in `investigating`. This is
-  intentional friction — it forces the conversation that produces a
+  intentional friction it forces the conversation that produces a
   good extension.
 
 ---
@@ -257,6 +386,8 @@ The adapted taxonomy is a living document. Maintenance:
 | Audit `investigating`-status records to see if extension is needed | Monthly |
 | Verify cross-team consistency (multi-team deployments) | Per release cycle |
 | Recalibrate severity assignment per class | Annually |
+| Review retire candidates (zero-match in 12+ months) | Annually |
+| Bump taxonomy version when applicable | On change |
 
 A taxonomy that is set once and never reviewed will drift away from
 the actual failure modes the team experiences. Treat it as code —
@@ -272,6 +403,9 @@ versioned, reviewed, refined.
 | Renaming inconsistently across the team | Recurrence detection misses matches |
 | Extending too eagerly (one-offs) | Taxonomy bloats; matching becomes harder |
 | Subsetting too aggressively | Lose the language for failure modes that haven't happened yet but will |
+| Retiring a class because it's quiet, not because it's obsolete | Loses the language for a failure mode that is still possible |
+| Deleting historical records when retiring a class | Audit/recurrence views break; trust scoring loses backfill |
+| Skipping taxonomy version bumps | Cross-team and historical comparisons silently misalign |
 | Skipping the boundary documentation | Future writers misclassify |
 | Mapping a domain term to two default classes | Pattern detection produces false positives |
 
@@ -295,11 +429,11 @@ A well-adapted taxonomy passes these three tests.
 
 ## Related
 
-- `schemas/v1/failure-record.schema.json` — the schema (where the
+- `schemas/v1/failure-record.schema.json` the schema (where the
   enum lives).
-- `docs/concepts/failure-memory.md` — the conceptual model behind
+- `docs/concepts/failure-memory.md` the conceptual model behind
   the taxonomy.
-- `docs/operating-model/incident-management.md` — how the taxonomy
+- `docs/operating-model/incident-management.md` how the taxonomy
   is used at incident time.
-- `calibration/d1-d4-rubric.md` — D4 scoring depends on a working
+- `calibration/d1-d4-rubric.md` D4 scoring depends on a working
   taxonomy.

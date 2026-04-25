@@ -1,4 +1,4 @@
-# Session Close — Annotated Example [v1.0]
+# Session Close Annotated Example [v1.0]
 
 Full sanitized session close from a minimum viable adoption. This is the format every session ends in. The session does not end without this file.
 
@@ -35,29 +35,29 @@ Full sanitized session close from a minimum viable adoption. This is the format 
 
 ## What the agent did
 
-**Phase 1 — DEBUG (orchestrator):** Read the existing search index implementation. Identified the contract file. Read the contract. Wrote AgentTaskManifest naming `contractsReferenced: [search_index.contract.json]`.
+**Phase 1 DEBUG (orchestrator):** Read the existing search index implementation. Identified the contract file. Read the contract. Wrote AgentTaskManifest naming `contractsReferenced: [search_index.contract.json]`.
 
-**Phase 2 — SPEC (orchestrator):** Acceptance criteria written. No ambiguity flagged. Spawned `agent-srv` with manifest as input.
+**Phase 2 SPEC (orchestrator):** Acceptance criteria written. No ambiguity flagged. Spawned `agent-srv` with manifest as input.
 
-**Phase 3 — BUILD (agent-srv):**
+**Phase 3 BUILD (agent-srv):**
 - Modified `searchIndex.js` to accept the new field set.
 - Wrote field names in camelCase (e.g. `indexedAt`, `tokenizedTitle`).
 - Bulletin entry at BUILD start. Bulletin entry at BUILD complete.
-- Did NOT open `search_index.contract.json` during the build — read only the manifest summary.
+- Did NOT open `search_index.contract.json` during the build read only the manifest summary.
 
-**Phase 4 — QA (qa-agent):**
+**Phase 4 QA (qa-agent):**
 - Ran the contract validation test. **Failed.** `schema_validation` error: contract specifies snake_case (`indexed_at`, `tokenized_title`), implementation uses camelCase.
 - Produced QAVerdict QA-S20260412-001 with decision `fail`, defectClass `schema_violation`, novelty `new`.
 - Recommended escalation: `fix_agent`.
 
-**Phase 5 — FIX (fix-agent):**
+**Phase 5 FIX (fix-agent):**
 - Renamed the fields in `searchIndex.js` to snake_case.
 - Wrote regression test `test/contract/search-index-snake-case.test.js`.
 - Updated `agents/agent-srv/instructions.md` with the "open the contract before writing" rule.
 - Inserted AJV validation in `searchIndex.js` before any contract write (fail closed).
 - Wrote FailureRecord FAIL-2026-04-12-001.
 
-**Phase 6 — RE-QA (qa-agent):**
+**Phase 6 RE-QA (qa-agent):**
 - Re-ran the contract validation test. **Passed.**
 - Produced QAVerdict QA-S20260412-002 with decision `pass`, novelty n/a (this is the re-verification of the same task).
 
@@ -71,9 +71,9 @@ Full sanitized session close from a minimum viable adoption. This is the format 
 | `contractsReferenced` populated? | Yes | search_index.contract.json named |
 | Pre-task retrieval done? | Yes | No prior FailureRecord matched the `data_integrity` domain at this date |
 | All bulletin transitions written? | Partial | agent-srv missed one bulletin entry at the SPEC->BUILD transition (silent retry after a syntax error). Counted in D2. |
-| Hooks fired? | N/A | Minimum viable adoption — no hooks |
+| Hooks fired? | N/A | Minimum viable adoption no hooks |
 | Founder commits? | Yes | Founder committed after re-QA pass. No agent committed. |
-| HITL gates triggered? | None | riskLevel `medium` — founder review at decision points only, no HITL gate |
+| HITL gates triggered? | None | riskLevel `medium` founder review at decision points only, no HITL gate |
 | Failure records created? | 1 | FAIL-2026-04-12-001 |
 | Failure records closed? | 1 | FAIL-2026-04-12-001 closed at end of session, status `resolved`, fixTag `hotfix-plus-prevention` |
 
@@ -117,9 +117,9 @@ Per-agent D1-D4 with one line of evidence per dimension. No score without eviden
 
 | Dim | Score | Evidence |
 |---|---|---|
-| D1 Correctness | 22 | Fix worked. Regression test passes. Minus 3 because the AJV validation was added after the instruction update — order should have been hooks first, then instruction. |
+| D1 Correctness | 22 | Fix worked. Regression test passes. Minus 3 because the AJV validation was added after the instruction update order should have been hooks first, then instruction. |
 | D2 Observability | 22 | FailureRecord complete. Bulletin entries at FIX start and FIX complete. Minus 3 for one missing entry between artifact creation and re-QA handoff. |
-| D3 Compliance | 25 | All required prevention artifacts in place. Did not self-close — founder reviewed and approved closure. |
+| D3 Compliance | 25 | All required prevention artifacts in place. Did not self-close founder reviewed and approved closure. |
 | D4 Recurrence | 25 | First fix-agent invocation. No pattern. |
 | **Total** | **94** | **Tier (rolling, n=1): PROVISIONAL** |
 
@@ -145,7 +145,7 @@ What the next session starts with.
 
 **FailureRecords to surface at pre-task retrieval:**
 
-- FAIL-2026-04-12-001 — surface for any task touching `data_integrity` domain or any task with `contractsReferenced` in the manifest. The next orchestrator must include the prevention rule in any agent-srv brief: "Open the contract file before writing any field."
+- FAIL-2026-04-12-001 surface for any task touching `data_integrity` domain or any task with `contractsReferenced` in the manifest. The next orchestrator must include the prevention rule in any agent-srv brief: "Open the contract file before writing any field."
 
 **Trust state at next session start:**
 
@@ -162,9 +162,9 @@ What the next session starts with.
 
 **Reading list for the next orchestrator:**
 
-- `failure-records/FAIL-2026-04-12-001.md` — required reading before any `data_integrity` task
-- `agents/agent-srv/instructions.md` — review the new "open the contract" rule
-- `trust-score-ledger.md` — confirm the four new rows are in place
+- `failure-records/FAIL-2026-04-12-001.md` required reading before any `data_integrity` task
+- `agents/agent-srv/instructions.md` review the new "open the contract" rule
+- `trust-score-ledger.md` confirm the four new rows are in place
 
 ---
 

@@ -2,7 +2,7 @@
 
 **What triggers an autonomy gate to expand or contract.**
 
-Trust tiers are not labels — they are autonomy gates. Moving an agent
+Trust tiers are not labels they are autonomy gates. Moving an agent
 from STANDARD to HIGH expands what it can do without human review.
 Moving it the other way contracts that envelope. Both directions need
 explicit triggers and explicit records.
@@ -14,10 +14,10 @@ explicit triggers and explicit records.
 | Tier | Autonomy Gate |
 |---|---|
 | HIGH | Medium-risk work without step-by-step review |
-| STANDARD | Default tier — human reviews at decision points |
+| STANDARD | Default tier human reviews at decision points |
 | RESTRICTED | Human reviews before each phase transition |
 | PROBATION | Every file change reviewed; Boardroom if persists 3 sessions |
-| PROVISIONAL | First-session tier — single low-risk task only |
+| PROVISIONAL | First-session tier single low-risk task only |
 
 Tiers are mapped to scores in `docs/concepts/autonomy-gates.md`. This
 document specifies the **process** for moving between them.
@@ -132,7 +132,7 @@ These demotions require an authorized human or Boardroom decision:
 
 | Trigger | Authority |
 |---|---|
-| Persistent PROBATION (three sessions) | Boardroom — outcome may be retirement |
+| Persistent PROBATION (three sessions) | Boardroom outcome may be retirement |
 | Capability boundary breach | Authorized human; instruction review mandatory |
 | Repeated trust-score-driven escalations from manager agent | Boardroom |
 | Detected role drift (agent acting outside its instruction file) | Authorized human |
@@ -193,7 +193,7 @@ Some events reset confidence rather than just shifting the score.
 
 - Single bad session (just lowers the score)
 - Same agent on a new task in the same domain (continuity preserved)
-- Operator change (the human reviewer changing) — though calibration
+- Operator change (the human reviewer changing) though calibration
   spot-check is recommended
 
 ---
@@ -224,10 +224,10 @@ If three consecutive sessions in PROBATION fail to restore (sub-75
 score or new FailureRecord), the case escalates to Boardroom. The
 Boardroom may decide:
 
-- **Instruction rewrite** — boundary unchanged, role redefined
-- **Boundary reduction** — agent narrows scope, returns to STANDARD on
+- **Instruction rewrite** boundary unchanged, role redefined
+- **Boundary reduction** agent narrows scope, returns to STANDARD on
   the smaller surface
-- **Retirement** — `docs/operating-model/agent-lifecycle.md` § Retired
+- **Retirement** `docs/operating-model/agent-lifecycle.md` § Retired
 
 ---
 
@@ -245,7 +245,7 @@ The agent does not re-onboard at PROVISIONAL.
 
 Promotion to HIGH (especially for orchestrators or agents acting
 across multiple teams) may require sign-off from a calibration
-committee — three or more scorers reviewing the trailing window. This
+committee three or more scorers reviewing the trailing window. This
 is the v3.0 extension; at single-team scale a single authorized human
 suffices.
 
@@ -264,10 +264,10 @@ suffices.
 
 ## Related
 
-- `docs/operating-model/agent-lifecycle.md` — the four-state lifecycle
+- `docs/operating-model/agent-lifecycle.md` the four-state lifecycle
   these triggers move between.
-- `docs/operating-model/performance-review-cycle.md` — the scoring
+- `docs/operating-model/performance-review-cycle.md` the scoring
   cadence that produces the inputs.
-- `docs/operating-model/incident-management.md` — what happens when a
+- `docs/operating-model/incident-management.md` what happens when a
   demotion is triggered by an incident.
-- `docs/concepts/autonomy-gates.md` — tier definitions in concept form.
+- `docs/concepts/autonomy-gates.md` tier definitions in concept form.

@@ -6,27 +6,27 @@ This project adheres to semantic versioning for schemas and documentation. Break
 
 ---
 
-## [v1.0] — 2026-04-24
+## [v1.0] 2026-04-24
 
-### Added — Initial public release
+### Added Initial public release
 
-**Core concepts** — `docs/concepts/`
+**Core concepts** `docs/concepts/`
 
 - Agentic workforce model (agents-as-employees framing)
 - D1-D4 trust scoring with 100-point scale, calibration anchors, and hard-stop rules
 - Failure memory with 17-class taxonomy and pre-task retrieval pattern
 - Autonomy gates across five trust tiers (HIGH / STANDARD / RESTRICTED / PROBATION / PROVISIONAL)
 
-**Architecture** — `docs/architecture/`
+**Architecture** `docs/architecture/`
 
 - Four-plane model: Agentic Workforce, Autonomy, Control, Automation
 - Agent vs service vs hybrid vs routine classification rubric
 - Three-layer governance stack: runtime policy + routines + behavioral
 - MCP / A2A integration patterns
-- Enterprise scaling model (designed, not yet field-proven — labeled throughout)
+- Enterprise scaling model (designed, not yet field-proven labeled throughout)
 - Five Architecture Decision Records (ADRs 0001–0005)
 
-**Operating model** — `docs/operating-model/`
+**Operating model** `docs/operating-model/`
 
 - Agent lifecycle (onboarding → active → restricted → retired)
 - Task assignment and manifest creation
@@ -35,7 +35,7 @@ This project adheres to semantic versioning for schemas and documentation. Break
 - Promotion / demotion process with reset conditions
 - Incident management and failure record routing
 
-**Control plane** — `docs/control-plane/`
+**Control plane** `docs/control-plane/`
 
 - Pre-spawn protocol decision tree
 - Build state machine (DEBUG through COMPLETE)
@@ -45,24 +45,24 @@ This project adheres to semantic versioning for schemas and documentation. Break
 - Append-only audit trail pattern
 - Compliance evidence mapping (EU AI Act, NIST AI RMF, SOC 2, HIPAA readiness)
 
-**Schemas** — `schemas/v1/`
+**Schemas** `schemas/v1/`
 
-- `AgentTaskManifest` — mission context, files in scope, risk level
-- `QAVerdict` — structured pass/fail with per-criterion evidence
-- `FailureRecord` — 17-class taxonomy, recurrenceCount, prevention rule
-- `TrustScore` — D1-D4 per dimension, trust tier, confidence band
+- `AgentTaskManifest` mission context, files in scope, risk level
+- `QAVerdict` structured pass/fail with per-criterion evidence
+- `FailureRecord` 17-class taxonomy, recurrenceCount, prevention rule
+- `TrustScore` D1-D4 per dimension, trust tier, confidence band
 
 All schemas are AJV Draft 2020-12 compatible.
 
-**Database** — `database/governance/`
+**Database** `database/governance/`
 
-- 001_audit_log.sql — append-only audit trail
-- 002_agent_events.sql — activity events
-- 003_trust_scores.sql — per-session D1-D4 records
-- 004_failure_records.sql — 17-class failure library
-- 005_routine_runs.sql — routine execution log
+- 001_audit_log.sql append-only audit trail
+- 002_agent_events.sql activity events
+- 003_trust_scores.sql per-session D1-D4 records
+- 004_failure_records.sql 17-class failure library
+- 005_routine_runs.sql routine execution log
 
-**Hooks** — `hooks/`
+**Hooks** `hooks/`
 
 - PreToolUse examples: bulletin, lock, locked-states, agent spawn, failure lib, bulletin order
 - PostToolUse example: audit log write
@@ -70,13 +70,13 @@ All schemas are AJV Draft 2020-12 compatible.
 
 All hook examples follow the exit(2) = hard block protocol and fail closed by default.
 
-**Routines** — `routines/`
+**Routines** `routines/`
 
 - Routine model and adapter pattern documentation
 - R1 PR test template (Playwright-on-PR)
 - R4 security scan template
 
-**Calibration** — `calibration/`
+**Calibration** `calibration/`
 
 - D1-D4 rubric with calibration anchors
 - Anchor examples across scoring sessions
@@ -84,13 +84,13 @@ All hook examples follow the exit(2) = hard block protocol and fail closed by de
 - Scoring ledger template
 - Anti-patterns document
 
-**Examples** — `examples/`
+**Examples** `examples/`
 
 - Minimum viable adoption path (no hooks, no Postgres, no routines)
 - Single-workspace reference
 - Case study template
 
-**Guides** — `docs/guides/`
+**Guides** `docs/guides/`
 
 - Getting started (30-minute path)
 - Trust calibration
@@ -100,10 +100,10 @@ All hook examples follow the exit(2) = hard block protocol and fail closed by de
 
 ### Reserved
 
-- `schemas/v2/` — reserved for work queue and gate record schemas
-- `database/enterprise/` — reserved for v3.0 multi-workspace extension
-- `examples/multi-team/` — reserved for v3.0 enterprise reference
-- `.github/workflows/` — reserved for schema validation CI
+- `schemas/v2/` reserved for work queue and gate record schemas
+- `database/enterprise/` reserved for v3.0 multi-workspace extension
+- `examples/multi-team/` reserved for v3.0 enterprise reference
+- `.github/workflows/` reserved for schema validation CI
 
 ### Status Notes
 

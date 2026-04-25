@@ -7,7 +7,7 @@
 ## Context
 
 **Team size:** <e.g. 7 engineers, 1 ML engineer, 0 dedicated platform engineers>
-**Domain:** <generic — e.g. fintech, devtools, content platform, internal ops tooling>
+**Domain:** <generic e.g. fintech, devtools, content platform, internal ops tooling>
 **Product stage:** <pre-launch / growth / mature>
 **Prior AI tooling experience:** <none / experimented with single-agent prompts / running multiple agents already>
 **Adoption start date:** <YYYY-MM>
@@ -48,19 +48,19 @@ List the parts of the framework you took as written. Be specific.
 
 For each adaptation, describe what you changed and why.
 
-### <Adaptation 1 — short title>
+### <Adaptation 1 short title>
 
 What you changed: <e.g. "renamed `agent-srv` to `backend-engineer`">
 Why: <e.g. "team prefers explicit role names; the existing instruction file template required no other changes">
 Impact: <e.g. "no measurable impact on scoring or governance; pure naming">
 
-### <Adaptation 2 — short title>
+### <Adaptation 2 short title>
 
 What you changed:
 Why:
 Impact:
 
-### <Adaptation 3 — short title>
+### <Adaptation 3 short title>
 
 What you changed:
 Why:
@@ -82,7 +82,7 @@ A paragraph or two on outcomes. Quantitative where possible.
 - Before adoption: <e.g. "a week, often after staging deployment">
 - After adoption: <e.g. "within the same session, in QA">
 
-**Trust score trajectory — one or two agents:**
+**Trust score trajectory one or two agents:**
 
 | Agent | Sessions | Starting tier | Current tier | Notable patterns |
 |---|---|---|---|---|
@@ -97,29 +97,29 @@ A paragraph or two on outcomes. Quantitative where possible.
 **Specific catches you would not have caught without the framework:**
 
 - <One bullet per concrete catch. Generic descriptions of the scenario, no product specifics.>
-- <Example: "schema_violation in a `billing-rate-bug` — caught by pre-task retrieval injecting a prior FailureRecord into the brief">
+- <Example: "schema_violation in a `billing-rate-bug` caught by pre-task retrieval injecting a prior FailureRecord into the brief">
 
 ---
 
-## What did not work — REQUIRED
+## What did not work REQUIRED
 
 This is the section the reader learns from. Be honest. Minimum one item; ideally three or more.
 
-### <Issue 1 — short title>
+### <Issue 1 short title>
 
 What we tried: <e.g. "We adopted the build state machine end-to-end on day one">
 What broke: <e.g. "Engineers found the state-transition discipline too heavy for low-risk tasks">
 What we did instead: <e.g. "We applied the state machine only to medium and high-risk tasks; low-risk tasks skip it">
-What the next reader should know: <e.g. "Build state machine compliance is correlated with task risk level — adopt it gradually">
+What the next reader should know: <e.g. "Build state machine compliance is correlated with task risk level adopt it gradually">
 
-### <Issue 2 — short title>
+### <Issue 2 short title>
 
 What we tried:
 What broke:
 What we did instead:
 What the next reader should know:
 
-### <Issue 3 — short title>
+### <Issue 3 short title>
 
 What we tried:
 What broke:
@@ -144,7 +144,7 @@ Examples of useful advice:
 ## Sanitization confirmation
 
 - [ ] No customer or supplier names
-- [ ] No internal repo paths — `[PROJECT_REPO]` used as placeholder
+- [ ] No internal repo paths `[PROJECT_REPO]` used as placeholder
 - [ ] No production data values
 - [ ] No proprietary domain names
 - [ ] No trade secrets

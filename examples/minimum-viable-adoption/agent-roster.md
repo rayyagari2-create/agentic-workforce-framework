@@ -1,8 +1,8 @@
-# Agent Roster — Minimum Viable [v1.0]
+# Agent Roster Minimum Viable [v1.0]
 
 A generic five-agent roster for a small team adopting the framework. Every role maps to a human equivalent. Every agent has a stated capability boundary, a trust tier at introduction, and a named approver.
 
-This roster is a starting point. Adapt names, boundaries, and approvers to your team. Do not extend the roster past five agents in the first month — the value of the framework is in the discipline of running the same five agents through repeated scored sessions, not in adding more agents.
+This roster is a starting point. Adapt names, boundaries, and approvers to your team. Do not extend the roster past five agents in the first month the value of the framework is in the discipline of running the same five agents through repeated scored sessions, not in adding more agents.
 
 ---
 
@@ -27,7 +27,7 @@ Every agent starts at PROVISIONAL. No exceptions. Trust is observer-assigned and
 **Responsibilities:**
 
 - Receives the human-stated goal and translates it into one or more AgentTaskManifest entries.
-- Performs pre-task failure retrieval before spawning any subagent — reads the relevant FailureRecord index for the domain.
+- Performs pre-task failure retrieval before spawning any subagent reads the relevant FailureRecord index for the domain.
 - Spawns Frontend / Backend / QA / Fix agents with the manifest as input.
 - Tracks task state across the session (CREATED → ASSIGNED → IN_PROGRESS → COMPLETE).
 - Writes the session close at the end.
@@ -160,7 +160,7 @@ Every agent in this roster starts at trust tier PROVISIONAL. From the framework 
 | PROBATION | <60 | Every file change reviewed; Boardroom if persists 3 sessions |
 | **PROVISIONAL** | **n<5 sessions** | **No autonomy. Every action reviewed. Score is unreliable until n>=5.** |
 
-PROVISIONAL is not a low tier — it is an unscored tier. The confidence band is too thin to make autonomy decisions. Treat every PROVISIONAL agent as if it were on PROBATION until you have at least five scored sessions.
+PROVISIONAL is not a low tier it is an unscored tier. The confidence band is too thin to make autonomy decisions. Treat every PROVISIONAL agent as if it were on PROBATION until you have at least five scored sessions.
 
 ---
 

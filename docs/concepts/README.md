@@ -53,14 +53,14 @@ class, three add it to a benchmark, five force a systemic refactor.
 
 The five trust tiers (HIGH, STANDARD, RESTRICTED, PROBATION, PROVISIONAL) and
 what each unlocks. Promotion rules, demotion triggers, and gate expansion protocol.
-Trust tier is a control on what an agent can do without human review — it is the
+Trust tier is a control on what an agent can do without human review it is the
 operational consequence of the trust score.
 
 ---
 
 ## Concepts in this directory
 
-### [v1.0] — shipped
+### [v1.0] shipped
 
 | File | Summary |
 |---|---|
@@ -69,14 +69,14 @@ operational consequence of the trust score.
 | [failure-memory.md](failure-memory.md) | 17-class taxonomy, recurrence detection, pre-task retrieval, failure record lifecycle. |
 | [autonomy-gates.md](autonomy-gates.md) | Five trust tiers, promotion and demotion rules, gate expansion protocol. |
 
-### [v2.0] — designed, not yet shipped
+### [v2.0] designed, not yet shipped
 
 | File | Summary |
 |---|---|
 | [work-queues.md](work-queues.md) | Task lifecycle, queue states, assignment model, blocked resolution. |
 | [approval-gate-chains.md](approval-gate-chains.md) | Gate types, chain composition, TTL rules, escalation paths. |
 
-### [v3.0] — designed, not yet field-proven
+### [v3.0] designed, not yet field-proven
 
 | File | Summary |
 |---|---|
@@ -96,7 +96,7 @@ how to encode it.
 | Failure memory | `schemas/v1/failure-record.schema.json` | `failure_records` |
 | Agentic workforce model (task assignment) | `schemas/v1/agent-task-manifest.schema.json` | `work_queue_items` (v3.0) |
 | QA loop (input to D1) | `schemas/v1/qa-verdict.schema.json` | `agent_events` |
-| Autonomy gates | (no schema — derived from trust score) | `agent_instances.trust_level` (v3.0) |
+| Autonomy gates | (no schema derived from trust score) | `agent_instances.trust_level` (v3.0) |
 
 ---
 
@@ -112,7 +112,7 @@ A concept is useful in three places:
 3. **Adaptation.** When you adapt the framework to a different domain (legal,
    ops, support), start from the concepts and decide which are universal and
    which need translation. The 17-class failure taxonomy, for example, is a
-   starting point — you may rename, subset, or extend it. The trust-scoring
+   starting point you may rename, subset, or extend it. The trust-scoring
    four-dimension model is universal.
 
 ---

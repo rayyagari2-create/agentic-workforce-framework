@@ -15,7 +15,7 @@ IDLE → DEBUG → SPEC → PLAN → HITL → SPAWN → QA → COMPLETE
 ```
 
 No state skipping. Agents never commit without human review of the
-verdict. QA FAIL routes back to the orchestrator — never to another
+verdict. QA FAIL routes back to the orchestrator never to another
 subagent.
 
 ---
@@ -118,7 +118,7 @@ thresholds.
 
 `/spec` runs when ACs are unclear, contracts are missing or stale, or
 domain edge cases are not enumerated. Outputs are documents (acceptance
-criteria, contracts, edge cases) — not code.
+criteria, contracts, edge cases) not code.
 
 **Exit conditions:**
 - ACs are testable, cover the success path and named failure cases
@@ -140,7 +140,7 @@ actions, files to touch, order of operations. Output is a document.
 - Plan covers every AC
 - Files-to-touch list is consistent with `interfacesTouched`
 - Plan does not introduce out-of-scope changes (an indicator the spec
-  was incomplete — return to SPEC if so)
+  was incomplete return to SPEC if so)
 
 ---
 
@@ -306,9 +306,9 @@ scopes are completely disjoint.
 - Each parallel orchestrator is assigned a lane: `[LANE-A]`, `[LANE-B]`,
   `[LANE-C]`
 - Lane declared in the first bulletin entry of each session
-- `agent-locks` checked by both before spawning — if the other lane
+- `agent-locks` checked by both before spawning if the other lane
   holds a lock on a file in scope, halt and surface to the human
-- Bulletin entries prefixed with the lane ID — interleaving is readable
+- Bulletin entries prefixed with the lane ID interleaving is readable
 
 Row-level locking via the database backbone removes collision risk at
 Wave 2. Until then, lane-prefixed file-based bulletin entries are the
@@ -330,7 +330,7 @@ These hold across every session:
 5. **The orchestrator owns routing.** Subagents cannot route to
    subagents.
 6. **Locks released only at COMPLETE.** Not at SPAWN exit, not at QA
-   exit — only when the session reaches COMPLETE.
+   exit only when the session reaches COMPLETE.
 
 A session that violates any of these invariants is recorded as a
 governance failure and triggers the meta-governance review path.
@@ -339,11 +339,11 @@ governance failure and triggers the meta-governance review path.
 
 ## Related
 
-- `pre-spawn-protocol.md` — the gate before SPAWN; produces the
+- `pre-spawn-protocol.md` the gate before SPAWN; produces the
   manifest the state machine consumes.
-- `hitl-gates.md` — gate type detail for the HITL state.
-- `hook-system.md` — the OS-level backstop that enforces the
+- `hitl-gates.md` gate type detail for the HITL state.
+- `hook-system.md` the OS-level backstop that enforces the
   invariants.
-- `meta-governance.md` — what to do when the state machine itself
+- `meta-governance.md` what to do when the state machine itself
   fails.
-- `audit-trail-patterns.md` — how state transitions are recorded.
+- `audit-trail-patterns.md` how state transitions are recorded.

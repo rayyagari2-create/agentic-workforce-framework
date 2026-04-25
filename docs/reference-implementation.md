@@ -7,7 +7,7 @@ sessions, real failures, and real recoveries before being published.
 
 This document describes the reference implementation in sanitized form. It
 exists to back the "production-informed" claim with concrete capability
-status — what is live, what is partial, what is designed but not yet shipped.
+status what is live, what is partial, what is designed but not yet shipped.
 It does not include product-specific flows, supplier integrations, or any
 private repository paths.
 
@@ -18,7 +18,7 @@ private repository paths.
 **Single-workspace.** One operator. One repository. One set of agents.
 The entire framework was built and exercised inside this single workspace
 before any extension to multi-team scale was attempted. Multi-workspace and
-enterprise scaling are designed extensions — not yet field-proven.
+enterprise scaling are designed extensions not yet field-proven.
 
 **File-based governance, migrating to Postgres.** Trust scoring, failure
 memory, bulletins, and locks all started as file-based artifacts in the
@@ -51,7 +51,7 @@ All five are at HIGH tier on the most recent scoring window. The frontend
 and backend agents reached HIGH after the reference implementation accumulated
 enough sessions to clear MEDIUM confidence band. The orchestrator was at
 RESTRICTED briefly during an instruction-file regression and recovered to
-HIGH over three subsequent sessions — a documented promotion-recovery cycle
+HIGH over three subsequent sessions a documented promotion-recovery cycle
 that informed the demotion and recovery rules in
 [concepts/autonomy-gates.md](concepts/autonomy-gates.md).
 
@@ -65,7 +65,7 @@ Honest accounting. No mixing of current state with target state.
 |---|---|
 | Single-workspace orchestrator model | Live. Running in private reference implementation. |
 | D1-D4 trust scoring | Live. Manual scoring with evidence line per dimension. 15+ sessions completed. |
-| Failure memory | Live. File-based, 17-class taxonomy. Recurrence detection working — multiple recurrence escalations have fired and produced fixes. |
+| Failure memory | Live. File-based, 17-class taxonomy. Recurrence detection working multiple recurrence escalations have fired and produced fixes. |
 | Hook enforcement | Live. Local runtime. 13 hooks across pre-tool-use and post-tool-use boundaries. Fail-closed by default. |
 | AGT-style runtime policy adapter | Shadow mode live. The adapter intercepts and logs but does not yet block. Enforcement-mode promotion is pending shadow validation. |
 | Postgres governance schema | Schema live. Tables, constraints, and indexes are in place. Data migration from file-based to Postgres is in progress. |
@@ -77,7 +77,7 @@ Honest accounting. No mixing of current state with target state.
 
 The pattern: anything labeled "live" has run in production sessions and
 produced observable governance value. Anything labeled "designed" has a
-schema, a documented protocol, or a template — but has not been exercised
+schema, a documented protocol, or a template but has not been exercised
 under real load. The framework is honest about this distinction because
 governance claims that are not field-proven are governance fiction.
 
@@ -96,7 +96,7 @@ The framework's core claims are backed by reference implementation observations:
   retrieval has demonstrably caused agents to recognize and avoid recurring
   patterns.
 - **Hooks block what they should block.** The fail-closed default has
-  produced false positives (legitimate work briefly blocked) — those are
+  produced false positives (legitimate work briefly blocked) those are
   filed as evolution items and resolved by tightening hook logic, not by
   loosening fail-closed semantics. The hook system has never silently
   permitted an action it should have blocked.
@@ -168,8 +168,8 @@ extend it. The framework is what was extracted, sanitized, and published.
 The implementation is the application of the framework to one specific
 product. It contains business logic, pricing, supplier relationships,
 patent-protected scoring, and product-specific flows. None of this generalizes.
-Publishing it would mix two layers of value — the abstract framework and the
-specific product — and damage both.
+Publishing it would mix two layers of value the abstract framework and the
+specific product and damage both.
 
 The framework benefits from being shared: it gets adopted, critiqued,
 extended, and stress-tested by other operators. The implementation does

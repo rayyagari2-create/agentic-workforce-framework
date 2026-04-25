@@ -5,7 +5,7 @@ escalation.**
 
 A HITL gate is a hard pause in the build state machine. The agent
 cannot proceed without an authorized human decision. Gates are the
-mechanism that keeps autonomy bounded by accountability — the more
+mechanism that keeps autonomy bounded by accountability the more
 risk a task carries, the more explicit the approval trail.
 
 ---
@@ -19,7 +19,7 @@ risk a task carries, the more explicit the approval trail.
 | `ESCALATION` | Prior gate timed out; or 3-strike threshold hit; or `recurrenceCount ≥ 3` | Escalate to next-tier authority |
 | `APPROVAL` | CRITICAL-risk threshold; cross-schema; runtime policy change | Multi-authority sign-off |
 
-A task may fire multiple gate types in sequence — for example, a
+A task may fire multiple gate types in sequence for example, a
 CRITICAL task whose APPROVAL gate is delegated and then escalated
 because the delegate also declined.
 
@@ -144,7 +144,7 @@ delegation_rules columns (subset):
    (typical: 14 days). Long delegations defeat the audit value.
 5. **Audit log records every delegation creation and every approval
    decision made under delegation.** A delegation that is never used
-   is also recorded — for completeness.
+   is also recorded for completeness.
 
 ### Delegation Scope Rules
 
@@ -204,7 +204,7 @@ automatically.
 
 The 3-strike rule is detailed in `build-state-machine.md`. From the
 gate perspective, strike 3 forces the next decision out of the team's
-hands — even if the underlying task was originally classified as
+hands even if the underlying task was originally classified as
 LOW or MEDIUM.
 
 This is the gate-level expression of "fix attempts that don't fix
@@ -237,7 +237,7 @@ hitl:
       approverId: <user_id>
       decision: APPROVED | REJECTED | ESCALATED | EXPIRED
       decidedAt: <ISO 8601 timestamp>
-      rationale: <text — required for all decisions>
+      rationale: <text required for all decisions>
       delegatedFrom: <user_id>           # only if under delegation
       delegationExpires: <ISO 8601>       # only if under delegation
       correlationId: <UUID>
@@ -251,7 +251,7 @@ hitl:
 2. **`rationale` is mandatory** for every decision, including
    APPROVED. The most common audit failure is silent approval.
 3. **`correlationId` threads through to `audit_log` and
-   `gate_records`** — the same ID appears in all three places.
+   `gate_records`** the same ID appears in all three places.
 4. **A REJECTED decision routes the task to IDLE.** The manifest is
    archived; the next attempt requires a refined manifest.
 5. **An EXPIRED decision triggers ESCALATION automatically.** A
@@ -325,7 +325,7 @@ reconstruct the full chain.
 
 ---
 
-## Gate Records — Audit Properties
+## Gate Records Audit Properties
 
 Every gate decision lands in `gate_records` (enterprise-scale
 Postgres) or in the manual_reviews equivalent (single-workspace
@@ -335,7 +335,7 @@ immutable `audit_log` event with `before_state`, `after_state`,
 `actor_id`, `correlation_id`, `timestamp`. The `id` and `created_at`
 fields are immutable.
 
-This is the operational lifecycle mutability rule — the gate row
+This is the operational lifecycle mutability rule the gate row
 itself can move through `PENDING → APPROVED/REJECTED/EXPIRED`, but
 every transition is captured in the append-only audit trail.
 
@@ -343,9 +343,9 @@ every transition is captured in the append-only audit trail.
 
 ## Related
 
-- `pre-spawn-protocol.md` — where the HITL state is entered.
-- `build-state-machine.md` — the lifecycle context for the HITL state.
-- `audit-trail-patterns.md` — how gate decisions are recorded.
-- `hook-system.md` — what enforces "no spawn without manifest
+- `pre-spawn-protocol.md` where the HITL state is entered.
+- `build-state-machine.md` the lifecycle context for the HITL state.
+- `audit-trail-patterns.md` how gate decisions are recorded.
+- `hook-system.md` what enforces "no spawn without manifest
   decisions."
-- `meta-governance.md` — what to do when a gate itself fails.
+- `meta-governance.md` what to do when a gate itself fails.

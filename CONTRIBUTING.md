@@ -20,7 +20,7 @@ Corrections, clarifications, and additions to the framework docs under `/docs/`.
 
 **Process:**
 
-1. Open a GitHub issue first for anything larger than a typo — use the "Concept question" template for design questions and a plain bug report for factual errors.
+1. Open a GitHub issue first for anything larger than a typo use the "Concept question" template for design questions and a plain bug report for factual errors.
 2. For a small correction you can send a PR directly. Keep the PR scoped to the single change.
 3. For a substantive change, discuss in the issue before writing.
 4. Every PR that modifies documentation must run through the extraction safety check: no references to private repositories, product names, or internal paths. The PR template includes this checkbox.
@@ -30,7 +30,7 @@ Corrections, clarifications, and additions to the framework docs under `/docs/`.
 
 - Speculative concepts that have not been validated in at least one real implementation
 - Promotional content for third-party tools or libraries
-- Renaming of core terms without prior discussion — terms are load-bearing across many files
+- Renaming of core terms without prior discussion terms are load-bearing across many files
 
 ---
 
@@ -42,12 +42,12 @@ Adoption stories from teams who have implemented or adapted the framework. Case 
 
 - Single-team adoption stories
 - Multi-team extensions (especially v3.0 multi-workspace feedback)
-- Adaptations where you changed the framework to fit your domain — we want to know what you changed and why
+- Adaptations where you changed the framework to fit your domain we want to know what you changed and why
 - Honest reports where parts of the framework did not work for you
 
 **Process:**
 
-1. Start from [`examples/case-studies/TEMPLATE.md`](examples/case-studies/TEMPLATE.md) — copy it into a new file `examples/case-studies/<your-team-or-project>.md`.
+1. Start from [`examples/case-studies/TEMPLATE.md`](examples/case-studies/TEMPLATE.md) copy it into a new file `examples/case-studies/<your-team-or-project>.md`.
 2. Sanitize before submission. Do not include customer names, internal agent names that reveal product strategy, or trade secrets. The case study should be useful to a reader who knows nothing about your business.
 3. Include the required sections from the template: context, what you adopted, what you adapted, measured outcomes, what did not work.
 4. Open a PR. A maintainer will review for clarity and sanitization before merge.
@@ -65,7 +65,7 @@ Proposals for new JSON schemas, new versions of existing schemas, or extensions 
 **What we accept:**
 
 - New schemas that cover capabilities not in v1.0 (e.g., gate records, work queue items when v2.0 opens)
-- New versions of existing schemas — submitted as `schemas/v2/` and up, never as a modification to a shipped version
+- New versions of existing schemas submitted as `schemas/v2/` and up, never as a modification to a shipped version
 - Additive SQL extensions to `database/governance/` or `database/enterprise/`
 
 **Process:**
@@ -89,7 +89,7 @@ Proposals for new JSON schemas, new versions of existing schemas, or extensions 
 
 Every PR must:
 
-- [ ] Pass the extraction safety check — no private repository names, product names, or internal paths
+- [ ] Pass the extraction safety check no private repository names, product names, or internal paths
 - [ ] Include a rationale in the description
 - [ ] Touch only the scope described in the title
 - [ ] Update relevant cross-references if terms or paths change

@@ -6,10 +6,10 @@ All schemas are written for **AJV with JSON Schema Draft 2020-12**.
 These schemas describe the four governance contracts that any single-workspace
 deployment must produce and consume:
 
-- **AgentTaskManifest** — the dispatch contract. No manifest = no dispatch.
-- **QAVerdict** — structured QA result with defect classification and trust impact.
-- **FailureRecord** — entry in the self-learning failure library (17-class taxonomy).
-- **TrustScore** — D1-D4 session score plus the 8-dimension long-term profile.
+- **AgentTaskManifest** the dispatch contract. No manifest = no dispatch.
+- **QAVerdict** structured QA result with defect classification and trust impact.
+- **FailureRecord** entry in the self-learning failure library (17-class taxonomy).
+- **TrustScore** D1-D4 session score plus the 8-dimension long-term profile.
 
 ## v1 schemas (current)
 
@@ -44,7 +44,7 @@ if (!ok) console.error(validate.errors);
 
 Notes:
 
-- Pass `strict: true`. The schemas are strict — every object sets
+- Pass `strict: true`. The schemas are strict every object sets
   `additionalProperties: false` so unknown fields fail loudly.
 - Use `ajv-formats` for `date-time` validation.
 - `null` is an explicit allowed value on optional fields where present
@@ -68,7 +68,7 @@ Schemas are versioned under `v1/`, `v2/`, ... directories. The rules are:
 4. **Implementations may extend enums locally.** A project running this
    framework MAY constrain a generic `string` field (e.g., `domain`) to a
    project-specific enum in its own schema overlay. The reverse —
-   loosening a v1 enum — requires a v2 bump.
+   loosening a v1 enum requires a v2 bump.
 5. **The 17-class `failureClass` enum is intentionally cross-cutting.** It is
    designed to apply to any domain and SHOULD NOT be subset by implementers.
    Implementers may add classes, but additions require a v2 bump.
@@ -85,5 +85,5 @@ overlays rather than forking these files.
 
 ## Status
 
-- **v1.0** — current, ships at public launch.
-- **v2.0** — reserved (see [`v2/README.md`](v2/README.md)).
+- **v1.0** current, ships at public launch.
+- **v2.0** reserved (see [`v2/README.md`](v2/README.md)).

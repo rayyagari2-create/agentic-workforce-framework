@@ -10,10 +10,10 @@ when you need something else.
 
 | Directory | What It Covers | Read When |
 |---|---|---|
-| `docs/concepts/` | Mental models — what each idea means | You want to understand a concept (trust scoring, failure memory, autonomy gates) |
-| `docs/architecture/` | Structural decisions — how the framework fits together | You want to understand boundaries, planes, and decision records |
-| `docs/operating-model/` | Day-to-day running — how the workforce operates | You want to know how to run it: lifecycle, assignment, performance review |
-| `docs/control-plane/` | Enforcement — pre-spawn, hooks, HITL gates, audit trail | You want to know how the rules are enforced |
+| `docs/concepts/` | Mental models what each idea means | You want to understand a concept (trust scoring, failure memory, autonomy gates) |
+| `docs/architecture/` | Structural decisions how the framework fits together | You want to understand boundaries, planes, and decision records |
+| `docs/operating-model/` | Day-to-day running how the workforce operates | You want to know how to run it: lifecycle, assignment, performance review |
+| `docs/control-plane/` | Enforcement pre-spawn, hooks, HITL gates, audit trail | You want to know how the rules are enforced |
 
 Concepts answer *what*. Architecture answers *how it fits*. The operating model
 answers *how to run it*. The control plane answers *how the rules are enforced*.
@@ -25,25 +25,25 @@ None of these replaces the others.
 
 Read in this order if you are new to the framework:
 
-1. **[four-plane-model.md](four-plane-model.md)** — The top-level architecture.
+1. **[four-plane-model.md](four-plane-model.md)** The top-level architecture.
    Workforce, autonomy, control, and automation. This is the single diagram every
    other document refers back to.
-2. **[agent-vs-service.md](agent-vs-service.md)** — The classification rubric.
+2. **[agent-vs-service.md](agent-vs-service.md)** The classification rubric.
    Distinguishes agents, services, hybrids, and routines. Without this, the
    roster and the schemas read ambiguously.
-3. **[agent-roster.md](agent-roster.md)** — The five core agents introduced at
+3. **[agent-roster.md](agent-roster.md)** The five core agents introduced at
    v1.0, with role, classification, human equivalent, and trust tier at
    introduction.
-4. **[three-layer-stack.md](three-layer-stack.md)** — Where this framework sits
+4. **[three-layer-stack.md](three-layer-stack.md)** Where this framework sits
    relative to runtime policy layers and scheduled automation.
-5. **[mcp-a2a-integration.md](mcp-a2a-integration.md)** — How MCP and A2A
+5. **[mcp-a2a-integration.md](mcp-a2a-integration.md)** How MCP and A2A
    protocols relate. Intelligence layer vs execution layer.
-6. **[enterprise-scaling.md](enterprise-scaling.md)** — Multi-workspace,
+6. **[enterprise-scaling.md](enterprise-scaling.md)** Multi-workspace,
    Division Orchestrator, role-agent alignment at scale. Designed; not yet
    field-proven.
-7. **[architecture-review-log.md](architecture-review-log.md)** — Reviewer
+7. **[architecture-review-log.md](architecture-review-log.md)** Reviewer
    concerns and how each was resolved. Demonstrates iteration.
-8. **[decision-records/](decision-records/)** — ADRs. Why each major decision
+8. **[decision-records/](decision-records/)** ADRs. Why each major decision
    was made, what was considered, what the consequences are.
 
 ---
@@ -67,7 +67,7 @@ architecture.
 
 Classification rubric for every component the framework names. An agent has
 reasoning, identity, and trust history. A service is deterministic and owns
-canonical truth. A hybrid splits internally — the reasoning subpart never
+canonical truth. A hybrid splits internally the reasoning subpart never
 writes to canonical tables. A routine is short-lived, trigger-driven, has no
 identity, and writes only to `routine_runs`. Includes a tabular decision tree.
 
@@ -89,8 +89,8 @@ None replaces the others.
 
 ### [mcp-a2a-integration.md](mcp-a2a-integration.md)
 
-MCP is the intelligence layer — agents reach external context through MCP
-connectors. A2A is the execution layer — agents spawn and hand off to other
+MCP is the intelligence layer agents reach external context through MCP
+connectors. A2A is the execution layer agents spawn and hand off to other
 agents through A2A. They are complementary protocols. This framework sits
 above both: it does not replace either.
 

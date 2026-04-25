@@ -60,7 +60,7 @@ to retry or escalate.
 exit(0)  →  ALLOW. Hook ran cleanly; no policy violation found.
 exit(2)  →  BLOCK. Hook ran cleanly; policy violation detected.
 exit(*)  →  BLOCK. Hook itself failed (parse error, missing dependency,
-            unhandled exception). Treated as exit(2) — fail closed.
+            unhandled exception). Treated as exit(2) fail closed.
 ```
 
 There is no `exit(1)` for "warning" or "advisory." A hook that found
@@ -74,8 +74,8 @@ mode the hook system exists to prevent. A warning that the agent can
 choose to ignore is not enforcement; it is decoration. Either the
 action is permitted or it is not.
 
-If the policy genuinely needs a "soft" path — for example, a deprecation
-that should warn now and block later — the right pattern is:
+If the policy genuinely needs a "soft" path for example, a deprecation
+that should warn now and block later the right pattern is:
 
 1. Hook runs as `exit(0)` today
 2. Hook writes a `policy_violations` record with severity=WARN
@@ -90,8 +90,8 @@ exit code.
 ## Fail-Closed Design Principle
 
 **Every hook fails closed.** A read error, a parse error, an
-unexpected exception — any non-zero exit that is not the deliberate
-`exit(2)` — is treated as a block.
+unexpected exception any non-zero exit that is not the deliberate
+`exit(2)` is treated as a block.
 
 The reason is asymmetric cost:
 
@@ -128,7 +128,7 @@ Authority:  any caller with a valid unexpired marker is granted override
 ```
 
 A hook that finds the marker and validates the timestamp will allow the
-action it would otherwise block. The marker is consumed on use — every
+action it would otherwise block. The marker is consumed on use every
 override is logged.
 
 ### Override Properties
@@ -137,11 +137,11 @@ override is logged.
    targeted action; not enough to forget the marker exists.
 2. **Scope is per-marker, not per-caller.** The marker grants override
    to whatever action runs while it is active. This was a deliberate
-   correction from earlier designs that gated by caller type — caller
+   correction from earlier designs that gated by caller type caller
    type was a worse signal than marker presence.
 3. **Every use is logged.** `audit/overrides.log` records the marker
    creation, the action that triggered the hook, and the outcome.
-4. **The marker is in a control-plane directory** — agent processes
+4. **The marker is in a control-plane directory** agent processes
    cannot create the marker themselves. Creating an override is a
    human-only operation.
 
@@ -181,7 +181,7 @@ Normal:    Runtime policy layer (sub-ms) → hooks (defense in depth)
 Degraded:  hooks (now the only enforcement)
 ```
 
-In normal operation, hooks are a backstop — most violations are caught
+In normal operation, hooks are a backstop most violations are caught
 upstream by the policy SDK. In degraded mode, hooks become primary.
 
 ### Degraded Mode Rules
@@ -208,7 +208,7 @@ be performed, the action is blocked.
 
 Hooks group into five categories by what they enforce.
 
-### Category 1 — Bulletin and Audit
+### Category 1 Bulletin and Audit
 
 | Hook | Enforces |
 |---|---|
@@ -221,7 +221,7 @@ These hooks make the audit trail trustworthy. A malformed bulletin
 entry is rejected before it lands; an out-of-order entry is rejected;
 an audit write that does not carry a correlation ID is rejected.
 
-### Category 2 — Failure Library
+### Category 2 Failure Library
 
 | Hook | Enforces |
 |---|---|
@@ -231,7 +231,7 @@ Bad data in the failure library degrades pre-task retrieval, which
 degrades pre-spawn classification, which degrades risk routing. The
 failure library is too load-bearing to allow malformed entries.
 
-### Category 3 — Locks and File Scope
+### Category 3 Locks and File Scope
 
 | Hook | Enforces |
 |---|---|
@@ -242,7 +242,7 @@ These hooks prevent two agents from stepping on each other and
 prevent any agent from editing a region marked as locked by an
 operator decision.
 
-### Category 4 — Spawn and Authority
+### Category 4 Spawn and Authority
 
 | Hook | Enforces |
 |---|---|
@@ -253,12 +253,12 @@ operator decision.
 These are the hook-level expression of the pre-spawn protocol and the
 "orchestrator owns routing" invariant.
 
-### Category 5 — Git and Control Plane
+### Category 5 Git and Control Plane
 
 | Hook | Enforces |
 |---|---|
 | `check-git` | Git operations require explicit human authorization for commits to protected branches |
-| `check-orchestrator-edit` | The control plane directory is human-only — no agent edits |
+| `check-orchestrator-edit` | The control plane directory is human-only no agent edits |
 | `check-override` | Validates the override marker (TTL, log record) |
 
 Category 5 protects the artifacts that the rest of the system depends
@@ -281,7 +281,7 @@ These apply across all categories.
    controlled by TTL (10 minutes), not by caller type.
 4. **Every override is logged** to the override log on every use.
 5. **Hook updates require the same governance as control plane
-   changes.** A hook change is a CRITICAL-risk action — it touches the
+   changes.** A hook change is a CRITICAL-risk action it touches the
    enforcement layer. Boardroom session required.
 
 ---
@@ -305,13 +305,13 @@ These apply across all categories.
 
 ## Related
 
-- `pre-spawn-protocol.md` — defines the manifest that
+- `pre-spawn-protocol.md` defines the manifest that
   `check-agent-spawn` validates.
-- `build-state-machine.md` — defines the QA invariants
+- `build-state-machine.md` defines the QA invariants
   PostToolUse hooks enforce on session-complete.
-- `audit-trail-patterns.md` — defines the audit format that
+- `audit-trail-patterns.md` defines the audit format that
   `check-audit-write` enforces.
-- `hitl-gates.md` — defines the gate decisions that hooks check the
+- `hitl-gates.md` defines the gate decisions that hooks check the
   presence of.
-- `meta-governance.md` — addresses the hook false-positive failure
+- `meta-governance.md` addresses the hook false-positive failure
   mode in the broader governance failure context.

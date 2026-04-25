@@ -56,4 +56,4 @@ If the bug is in a hook example:
 
 ## Additional context
 
-Anything else useful — related issues, prior discussions, screenshots if applicable.
+Anything else useful related issues, prior discussions, screenshots if applicable.

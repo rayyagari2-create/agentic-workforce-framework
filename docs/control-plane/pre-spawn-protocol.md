@@ -4,7 +4,7 @@
 
 Pre-spawn governance is the cheapest place to catch routing errors,
 unclear specifications, and recurring failure patterns. A spawn that
-skips pre-spawn is a hook violation — the agent does not start.
+skips pre-spawn is a hook violation the agent does not start.
 
 The protocol formalizes a single sequence:
 
@@ -38,13 +38,13 @@ loops, rolled-back commits, escalation theater).
 ## The Three Steps
 
 ```
-STEP 1 — /debug
+STEP 1 /debug
     Risk classification + pre-task failure retrieval
     ▼
-STEP 2 — /spec vs /plan routing
+STEP 2 /spec vs /plan routing
     Specification mode or build mode
     ▼
-STEP 3 — HITL gate triggers
+STEP 3 HITL gate triggers
     HIGH risk → human approval required
     ▼
 SPAWN
@@ -55,7 +55,7 @@ returns to the queue with a refinement note or escalates.
 
 ---
 
-## Step 1 — /debug: Risk Classification
+## Step 1 /debug: Risk Classification
 
 The output of step 1 is a single attribute: `riskLevel`, one of
 `LOW / MEDIUM / HIGH / CRITICAL`.
@@ -66,7 +66,7 @@ The output of step 1 is a single attribute: `riskLevel`, one of
 |---|---|---|
 | LOW | Single-file, no locked regions | No HITL required |
 | MEDIUM | Multi-file, standard domains | Executing agent default: HITL required |
-| HIGH | Payment flow, auth, entitlement, schema change | Always HITL — no exceptions |
+| HIGH | Payment flow, auth, entitlement, schema change | Always HITL no exceptions |
 | CRITICAL | Cross-schema, runtime policy change, public-API change | Boardroom review before proceed |
 
 ### Required Inputs at Step 1
@@ -90,7 +90,7 @@ for FailureRecords matching:
 - `agentsInvolved` matching the assigned agent
 
 Matches are written into the manifest's `priorFailureContext`. The
-agent reads them at spawn — this is the reference check before
+agent reads them at spawn this is the reference check before
 assignment.
 
 ### Recurrence Implications
@@ -100,7 +100,7 @@ assignment.
 | `recurrenceCount = 1` | Surface in manifest; agent reads pre-spawn |
 | `recurrenceCount ≥ 2` | Manifest annotated; orchestrator notes elevated risk (systemic flag) |
 | `recurrenceCount ≥ 3` | Boardroom session triggered; spawn does not proceed without it |
-| `recurrenceCount ≥ 5` | Systemic refactor required — unavoidable |
+| `recurrenceCount ≥ 5` | Systemic refactor required unavoidable |
 
 ### Classification Authority
 
@@ -113,22 +113,22 @@ written rationale and are logged to the audit trail.
 - **Underclassification.** A schema change classified as MEDIUM. This
   is the dominant failure mode. Hooks at the file-touch layer are the
   backstop.
-- **Overclassification.** Less harmful — a LOW classified as MEDIUM
+- **Overclassification.** Less harmful a LOW classified as MEDIUM
   consumes review time but produces no incident.
 - **Indeterminate.** The task is too vague to classify. The right
   answer is to return to the queue and refine, not to guess.
 
 ---
 
-## Step 2 — /spec vs /plan Routing
+## Step 2 /spec vs /plan Routing
 
 ### What These Modes Are
 
 Two pre-execution modes are available:
 
-- **/spec** — Produces or refines a specification: acceptance criteria,
+- **/spec** Produces or refines a specification: acceptance criteria,
   contracts, edge cases. Outputs are documents, not code.
-- **/plan** — Produces a build plan against an existing spec:
+- **/plan** Produces a build plan against an existing spec:
   step-by-step actions, files to touch, order of operations. Outputs
   are documents, not code.
 
@@ -171,7 +171,7 @@ ACs that depend on the agent's "judgment" are not clear ACs.
 
 ---
 
-## Step 3 — HITL Gate Triggers
+## Step 3 HITL Gate Triggers
 
 The risk level from step 1 plus the routing decision from step 2 drive
 the gate at step 3.
@@ -198,7 +198,7 @@ name, version, and reason. Transitive dependency upgrades through a
 lockfile-only operation follow the same rule.
 
 This rule exists because dependency changes are the most common silent
-risk amplifier — a routine "bump versions" operation can move a
+risk amplifier a routine "bump versions" operation can move a
 project's effective trust posture without any visible behavior change.
 
 ### When a Boardroom Session is Required
@@ -223,10 +223,10 @@ Boardroom session.
 
 Pre-spawn produces three artifacts, in order:
 
-1. **A classified task** — `riskLevel`, `domains`, and
+1. **A classified task** `riskLevel`, `domains`, and
    `interfacesTouched` populated.
-2. **A routing decision** — /spec or /plan.
-3. **An AgentTaskManifest** — all gate triggers resolved,
+2. **A routing decision** /spec or /plan.
+3. **An AgentTaskManifest** all gate triggers resolved,
    `priorFailureContext` populated, HITL approvals recorded if any
    were obtained, `evalPlan` present for MEDIUM and HIGH.
 
@@ -290,10 +290,10 @@ The cost gradient is intentional. CRITICAL risk should feel slow.
 
 ## Related
 
-- `docs/control-plane/build-state-machine.md` — the lifecycle pre-spawn
+- `docs/control-plane/build-state-machine.md` the lifecycle pre-spawn
   feeds into.
-- `docs/control-plane/hitl-gates.md` — the gate types step 3 may fire.
-- `docs/control-plane/hook-system.md` — the OS-level backstop that
+- `docs/control-plane/hitl-gates.md` the gate types step 3 may fire.
+- `docs/control-plane/hook-system.md` the OS-level backstop that
   catches missing manifests.
-- `schemas/v1/agent-task-manifest.schema.json` — the artifact pre-spawn
+- `schemas/v1/agent-task-manifest.schema.json` the artifact pre-spawn
   produces.

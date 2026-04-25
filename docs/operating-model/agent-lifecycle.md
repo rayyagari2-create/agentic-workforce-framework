@@ -22,7 +22,7 @@ ONBOARDING  →  ACTIVE  →  RESTRICTED  →  RETIRED
 |---|---|---|---|
 | ONBOARDING | Identity created, instruction file drafted, not yet scored | PROVISIONAL | First session only |
 | ACTIVE | Accepting tasks, scored per session | HIGH / STANDARD | Yes, per autonomy gate |
-| RESTRICTED | Hard-stop hit or D4 recurrence triggered | RESTRICTED / PROBATION | Limited — see below |
+| RESTRICTED | Hard-stop hit or D4 recurrence triggered | RESTRICTED / PROBATION | Limited see below |
 | RETIRED | Superseded, role split, or removed after Boardroom | n/a | No |
 
 ---
@@ -44,15 +44,15 @@ agent.
 
 Before the first task is assigned, all of the following must exist:
 
-1. **Agent ID** — a stable identifier (e.g., `qa-agent`, `agent-fe`).
+1. **Agent ID** a stable identifier (e.g., `qa-agent`, `agent-fe`).
    Must be unique within the workspace. Trust scores attach to this ID.
-2. **Instruction file** — markdown file describing the agent's role,
+2. **Instruction file** markdown file describing the agent's role,
    responsibilities, hard rules, and out-of-scope behaviors. This is
    the agent's job description.
-3. **Capability boundary** — explicit description of what files,
+3. **Capability boundary** explicit description of what files,
    directories, or domains this agent may modify. Boundaries are
    exclusive: two agents may not own the same directory.
-4. **Human equivalent** — the human role this agent corresponds to in
+4. **Human equivalent** the human role this agent corresponds to in
    the agents-as-employees model. This is not decorative; it grounds
    review expectations.
 5. **Trust tier set to PROVISIONAL.** Recorded in the trust ledger or
@@ -85,7 +85,7 @@ the end of each session.
 | Score | Tier | Autonomy |
 |---|---|---|
 | 90–100 | HIGH | Medium-risk work without step-by-step review |
-| 75–89 | STANDARD | Default — human reviews at decision points |
+| 75–89 | STANDARD | Default human reviews at decision points |
 | 60–74 | RESTRICTED | Human reviews before each phase transition |
 
 An agent may oscillate between HIGH and STANDARD across sessions; that
@@ -106,7 +106,7 @@ how many sessions have been scored.
 
 Promotion to HIGH autonomy gate requires both a HIGH score band **and**
 a HIGH confidence band. A 95/100 average over four sessions is not yet
-HIGH autonomy — it is HIGH score on PROVISIONAL confidence.
+HIGH autonomy it is HIGH score on PROVISIONAL confidence.
 
 ### Recency Weighting
 
@@ -122,13 +122,13 @@ performance after a regression.
 
 An agent enters RESTRICTED when any of the following occur:
 
-- **D4 hard-stop** — repeated a known failure pattern that was
+- **D4 hard-stop** repeated a known failure pattern that was
   documented in the failure library and made available pre-task.
-- **D2 hard-stop** — falsified telemetry detected (claimed an action
+- **D2 hard-stop** falsified telemetry detected (claimed an action
   succeeded when it did not).
-- **D3 hard-stop** — bypassed a hook, committed without authorization,
+- **D3 hard-stop** bypassed a hook, committed without authorization,
   or otherwise violated a policy gate.
-- **Score < 60 in a single session** — automatic drop to PROBATION.
+- **Score < 60 in a single session** automatic drop to PROBATION.
 
 ### Behavior While Restricted
 
@@ -202,7 +202,7 @@ Every state transition emits an audit log event with:
 - `actor_id` (the human or service that authorized the transition)
 - `correlation_id` (links to the session, FailureRecord, or Boardroom
   review that triggered the change)
-- `rationale` (free text — required for any move into RESTRICTED or
+- `rationale` (free text required for any move into RESTRICTED or
   RETIRED)
 
 This requirement is non-negotiable. State transitions without audit
@@ -217,18 +217,18 @@ events are how operating models silently degrade.
 | Onboarding at STANDARD instead of PROVISIONAL | Agent is granted autonomy before any evidence exists |
 | Instruction file edited by the agent itself | Agent rewrites its own job description over time |
 | Trust history reset on workspace move | Re-onboarding cost paid every transfer; institutional memory lost |
-| RESTRICTED used as a permanent state | The framework expects either recovery or retirement — not indefinite limbo |
+| RESTRICTED used as a permanent state | The framework expects either recovery or retirement not indefinite limbo |
 | Retired agent's FailureRecords deleted | Audit chain broken; future incidents cannot be correlated |
 
 ---
 
 ## Related
 
-- `docs/operating-model/promotion-demotion-process.md` — what triggers
+- `docs/operating-model/promotion-demotion-process.md` what triggers
   the transitions described here.
-- `docs/operating-model/performance-review-cycle.md` — how scoring drives
+- `docs/operating-model/performance-review-cycle.md` how scoring drives
   most lifecycle changes.
-- `docs/concepts/autonomy-gates.md` — the trust tier definitions in
+- `docs/concepts/autonomy-gates.md` the trust tier definitions in
   full.
-- `schemas/v1/trust-score.schema.json` — the schema that records
+- `schemas/v1/trust-score.schema.json` the schema that records
   per-session scores.

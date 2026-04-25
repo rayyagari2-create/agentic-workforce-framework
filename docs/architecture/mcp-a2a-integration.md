@@ -3,7 +3,7 @@
 Two protocols matter for agent operation: **Model Context Protocol
 (MCP)** and **Agent-to-Agent (A2A)**. They are sometimes presented as
 competing standards. They are not. They serve different purposes, and
-a real autonomous-agent system uses both — for distinct, complementary
+a real autonomous-agent system uses both for distinct, complementary
 roles in the request flow.
 
 This document defines those roles, lists the current integration
@@ -15,8 +15,8 @@ patterns, and states the hard rules that apply to the execution layer.
 
 | Protocol | Role | Layer |
 |---|---|---|
-| **MCP** (Model Context Protocol) | Intelligence gathering — read external sources | Intelligence layer |
-| **A2A** (Agent-to-Agent) | Execution — agent spawning, task handoff | Execution layer |
+| **MCP** (Model Context Protocol) | Intelligence gathering read external sources | Intelligence layer |
+| **A2A** (Agent-to-Agent) | Execution agent spawning, task handoff | Execution layer |
 
 The two protocols are complementary, not competing. **MCP fills
 context. A2A executes work.**
@@ -28,7 +28,7 @@ deployments use both, with each protocol confined to its layer.
 
 ---
 
-## 2. MCP — The Intelligence Layer
+## 2. MCP The Intelligence Layer
 
 MCP is how an agent reads from external systems. It is the standard
 for "give the model access to this data source under controlled
@@ -36,11 +36,11 @@ conditions."
 
 **MCP governs the read path:**
 
-- An agent needs to look up a record in an external database — MCP
+- An agent needs to look up a record in an external database MCP
   brokers the read.
 - An agent needs to fetch the latest state from a third-party API —
   MCP brokers the call.
-- A Routine needs to inspect repository state on each PR — MCP brokers
+- A Routine needs to inspect repository state on each PR MCP brokers
   the GitHub access.
 
 **Permission gating:** The runtime governance layer (AGT) mediates
@@ -78,7 +78,7 @@ truth tables (see [agent-vs-service.md](agent-vs-service.md)).
 
 ---
 
-## 3. A2A — The Execution Layer
+## 3. A2A The Execution Layer
 
 A2A is how agents spawn other agents and hand off work. It is the
 standard for "this agent has completed its part; the next agent picks
@@ -86,11 +86,11 @@ up here."
 
 **A2A governs the dispatch path:**
 
-- The Orchestrator dispatches a task to an executing agent — A2A
+- The Orchestrator dispatches a task to an executing agent A2A
   carries the dispatch.
-- The executing agent hands the result back to QA — A2A carries the
+- The executing agent hands the result back to QA A2A carries the
   handoff.
-- QA flags a defect — A2A returns control to the Orchestrator for
+- QA flags a defect A2A returns control to the Orchestrator for
   re-routing.
 
 **Identity registration:** AGT registers the spawned agent's identity
@@ -99,8 +99,8 @@ session. Without AGT registration, a spawn is rejected at the runtime
 governance layer.
 
 **Behavioral pre-conditions:** Before A2A is invoked, the behavioral
-accountability layer applies the pre-spawn protocol — debug, spec,
-plan, HITL gate (if HIGH risk) — and consults trust history and
+accountability layer applies the pre-spawn protocol debug, spec,
+plan, HITL gate (if HIGH risk) and consults trust history and
 failure memory. A2A executes the spawn that the behavioral layer has
 authorized.
 
@@ -109,7 +109,7 @@ authorized.
 ## 4. A2A Current State and Hard Rules
 
 The framework's A2A integration ships with a small number of hard
-rules. These rules are not negotiable inside the framework — they are
+rules. These rules are not negotiable inside the framework they are
 enforced at the hook layer or at the runtime governance layer, and
 violations produce trust-tier consequences and audit-log events.
 
@@ -132,7 +132,7 @@ violations produce trust-tier consequences and audit-log events.
    spawns executing agents. This rule prevents tree-shaped spawn
    trajectories that no human reviewer can audit.
 
-2. **QA Agent FAIL routes back to the Orchestrator — never to another
+2. **QA Agent FAIL routes back to the Orchestrator never to another
    subagent.** A QA failure is not a problem the executing agent can
    solve by spawning a fix subagent. It returns to the Orchestrator,
    which decides whether to re-dispatch (with revised plan), to spawn
@@ -142,8 +142,8 @@ violations produce trust-tier consequences and audit-log events.
    agent's work.
 
 3. **Spawn authorization passes through the pre-spawn protocol.** The
-   pre-spawn protocol — `/debug → /spec → /plan → HITL (HIGH risk) →
-   SPAWN` — is mandatory for non-trivial spawns. The hook layer
+   pre-spawn protocol `/debug → /spec → /plan → HITL (HIGH risk) →
+   SPAWN` is mandatory for non-trivial spawns. The hook layer
    enforces that the protocol's artifacts exist before A2A is invoked.
 
 4. **Cross-workspace spawns require explicit authorization.** An
@@ -185,7 +185,7 @@ produces a poor outcome contributes to D1-D4 at the behavioral layer.
 
 ## 6. Why This Separation Matters
 
-In a system that conflates MCP and A2A — for example, by using a
+In a system that conflates MCP and A2A for example, by using a
 single "agent calls anything" surface for both reads and dispatches —
 two pathologies appear:
 
@@ -213,9 +213,9 @@ governance comprehensible at scale.
 
 ## Related
 
-- [three-layer-stack.md](three-layer-stack.md) — How runtime governance,
+- [three-layer-stack.md](three-layer-stack.md) How runtime governance,
   automation, and behavioral accountability fit together.
-- [agent-vs-service.md](agent-vs-service.md) — The component
+- [agent-vs-service.md](agent-vs-service.md) The component
   classification that determines write rules at the canonical layer.
-- `docs/concepts/trust-scoring.md` — D1-D4 trust scoring, applied
+- `docs/concepts/trust-scoring.md` D1-D4 trust scoring, applied
   after A2A handoff completes.

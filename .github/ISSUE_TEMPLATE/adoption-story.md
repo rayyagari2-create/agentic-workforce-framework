@@ -42,7 +42,7 @@ Brief description of what you observed. Quantitative where possible.
 
 - Number of scored sessions:
 - Trust score trajectory for one or two agents:
-- Failures caught that would have shipped without the framework (specific examples — sanitized):
+- Failures caught that would have shipped without the framework (specific examples sanitized):
 - Parts of the framework that produced the most value:
 - Parts of the framework that produced the least value:
 
@@ -50,14 +50,14 @@ Brief description of what you observed. Quantitative where possible.
 
 Honest answer. Anything that did not produce the expected value, or that you abandoned.
 
-If you cannot identify anything yet, the team may be too early in adoption — that is fine; submit again in a few months.
+If you cannot identify anything yet, the team may be too early in adoption that is fine; submit again in a few months.
 
 ## Would you like this to become a case study?
 
-- [ ] Yes — I am willing to write a full case study using [`examples/case-studies/TEMPLATE.md`](../../examples/case-studies/TEMPLATE.md). I will open a PR.
-- [ ] Yes — but I would prefer the maintainers to draft from this issue and review with me before publishing.
-- [ ] No — I am sharing for the framework's benefit but not ready to publish a public case study.
-- [ ] Not sure yet — happy to discuss.
+- [ ] Yes I am willing to write a full case study using [`examples/case-studies/TEMPLATE.md`](../../examples/case-studies/TEMPLATE.md). I will open a PR.
+- [ ] Yes but I would prefer the maintainers to draft from this issue and review with me before publishing.
+- [ ] No I am sharing for the framework's benefit but not ready to publish a public case study.
+- [ ] Not sure yet happy to discuss.
 
 ## Additional context
 

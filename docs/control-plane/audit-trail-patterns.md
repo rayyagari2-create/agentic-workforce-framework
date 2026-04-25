@@ -5,7 +5,7 @@ event sourcing path, and the immutable-fields rule.**
 
 The audit trail is the foundation everything else in the control plane
 sits on. Pre-spawn produces records, the state machine emits
-transitions, gates write decisions, hooks log overrides — all of it
+transitions, gates write decisions, hooks log overrides all of it
 lands in a single append-only stream that can never be mutated.
 
 If the audit trail can be silently rewritten, every other guarantee in
@@ -29,19 +29,19 @@ audit_log:
 The append-only constraint is enforced at three layers because
 defense-in-depth is the only acceptable posture for an audit trail.
 
-### Layer 1 — Database Role Permissions
+### Layer 1 Database Role Permissions
 
 The role used by application code to write the audit log has `INSERT`
 only. No `UPDATE`, `DELETE`, or `TRUNCATE` privilege. A row that lands
 cannot be removed by any code path the application has access to.
 
-### Layer 2 — Application Layer
+### Layer 2 Application Layer
 
 The audit-write helper is the only sanctioned path to the table. It
 validates the schema, attaches the correlation ID, and signs the
 entry (Wave 1 onward). No other code path may write to `audit_log`.
 
-### Layer 3 — Hook Layer
+### Layer 3 Hook Layer
 
 `check-audit-write` validates every audit write attempt. A write that
 does not include a correlation ID, a `before_state` (when applicable),
@@ -84,7 +84,7 @@ audit_log entry (canonical fields):
 ### Why Both States, Not Just the Diff
 
 A diff is reconstructable from `before_state` and `after_state`, but
-the reverse is not true — given a diff, you cannot validate the
+the reverse is not true given a diff, you cannot validate the
 starting point was correct. Storing both states makes every entry
 self-contained.
 
@@ -150,7 +150,7 @@ routine's own correlation ID. The audit trail can join across both.
 
 ## Event Sourcing Path
 
-The current model is "operational tables + audit log" — operational
+The current model is "operational tables + audit log" operational
 tables hold current state; audit log holds the immutable history.
 
 The Wave 3+ migration path is to **strict event sourcing**, in which
@@ -242,7 +242,7 @@ before/after.
 The `id` of a work queue item never changes. The `tenant_id` never
 changes. The `created_at` never changes. The `description` (the
 task definition) never changes. If the task needs to be redefined,
-a new row is created — the original is preserved with whatever final
+a new row is created the original is preserved with whatever final
 status it reached.
 
 ### How It Is Enforced
@@ -352,12 +352,12 @@ filled at the source.
 
 ## Related
 
-- `hook-system.md` — `check-audit-write` enforces audit format on
+- `hook-system.md` `check-audit-write` enforces audit format on
   every write
-- `hitl-gates.md` — gate decisions land in `gate_records` and emit
+- `hitl-gates.md` gate decisions land in `gate_records` and emit
   audit entries on lifecycle mutation
-- `build-state-machine.md` — every state transition is an audit entry
-- `meta-governance.md` — recovery protocols depend on audit trail
+- `build-state-machine.md` every state transition is an audit entry
+- `meta-governance.md` recovery protocols depend on audit trail
   reconstructability
-- `compliance-evidence.md` — what the audit trail provides to
+- `compliance-evidence.md` what the audit trail provides to
   external compliance frameworks

@@ -1,4 +1,4 @@
-# Minimum Viable Adoption — [v1.0]
+# Minimum Viable Adoption [v1.0]
 
 The lowest-friction entry point to the Agentic Workforce Framework. File-based everything. No Postgres, no hooks, no routines. Designed so a small team can run one scored session inside of a working day and decide whether to invest further.
 
@@ -23,7 +23,7 @@ Run one full scored session against a generic five-agent roster, produce one fai
 |---|---|---|
 | OS-level hooks (PreToolUse / PostToolUse) | Requires a hook runner (Claude Code or equivalent) and time to write and test the hooks fail-closed | You have run 10+ sessions and identified a recurring violation that hooks could prevent |
 | Postgres governance schema | File-based tracking is sufficient for a five-agent roster doing under 20 sessions a month | Your ledger has more than 50 sessions or you need cross-agent queries |
-| Routines (R1, R4, R10) | These are scheduled automation. None of them are required to run a scored session. | You have a recurring scheduled need that fits the routine model — typically not in the first month |
+| Routines (R1, R4, R10) | These are scheduled automation. None of them are required to run a scored session. | You have a recurring scheduled need that fits the routine model typically not in the first month |
 | Approval gate chains (HITL / DELEGATION / ESCALATION / APPROVAL) | The minimum viable HITL is "founder reviews before each commit." That is sufficient for tier RESTRICTED and PROBATION agents. | You have multiple approvers, TTL requirements, or escalation paths that file-based notes cannot track |
 | Manager Agents / Division Orchestrators | One human plus one Orchestrator agent is enough for a five-agent team | You are scaling beyond one workspace |
 | Automated trust scoring | Scoring should be manual until you have calibrated. Automated scoring without calibration produces drift that takes months to detect. | You have 20+ sessions of manual scores and a confident D1-D4 rubric |
@@ -74,7 +74,7 @@ Estimated time: 4-6 hours of engineering time, spread across one working day.
 | Step | Time | Output |
 |---|---|---|
 | 1. Define your roster from `agent-roster.md`. Adjust names if useful. Set every agent to PROVISIONAL. | 30 min | `agent-roster.md` |
-| 2. Pick a small bounded task (a `billing-rate-bug` or a `content-import` is a good starter — something with clear acceptance criteria). | 15 min | One sentence |
+| 2. Pick a small bounded task (a `billing-rate-bug` or a `content-import` is a good starter something with clear acceptance criteria). | 15 min | One sentence |
 | 3. Write the AgentTaskManifest. Mark riskLevel `low` or `medium`. List interfacesTouched, verificationRequired, evalPlan. | 20 min | `manifests/TASK-001.md` |
 | 4. Run the task. Watch what the agent does. | 1-2 hr | Code change + agent bulletin entries |
 | 5. QA-Agent runs through acceptance criteria. Produce QAVerdict. | 30 min | `qa-verdicts/QA-001.md` |

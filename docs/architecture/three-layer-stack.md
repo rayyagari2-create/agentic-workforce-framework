@@ -14,9 +14,9 @@ another, and where the protocol roles (MCP and A2A) fit into the stack.
 
 | Layer | Technology | What It Governs |
 |---|---|---|
-| **Runtime governance** | Microsoft AGT | What agents can do — identity, policy, sandboxing |
-| **Scheduled automation** | Claude Code Routines | When lightweight tasks run — scheduled, event-triggered |
-| **Behavioral accountability** | Agentic Workforce Framework | Whether agents can be trusted — trust over time, failure memory |
+| **Runtime governance** | Microsoft AGT | What agents can do identity, policy, sandboxing |
+| **Scheduled automation** | Claude Code Routines | When lightweight tasks run scheduled, event-triggered |
+| **Behavioral accountability** | Agentic Workforce Framework | Whether agents can be trusted trust over time, failure memory |
 
 These three layers are complementary. AGT and Routines are external
 infrastructure operated by their respective vendors. The behavioral
@@ -24,7 +24,7 @@ accountability layer is the framework you are reading.
 
 ---
 
-## 2. Runtime Governance — What Agents Can Do
+## 2. Runtime Governance What Agents Can Do
 
 The runtime governance layer answers the question: *what is this agent
 permitted to do right now, in this call, with these inputs?*
@@ -50,7 +50,7 @@ MIT-licensed). AGT provides:
 | Mode | Behavior | When |
 |---|---|---|
 | Shadow | Intercepts, logs, does not block | During rollout; calibration |
-| Enforce | Intercepts and blocks — production default | After shadow validation |
+| Enforce | Intercepts and blocks production default | After shadow validation |
 | Degraded (unavailable) | Falls back to OS-level hooks, alerts operator | AGT outage |
 
 The runtime governance layer is binary: a request is permitted or it is
@@ -64,7 +64,7 @@ single integration surface for permission checks.
 
 ---
 
-## 3. Scheduled Automation — When Tasks Run
+## 3. Scheduled Automation When Tasks Run
 
 The scheduled automation layer answers the question: *what work should
 happen on a schedule, on an event, or in response to an external
@@ -76,8 +76,8 @@ around the agent system: nightly checks, PR scans, alert triage,
 deploy verification.
 
 **Today, the canonical implementation is Claude Code Routines.** A
-Routine is a saved configuration — a prompt, one or more repositories,
-and a set of MCP connectors — packaged once and executed automatically
+Routine is a saved configuration a prompt, one or more repositories,
+and a set of MCP connectors packaged once and executed automatically
 on Anthropic-managed cloud infrastructure.
 
 **Three trigger types:**
@@ -98,7 +98,7 @@ pre-spawn protocol. They write only to a routine-runs log; they never
 write to canonical truth tables directly.
 
 A routine that needs to compute a trust scoring payload sends that
-payload to the Eval/Telemetry Service — the service is the only writer
+payload to the Eval/Telemetry Service the service is the only writer
 to `trust_scores`. Routines never write to `trust_scores` directly. No
 exceptions.
 
@@ -108,7 +108,7 @@ filtered to claude-prefixed branches only.
 
 ---
 
-## 4. Behavioral Accountability — Whether Agents Can Be Trusted
+## 4. Behavioral Accountability Whether Agents Can Be Trusted
 
 The behavioral accountability layer answers the question: *over time,
 is this agent becoming more trustworthy or less? And how should that
@@ -120,13 +120,13 @@ It is the layer the public framework occupies. It governs:
   one-line evidence requirement per dimension.
 - **Trust tiers** (HIGH, STANDARD, RESTRICTED, PROBATION,
   PROVISIONAL) that gate autonomy at the work-routing layer.
-- **Failure memory** — a structured taxonomy of past failures, with
+- **Failure memory** a structured taxonomy of past failures, with
   pre-task retrieval and recurrence escalation.
-- **Pre-spawn protocol** — `/debug → /spec → /plan → HITL → SPAWN` —
+- **Pre-spawn protocol** `/debug → /spec → /plan → HITL → SPAWN` —
   applied before any agent is dispatched on non-trivial work.
-- **HITL gates** — human-in-the-loop checkpoints classified by risk
+- **HITL gates** human-in-the-loop checkpoints classified by risk
   level (LOW / MEDIUM / HIGH / CRITICAL).
-- **Build state machine** — eight states, no skipping, agents never
+- **Build state machine** eight states, no skipping, agents never
   commit without human approval.
 
 This layer is observer-assigned. No agent self-scores. Trust is
@@ -162,7 +162,7 @@ described what was happening; it did not prevent what shouldn't.
 
 **Either of the above without scheduled automation:**
 You have a governance system but no infrastructure for the recurring
-work that sits around it — the nightly checks, the PR scans, the
+work that sits around it the nightly checks, the PR scans, the
 alert triage. You end up running a build agent when you should be
 running a routine, and the build agent's expensive governance overhead
 gets applied to work that does not warrant it.
@@ -177,15 +177,15 @@ their concerns are separate.
 
 ---
 
-## 6. Protocol Roles — MCP and A2A
+## 6. Protocol Roles MCP and A2A
 
 Two protocols cross all three layers. They are complementary, not
 competing.
 
 | Protocol | Role | Layer it Sits In |
 |---|---|---|
-| **MCP** (Model Context Protocol) | Intelligence gathering — read external sources | Intelligence layer |
-| **A2A** (Agent-to-Agent) | Execution — agent spawning, task handoff | Execution layer |
+| **MCP** (Model Context Protocol) | Intelligence gathering read external sources | Intelligence layer |
+| **A2A** (Agent-to-Agent) | Execution agent spawning, task handoff | Execution layer |
 
 **MCP fills context.** When an agent needs to read from a database,
 hit a third-party API, or pull repository state, MCP is the protocol
@@ -225,13 +225,13 @@ For deeper detail on MCP and A2A patterns, see
 
 | Layer | Owner | Public Framework Stake |
 |---|---|---|
-| Runtime governance | Microsoft (AGT) — open source, MIT | Adapter pattern only |
+| Runtime governance | Microsoft (AGT) open source, MIT | Adapter pattern only |
 | Scheduled automation | Anthropic (Claude Code Routines) | Adapter + R1 / R4 templates |
 | Behavioral accountability | This framework | Full ownership |
 
 The public framework defines the behavioral layer end-to-end. It
-defines the integration *patterns* for the other two layers — adapters,
-expected interfaces, write-rule discipline — without owning the
+defines the integration *patterns* for the other two layers adapters,
+expected interfaces, write-rule discipline without owning the
 underlying implementations.
 
 This is intentional. AGT and Routines move on their own release
@@ -243,6 +243,6 @@ dependency.
 
 ## Related
 
-- [mcp-a2a-integration.md](mcp-a2a-integration.md) — MCP and A2A in detail.
-- [agent-vs-service.md](agent-vs-service.md) — Component classification.
-- `docs/concepts/trust-scoring.md` — D1-D4 trust scoring.
+- [mcp-a2a-integration.md](mcp-a2a-integration.md) MCP and A2A in detail.
+- [agent-vs-service.md](agent-vs-service.md) Component classification.
+- `docs/concepts/trust-scoring.md` D1-D4 trust scoring.

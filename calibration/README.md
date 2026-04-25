@@ -17,13 +17,13 @@ honest.
 
 The argument is short:
 
-1. Trust scoring is **observer-assigned** by design — agents do not score
+1. Trust scoring is **observer-assigned** by design agents do not score
    themselves. The asymmetry is intentional.
 2. Observer-assigned scoring produces noisy labels unless the observers
    are calibrated against a shared rubric.
 3. Noisy labels propagate into autonomy gate decisions. An agent gets
    promoted to HIGH tier on inflated scores, then blows up on a real
-   high-stakes task — and the post-mortem reveals the scores were never
+   high-stakes task and the post-mortem reveals the scores were never
    trustworthy.
 
 Calibration is the practice that prevents step 3.
@@ -34,7 +34,7 @@ Calibration is the practice that prevents step 3.
 
 | File                          | Purpose                                                |
 |-------------------------------|--------------------------------------------------------|
-| `README.md`                   | This file — why calibration matters and how to use the directory |
+| `README.md`                   | This file why calibration matters and how to use the directory |
 | `d1-d4-rubric.md`             | The full rubric. Score bands, anchors, hard-stops, evidence rules |
 | `anchor-examples.md`          | Worked, annotated multi-session scoring examples       |
 | `confidence-band-guide.md`    | Confidence band mapping (n=sessions → band) and gate implications |
@@ -71,11 +71,11 @@ old scores in place; that compounds the drift.
 
 ## Recommended reading order
 
-1. `d1-d4-rubric.md` — the rubric and what each dimension actually scores
-2. `confidence-band-guide.md` — understand bands before reading examples
-3. `anchor-examples.md` — see the rubric applied to realistic sessions
-4. `anti-patterns.md` — learn what to avoid
-5. `scoring-ledger-template.md` — start scoring your own sessions
+1. `d1-d4-rubric.md` the rubric and what each dimension actually scores
+2. `confidence-band-guide.md` understand bands before reading examples
+3. `anchor-examples.md` see the rubric applied to realistic sessions
+4. `anti-patterns.md` learn what to avoid
+5. `scoring-ledger-template.md` start scoring your own sessions
 
 ---
 

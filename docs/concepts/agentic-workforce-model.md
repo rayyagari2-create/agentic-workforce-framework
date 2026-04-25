@@ -3,8 +3,8 @@
 ## What this concept defines
 
 The framework treats autonomous agents as accountable workers, not as ephemeral
-function calls or isolated tools. Every concept in the framework — trust scoring,
-failure memory, autonomy gates, approval chains — follows from this single framing.
+function calls or isolated tools. Every concept in the framework: trust scoring,
+failure memory, autonomy gates, approval chains follows from this single framing.
 
 If you do not need persistent agent identity, role boundaries, or trust history
 across sessions, you do not need this framework. A prompt library and a model
@@ -21,11 +21,11 @@ equivalent. The mapping is not metaphor. It is operational.
 | HR Concept | Agent Equivalent | Why It Matters |
 |---|---|---|
 | Job description | Capability boundary plus instruction file | The agent's scope is defined and bounded. |
-| Background check | Runtime policy layer identity registration | Identity is registered before any task is assigned — no anonymous agents. |
+| Background check | Runtime policy layer identity registration | Identity is registered before any task is assigned. No anonymous agents. |
 | Employment contract | AgentTaskManifest | Each task has an explicit, structured statement of mission, files in scope, risk level, and verification required. |
 | Work log | Agent bulletin | Every state transition is recorded by the agent itself. No silent execution. |
 | Performance review | D1-D4 trust scoring per session | Measured, evidence-backed, accumulated over time. |
-| KPIs / OKRs | Acceptance criteria plus QAVerdict | Pass/fail with per-criterion evidence — no ambiguity. |
+| KPIs / OKRs | Acceptance criteria plus QAVerdict | Pass/fail with per-criterion evidence. No ambiguity. |
 | Incident report | FailureRecord | Structured failure with root cause, prevention artifact, and recurrence count. |
 | Reference check before task | Pre-task failure retrieval | The agent reads its own failure history before starting work on a related task. |
 | Whistleblower policy | Self-reporting protocol | Mandatory bulletin writes; SESSION COMPLETE blocked without QA PASS. |
@@ -34,7 +34,7 @@ equivalent. The mapping is not metaphor. It is operational.
 | Promotion | Autonomy gate expansion | Demonstrated trust unlocks a wider scope of action without per-step review. |
 | Performance improvement plan | RESTRICTED or PROBATION trust tier | Underperforming agents have narrower autonomy and more frequent review. |
 | Termination | Boardroom review and agent retirement | Sustained PROBATION leads to instruction rewrite, scope reduction, or retirement. |
-| Scheduled recurring work | Routines | Stateless, trigger-driven scheduled work — distinct from long-running agents. |
+| Scheduled recurring work | Routines | Stateless, trigger-driven scheduled work distinct from long-running agents. |
 | HR policy engine | Runtime policy layer | What the agent is permitted to do, enforced at runtime. |
 | Department head | Division Orchestrator | Multi-team coordination at enterprise scale. |
 | Workforce analytics | Command Center | Cross-agent, cross-workspace performance and trust trajectory views. |
@@ -56,29 +56,27 @@ an agent as a service hides its decisions from accountability.
 **Agent**
 - Reasons under uncertainty
 - Chooses among multiple valid options
-- Benefits from trust scoring because its decisions can be wrong in ways that
-  matter
+- Benefits from trust scoring because its decisions can be wrong in ways that matter
 - Has a persistent identity and accumulates a behavioral history
-- Examples: Orchestrator, QA-Agent, Code-Review Agent, Constraint Agent
+- Examples: Orchestrator, QA-Agent, Code-Review Agent
 
 **Service**
 - Deterministic logic, no reasoning under uncertainty
 - Owns canonical truth for some domain
-- Tightly bound to a schema or policy — outputs are validated
+- Tightly bound to a schema or policy; outputs are validated
 - Trust scoring would always be 100/100 because there is no judgment to evaluate
 - Examples: Eval/Telemetry Service, Deploy Service, Entitlement Service
 
 **Hybrid**
 - Reasoning portion is agentic (selects sources, ranks evidence, annotates)
 - Persistence portion is service-like (writes are deterministic, schema-validated)
-- Must declare an explicit internal split — see "universal hybrid rule" below
+- Must declare an explicit internal split; see the universal hybrid rule below
 - Examples: domain content aggregator, knowledge synthesizer
 
 **Routine**
 - Short-lived, trigger-driven, stateless per run
 - Lightweight task that runs on a schedule, an API call, or a repository event
-- Not a long-running agent; cannot accumulate a trust score because each run
-  is independent
+- Not a long-running agent; cannot accumulate a trust score because each run is independent
 - Examples: scheduled PR test runs, security scans on PR, daily digest summaries
 
 ### The universal hybrid rule
@@ -96,18 +94,14 @@ This rule prevents the most common hybrid failure mode: an agent that "decides
 something" and then "writes it" with no intervening validation. The reasoning
 output is always intermediate. The persistence layer is always the gatekeeper.
 
-### Hybrid sub-boundary — explicit internal split
-
-"Hybrid" without a precise internal split is a hand-wave. Every hybrid
-component must declare exactly which sub-component reasons and which
-sub-component owns writes. Generic template:
+Generic template for declaring the split:
 
 | Subpart | Type | Owns | Write Access |
 |---|---|---|---|
-| Source / option selection | Agent-shaped | Which sources to call, order, fallback logic | None — decisions only |
-| Confidence / quality evaluation | Agent-shaped | Weighting freshness, source reliability, contradiction detection | None — annotation only |
-| Normalization | Deterministic service | Raw payload → internal schema | Writes to canonical tables |
-| Caching / freshness tracking | Deterministic service | Expiry, freshness metadata, cache invalidation | Writes metadata fields only |
+| Source / option selection | Agent-shaped | Which sources to call, order, fallback logic | None |
+| Confidence / quality evaluation | Agent-shaped | Weighting freshness, source reliability | None |
+| Normalization | Deterministic service | Raw payload to internal schema | Writes to canonical tables |
+| Caching / freshness tracking | Deterministic service | Expiry, freshness metadata | Writes metadata fields only |
 
 The reasoning sub-parts may rank, infer, annotate, and recommend. They do not
 write. The persistence sub-parts are the only writers. The split is declared
@@ -117,32 +111,28 @@ in the agent's instruction file and enforced at the schema and tool layer.
 
 ## Framework plane agent roster
 
-These are the framework-plane components that ship in v1.0. The roster is
-deliberately small — every component listed here has earned its place by
-appearing in real production sessions, not by speculative design.
+These are the framework-plane components. Every component listed here has earned
+its place by appearing in real production sessions, not by speculative design.
 
-| ID | Name | Class | Human Equivalent |
-|---|---|---|---|
-| orchestrator | Orchestrator | Agent | Engineering Manager |
-| qa-agent | QA-Agent | Agent | QA Lead |
-| fix-agent | Fix-Agent | Agent | SRE |
-| security-check | Security-Check Agent | Agent | Security Engineer |
-| code-review | Code-Review Agent | Agent | Staff Engineer |
-| boardroom | Boardroom Agent | Agent | VP Engineering |
-| chief-of-staff | Chief-of-Staff Agent | Agent | Operations Manager |
-| deep-research | Deep-Research Agent | Agent | Research Analyst |
-| evolve | Evolve Agent | Service | Process Engineer |
-| eval-telemetry | Eval/Telemetry Agent | Service | Data Engineer |
-| deploy | Deploy Agent | Service | DevOps Engineer |
+| ID | Name | Class | Human Equivalent | Status |
+|---|---|---|---|---|
+| orchestrator | Orchestrator | Agent | Engineering Manager | Live |
+| qa-agent | QA-Agent | Agent | QA Lead | Live |
+| fix-agent | Fix-Agent | Agent | SRE | Live |
+| security-check | Security-Check Agent | Agent | Security Engineer | Wave 1 |
+| code-review | Code-Review Agent | Agent | Staff Engineer | Wave 2 |
+| boardroom | Boardroom Agent | Agent | VP Engineering | Wave 2 |
+| chief-of-staff | Chief-of-Staff Agent | Agent | Operations Manager | Wave 2 |
+| deep-research | Deep-Research Agent | Agent | Research Analyst | Wave 2 |
+| evolve | Evolve Agent | Service | Process Engineer | Wave 1 |
+| eval-telemetry | Eval/Telemetry Agent | Service | Data Engineer | Wave 3+ |
+| deploy | Deploy Agent | Service | DevOps Engineer | Wave 3+ |
 
 Plus framework routines (R1 PR test, R4 security scan) which are short-lived
-and not long-running agents — see the Routine classification above.
+and not long-running agents. See the Routine classification above.
 
-The classification (Agent vs Service) follows the rubric. Components that
-reason under uncertainty are Agents; components that apply approved changes
-mechanically or own canonical truth are Services. An organization adopting
-the framework should not feel obliged to spawn all eleven on day one — start
-with Orchestrator, QA-Agent, and one executing agent.
+An organization adopting the framework should not feel obliged to deploy all
+eleven on day one. Start with Orchestrator, QA-Agent, and one executing agent.
 
 ---
 
@@ -152,7 +142,7 @@ A core design principle: agents align to roles, not to individuals.
 
 When a human team operates the framework, each person does not get their own
 orchestrator instance. Agents are pooled and shared across the team. The
-orchestrator belongs to whoever is doing architectural coordination — typically
+orchestrator belongs to whoever is doing architectural coordination, typically
 a tech lead or a rotating designated role.
 
 ```
@@ -168,7 +158,7 @@ QA Lead            ←→        QA-Agent
 
 - Trust history is per-role-per-instance, not per-user. If the orchestrator
   is reset for every operator, trust never accumulates.
-- A new team member inherits the existing agent workforce — they do not start
+- A new team member inherits the existing agent workforce. They do not start
   from zero on the agents they did not personally configure.
 - Failure memory survives staff turnover. The institutional knowledge an agent
   has accumulated does not leave when the operator does.
@@ -184,7 +174,7 @@ That identity owns:
 - An autonomy gate (what it can do without human approval)
 
 When the workforce scales to multiple workspaces, the same role-type may have
-multiple instances — one per workspace — and each instance carries its own
+multiple instances, one per workspace, and each instance carries its own
 trust trajectory. Trust is per-instance. Trust does not reset when an instance
 is reassigned to a new workspace.
 

@@ -1,7 +1,7 @@
 # Hooks
 
 OS-level enforcement examples for agentic workforces. These hooks implement the
-Claude Code hook protocol — small scripts that the runtime invokes before or
+Claude Code hook protocol small scripts that the runtime invokes before or
 after a tool call, and that decide whether the call proceeds.
 
 All examples in this directory are **sanitized templates**. Paths such as
@@ -20,8 +20,8 @@ The framework uses two hook lifecycle points:
 Fires **before** a tool call is executed. Receives the proposed tool name and
 inputs. Returns a decision via exit code:
 
-- `exit(0)` — allow the call to proceed
-- `exit(2)` — hard block; the runtime refuses the call and surfaces the
+- `exit(0)` allow the call to proceed
+- `exit(2)` hard block; the runtime refuses the call and surfaces the
   message to the agent
 
 PreToolUse is the enforcement point. This is where you check locks, verify
@@ -52,7 +52,7 @@ script is also treated as `2`.
 
 This is the **fail-closed default**. If the hook crashes, cannot read its
 inputs, or hits an unexpected branch, the call is blocked. Hooks are the
-last line of defense — silent failure here is worse than a false positive.
+last line of defense silent failure here is worse than a false positive.
 
 ---
 

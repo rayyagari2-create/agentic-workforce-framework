@@ -1,9 +1,9 @@
 # Enterprise Adoption
 
-**Multi-workspace, Division Orchestrator, approval gate chains — what
+**Multi-workspace, Division Orchestrator, approval gate chains what
 "enterprise-ready" requires.**
 
-Status: **[v3.0] — not yet shipped.**
+Status: **[v3.0] not yet shipped.**
 
 The model is designed but not yet field-proven. Do not implement this
 layer until the single-workspace governance schema is running reliably.
@@ -14,11 +14,11 @@ layer until the single-workspace governance schema is running reliably.
 
 The enterprise model is documented in detail across several places:
 
-- `docs/architecture/enterprise-scaling.md` — the architecture
+- `docs/architecture/enterprise-scaling.md` the architecture
   (multi-workspace, Division Orchestrator, role-agent alignment)
-- `database/enterprise/` — the schema extension (workspaces, agent
+- `database/enterprise/` the schema extension (workspaces, agent
   instances, work queues, gate records, delegation)
-- `docs/operating-model/manager-agent-pattern.md` § Enterprise — the
+- `docs/operating-model/manager-agent-pattern.md` § Enterprise the
   operating model at scale
 
 What this **guide** does not yet contain is the **adoption walkthrough**
@@ -105,7 +105,7 @@ proof. The pattern is consistent: rich documentation, no field data,
 silent failures when teams adopt at scale.
 
 This framework's published value is "production-informed reference
-architecture" — single-workspace is field-proven; enterprise is
+architecture" single-workspace is field-proven; enterprise is
 designed extension. Pretending otherwise would damage the value of
 the parts that **are** field-proven.
 
@@ -116,10 +116,10 @@ expand. Until then, the honest content is short.
 
 ## Related
 
-- `docs/architecture/enterprise-scaling.md` — the architecture detail.
-- `docs/guides/single-team-adoption.md` — the prerequisite.
-- `docs/operating-model/manager-agent-pattern.md` — Manager Agent and
+- `docs/architecture/enterprise-scaling.md` the architecture detail.
+- `docs/guides/single-team-adoption.md` the prerequisite.
+- `docs/operating-model/manager-agent-pattern.md` Manager Agent and
   Division Orchestrator pattern.
-- `database/enterprise/` — the schema extension.
-- `examples/multi-team/` — the placeholder; ships when the enterprise
+- `database/enterprise/` the schema extension.
+- `examples/multi-team/` the placeholder; ships when the enterprise
   layer is field-proven.

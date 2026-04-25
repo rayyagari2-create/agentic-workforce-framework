@@ -1,7 +1,7 @@
 # Routine Templates
 
 This directory contains framework-level templates for common routine
-patterns. Each template is sanitized — no project-specific names, no
+patterns. Each template is sanitized no project-specific names, no
 private repository paths, no vendor-coupled assumptions beyond the
 trigger model itself.
 
@@ -23,8 +23,8 @@ trigger model itself.
 
 1. **Copy the template file** into your own routines directory.
 2. **Parameterize** by replacing the placeholders (see below).
-3. **Register the routine** with your trigger engine — schedule, API, or
-   GitHub — using the routine platform's setup flow.
+3. **Register the routine** with your trigger engine schedule, API, or
+   GitHub using the routine platform's setup flow.
 4. **Test** the routine end-to-end against a non-production target before
    wiring it into your live pipeline.
 5. **Wire the adapter.** Make sure all routine-side calls back into your
@@ -112,7 +112,7 @@ Write a new template only when:
 - The trigger source differs (e.g., GitLab, Bitbucket, internal bus)
 - The output target differs (e.g., a dashboard, not a PR comment)
 - The governance shape differs (e.g., a no-human-review routine for a
-  fully closed-loop pipeline — rare and approached with caution)
+  fully closed-loop pipeline rare and approached with caution)
 
 When you write a new template, follow the same conventions: YAML
 frontmatter, governance contract, parameterized placeholders, sanitized

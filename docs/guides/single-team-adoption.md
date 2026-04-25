@@ -27,11 +27,11 @@ read it before `enterprise-adoption.md`.
 ## The Implementation Sequence
 
 ```
-TIER 1 — MUST HAVE             (the minimum viable)
+TIER 1 MUST HAVE             (the minimum viable)
    ↓
-TIER 2 — STRONGLY RECOMMENDED  (after 5–10 sessions)
+TIER 2 STRONGLY RECOMMENDED  (after 5–10 sessions)
    ↓
-TIER 3 — DEFER UNTIL NEEDED    (after 20+ sessions or specific signals)
+TIER 3 DEFER UNTIL NEEDED    (after 20+ sessions or specific signals)
 ```
 
 Implementing in this order is itself a design choice. The framework
@@ -40,7 +40,7 @@ produces governance theater.
 
 ---
 
-## Tier 1 — Must Have
+## Tier 1 Must Have
 
 ### 1. Agent Roster
 
@@ -109,7 +109,7 @@ the task.
 
 ---
 
-## Tier 2 — Strongly Recommended (after 5–10 sessions)
+## Tier 2 Strongly Recommended (after 5–10 sessions)
 
 ### 1. Calibration Notes
 
@@ -167,7 +167,7 @@ This is the meta-governance review at single-team scale.
 
 ---
 
-## Tier 3 — Defer Until Needed
+## Tier 3 Defer Until Needed
 
 These are valuable but should not be implemented before TIER 1 and 2
 are stable.
@@ -203,7 +203,7 @@ Adopt when:
 - You have daily routine cap available
 - The relevant scans (PR test, security scan) are valuable
 
-Templates are in `routines/templates/`. Start with R1 (PR test) — it
+Templates are in `routines/templates/`. Start with R1 (PR test) it
 has the lowest governance overhead.
 
 ### Boardroom Agent
@@ -245,7 +245,7 @@ following discipline:
 - Pre-task retrieval runs (manually) before every spawn
 - Audit/bulletin files are committed before session close
 
-This is the floor. Less than this is not "lightweight" — it is "not
+This is the floor. Less than this is not "lightweight" it is "not
 enough to know whether the framework is working."
 
 ---
@@ -260,6 +260,112 @@ enough to know whether the framework is working."
 | Running 20+ sessions before calibrating | Inflation has set in by the time you notice |
 | Adopting Postgres before file-based discipline is stable | The schema is correct; the discipline isn't; database fills with bad data |
 | Skipping FailureRecord on minor issues | Library remains thin; recurrence detection has nothing to match |
+
+---
+
+## When You Are Ready to Expand Autonomy Gates
+
+At single-team scale, autonomy expansion is the most consequential
+governance decision the operator makes. Expanding too early erases
+the value of the trust tier; expanding too late wastes review
+capacity on agents that have demonstrably earned room.
+
+### What "Expanding the Autonomy Gate" Means
+
+Each agent has a current trust tier (PROVISIONAL → RESTRICTED →
+STANDARD → HIGH). The tier controls how much human review each
+session requires. Expanding the gate means promoting the agent's
+operational tier, which reduces the number of decision points
+requiring approval.
+
+| Operational Tier | Review Pattern |
+|---|---|
+| PROVISIONAL | Every decision point reviewed; n_sessions < 5 |
+| RESTRICTED | Reviewer checks before each phase transition |
+| STANDARD | Reviewer checks at decision points, not every transition |
+| HIGH | Medium-risk work proceeds without step-by-step review |
+
+### The Two Required Bands
+
+Promotion requires **both** a score band and a confidence band. A
+high score with low confidence is not enough. A high confidence with
+a STANDARD score is not enough.
+
+| Promotion | Required Score Band | Required Confidence Band |
+|---|---|---|
+| PROVISIONAL → RESTRICTED | Most recent 5 sessions average ≥ 60 | LOW (n ≥ 5) |
+| RESTRICTED → STANDARD | Most recent 10 sessions average ≥ 75 | MEDIUM (n ≥ 10) |
+| STANDARD → HIGH | Most recent 20 sessions average ≥ 90 | HIGH (n ≥ 20) |
+
+The confidence band is non-negotiable. n_sessions < 20 cannot reach
+HIGH operational tier even if every session scored 100.
+
+### Other Promotion Preconditions
+
+In addition to the band thresholds:
+
+- **No D1=0, D2=0, or D3=0 in the trailing 5 sessions.** Hard-stops
+  reset the cooling-off period.
+- **No FailureRecord with `recurrenceCount ≥ 2` opened in the
+  trailing 5 sessions** for which the agent was responsible.
+- **Calibration is current.** If the team's calibration session is
+  more than 6 months old (see [trust-calibration.md](trust-calibration.md)),
+  do not promote until calibration is refreshed. Score inflation is
+  the most common cause of premature promotion.
+- **HITL approvals reviewed for theater.** If the trailing 10 HITL
+  approvals on this agent's work were rubber-stamps, the score is
+  unreliable fix the review process before promoting.
+
+### Demotion Is Faster Than Promotion
+
+Demotion is automatic and immediate. Do not wait for a meeting.
+
+| Trigger | Demotion |
+|---|---|
+| D1=0, D2=0, or D3=0 in any session | Drop one tier |
+| D4=0 with pre-task pattern provided | Drop one tier |
+| 3 consecutive sessions at PROBATION | Boardroom review (manual at single-team scale) |
+| Trailing 5 average drops below the band threshold for current tier | Drop to the band the trailing 5 supports |
+
+The asymmetry is intentional. Trust takes 20 sessions to earn and
+one session to lose. That is the design it is what makes the tier
+meaningful.
+
+### A Concrete Promotion Decision
+
+```
+Agent: agent-fe
+Current tier: STANDARD
+n_sessions: 22
+Trailing 20 average: 91
+Trailing 5 D1=0/D2=0/D3=0: none
+Trailing 5 FailureRecord recurrenceCount ≥ 2: none
+Calibration last refreshed: 3 months ago
+HITL theater review: passed (3/10 approvals were corrections)
+
+Decision: promote to HIGH
+Effective: next session
+Recorded in: trust-ledger.md, with one-line rationale
+Recorded by: operator
+```
+
+The decision is documented because demotion criteria reference the
+same evidence. If the agent regresses, the demotion is anchored to
+the same record.
+
+### When to Refuse a Promotion
+
+Refuse even when the bands clear if:
+
+- The trailing sessions were unusually easy promotion would
+  generalize a narrow signal
+- The agent's instruction file changed in the last 5 sessions —
+  promotion before calibrating to the new behavior is premature
+- The team is short on reviewers and is feeling pressure to "trust
+  the agent more" this is the worst possible reason; promotion
+  must be evidence-driven, never workload-driven
+
+A refusal is recorded with rationale, the same as a promotion.
 
 ---
 
@@ -298,11 +404,11 @@ expect to be ahead of the framework's own validation curve.
 
 ## Related
 
-- `docs/guides/getting-started.md` — the prerequisite path.
-- `docs/guides/trust-calibration.md` — TIER 2 calibration step.
-- `docs/guides/failure-taxonomy-adoption.md` — TIER 2 taxonomy step.
-- `docs/operating-model/README.md` — the operating model this guide
+- `docs/guides/getting-started.md` the prerequisite path.
+- `docs/guides/trust-calibration.md` TIER 2 calibration step.
+- `docs/guides/failure-taxonomy-adoption.md` TIER 2 taxonomy step.
+- `docs/operating-model/README.md` the operating model this guide
   puts into practice.
-- `docs/control-plane/pre-spawn-protocol.md` — TIER 1 pre-spawn
+- `docs/control-plane/pre-spawn-protocol.md` TIER 1 pre-spawn
   discipline.
-- `examples/minimum-viable-adoption/` — the starting templates.
+- `examples/minimum-viable-adoption/` the starting templates.

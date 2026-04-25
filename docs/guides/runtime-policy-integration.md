@@ -65,16 +65,16 @@ what is in scope. The framework's contribution is the top layer.
 
 | Capability | Runtime Layer | This Framework |
 |---|---|---|
-| Per-action permission check | ✓ | — |
-| Cryptographic agent identity | ✓ | — |
-| Sandboxing | ✓ | — |
-| Action-level audit | ✓ | Compatible with — |
-| **Trust over time** | — | ✓ |
-| **Failure memory and recurrence** | — | ✓ |
-| **Autonomy gate based on behavioral history** | — | ✓ |
-| **HITL approval chains with delegation** | — | ✓ |
-| **Performance review cycle** | — | ✓ |
-| **Operating model** | — | ✓ |
+| Per-action permission check | ✓ | |
+| Cryptographic agent identity | ✓ | |
+| Sandboxing | ✓ | |
+| Action-level audit | ✓ | Compatible with |
+| **Trust over time** | | ✓ |
+| **Failure memory and recurrence** | | ✓ |
+| **Autonomy gate based on behavioral history** | | ✓ |
+| **HITL approval chains with delegation** | | ✓ |
+| **Performance review cycle** | | ✓ |
+| **Operating model** | | ✓ |
 
 The runtime layer answers "is this action allowed?" The framework
 answers "is this agent trusted enough to be doing this work?" Both
@@ -163,7 +163,7 @@ Symmetrically, the runtime layer emits events the framework consumes:
 | Sandbox violation | FailureRecord with `failureClass: security_vulnerability` |
 | Authentication failure | Logged; may indicate identity issue |
 | Performance threshold breach | Performance degradation FailureRecord |
-| Audit log integrity violation | Critical — pause operations, escalate |
+| Audit log integrity violation | Critical pause operations, escalate |
 
 The adapter ingests these events and translates them into framework
 artifacts.
@@ -182,7 +182,7 @@ In shadow mode, the runtime layer:
 - Receives every signal the adapter forwards
 - Runs every policy check
 - Records every decision
-- **Does not block** — actions proceed regardless of runtime layer
+- **Does not block** actions proceed regardless of runtime layer
   outcome
 
 This is the safest way to introduce runtime policy without disrupting
@@ -197,7 +197,7 @@ While in shadow:
   that were legitimate, the policy needs refinement before enforce
   mode.
 - **False-negative rate.** Actions the runtime missed that the
-  framework caught — these tell you where runtime coverage is
+  framework caught these tell you where runtime coverage is
   incomplete.
 - **Performance overhead.** Runtime layer call latency multiplied by
   action count.
@@ -301,9 +301,9 @@ discipline):
 
 ## Related
 
-- `docs/control-plane/hook-system.md` — degraded mode behavior.
-- `docs/control-plane/audit-trail-patterns.md` — how the framework's
+- `docs/control-plane/hook-system.md` degraded mode behavior.
+- `docs/control-plane/audit-trail-patterns.md` how the framework's
   audit log is structured for cross-referencing.
-- `docs/architecture/three-layer-stack.md` — the layer stack overview.
-- `docs/architecture/mcp-a2a-integration.md` — protocol bridges (MCP,
+- `docs/architecture/three-layer-stack.md` the layer stack overview.
+- `docs/architecture/mcp-a2a-integration.md` protocol bridges (MCP,
   A2A) commonly handled by runtime layers.

@@ -36,7 +36,7 @@ accountable through trust scoring.
 | QA loop ownership | When QA fails, decides re-route, re-spawn, or escalate |
 | Lock and bulletin governance | Maintains ordering and integrity of session artifacts |
 | Escalation | Surfaces what it cannot handle alone |
-| Spawn authority | Only the orchestrator may spawn agents — subagents may not |
+| Spawn authority | Only the orchestrator may spawn agents subagents may not |
 
 The manager agent does not execute tasks. It manages them.
 
@@ -75,7 +75,7 @@ by `check-orchestrator-edit` (see `docs/control-plane/hook-system.md`).
 
 The audit log is append-only. The orchestrator writes events to it but
 cannot revise prior events. This is true even when the orchestrator
-"realizes" a prior classification was wrong — the new classification
+"realizes" a prior classification was wrong the new classification
 becomes a new event, not a mutation of the old one.
 
 ### Cannot spawn subagents from within a subagent
@@ -96,7 +96,7 @@ as the team grows.
 | 1–3 | Manager agent handles all routing, QA loops, and escalations comfortably | Single orchestrator |
 | 4–6 | Approaching capacity; QA loops compete with routing decisions | Single orchestrator with disciplined queue |
 | 7–10 | Manager agent saturates; queue depth grows; classification quality degrades | Split into two orchestrators with disjoint workspaces, or escalate to Manager Agent + Division pattern |
-| 10+ | Single orchestrator is structurally insufficient | Enterprise pattern (`docs/architecture/enterprise-scaling.md`) — Division Orchestrator + Team Orchestrators |
+| 10+ | Single orchestrator is structurally insufficient | Enterprise pattern (`docs/architecture/enterprise-scaling.md`) Division Orchestrator + Team Orchestrators |
 
 These thresholds are heuristic, not measured. They will be refined as
 multi-team deployments are instrumented.
@@ -124,9 +124,9 @@ moment at which the manager-agent / executor relationship is formed.
 
 | Spawner | Permitted Spawnees |
 |---|---|
-| Human operator | Orchestrator, any executing agent (rare — bypass logged) |
+| Human operator | Orchestrator, any executing agent (rare bypass logged) |
 | Orchestrator | Any agent within its workspace whose capability matches |
-| Spawned executing agent | None — subagents may not spawn |
+| Spawned executing agent | None subagents may not spawn |
 | Boardroom Agent | May request that the orchestrator spawn; does not spawn directly |
 
 ### Spawn Manifest Requirement
@@ -148,7 +148,7 @@ cases.
 |---|---|
 | QA fails three consecutive times on the same task | Boardroom |
 | Risk reclassified upward to CRITICAL mid-task | Boardroom |
-| Routing fails — no capable agent at sufficient trust tier | Human operator |
+| Routing fails no capable agent at sufficient trust tier | Human operator |
 | Pre-spawn surfaces a recurring failure pattern (recurrenceCount ≥ 2) | Human operator |
 | Hook violation by an agent under management | Human operator + audit log |
 | Disagreement between two agents on shared file scope | Human operator |
@@ -173,7 +173,7 @@ For the QA-failure case specifically, the framework standardizes a
 
 The 3-strike pattern is not negotiable. Continuing to re-spawn past
 strike three is a known failure mode (see
-`docs/control-plane/meta-governance.md` — "Spawn-storm").
+`docs/control-plane/meta-governance.md` "Spawn-storm").
 
 ---
 
@@ -217,7 +217,7 @@ Rules at scale:
 - Trust scores remain per-instance, not per-role.
 - Division Orchestrator may only spawn Team Orchestrators, never
   executing agents directly.
-- HITL gates escalate upward — a Team Orchestrator cannot approve what
+- HITL gates escalate upward a Team Orchestrator cannot approve what
   needs Division-level approval.
 
 The Division Orchestrator pattern is **designed but not yet
@@ -228,11 +228,11 @@ when single-orchestrator saturation is consistent and measured.
 
 ## Related
 
-- `docs/operating-model/task-assignment.md` — the routing pipeline the
+- `docs/operating-model/task-assignment.md` the routing pipeline the
   manager agent owns.
-- `docs/operating-model/incident-management.md` — where QA failures and
+- `docs/operating-model/incident-management.md` where QA failures and
   Boardroom escalations are detailed.
-- `docs/control-plane/hitl-gates.md` — the gate types the manager
+- `docs/control-plane/hitl-gates.md` the gate types the manager
   cannot bypass.
-- `docs/control-plane/hook-system.md` — the OS-level enforcement that
+- `docs/control-plane/hook-system.md` the OS-level enforcement that
   makes "cannot" mean cannot.

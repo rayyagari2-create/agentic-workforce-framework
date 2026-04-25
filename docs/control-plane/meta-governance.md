@@ -7,7 +7,7 @@ The most important question for any enterprise governance system is
 *what happens when the governance system breaks?* This document is the
 answer.
 
-If governance can fail silently, it is not governance — it is theatre.
+If governance can fail silently, it is not governance it is theatre.
 If it can fail loudly but not be recovered from, it becomes a liability.
 The framework treats meta-governance as a first-class concern, and
 this document specifies the failure modes, the detection signal for
@@ -18,7 +18,7 @@ each, the response, and the bounded escape hatches.
 ## The Eight Failure Mode Classes
 
 Each row is a class of failure that the governance system itself can
-exhibit. Rows are not anti-patterns of the agents — they are
+exhibit. Rows are not anti-patterns of the agents they are
 anti-patterns of the governance layer.
 
 | # | Failure Mode | Detection | Response |
@@ -46,13 +46,13 @@ These are the failure modes restated as the patterns to avoid.
 
 | Anti-Pattern | Why It Is Dangerous |
 |---|---|
-| Approval theater | Approver signs without scrutiny — the audit trail records "reviewed" but the human did not actually decide |
-| Score inflation | All sessions get high D1-D4 because the human does not want to seem critical — the autonomy gate signal degrades |
+| Approval theater | Approver signs without scrutiny the audit trail records "reviewed" but the human did not actually decide |
+| Score inflation | All sessions get high D1-D4 because the human does not want to seem critical the autonomy gate signal degrades |
 | Failure library overgeneralization | Vague failure entries match too broadly; pre-task retrieval becomes noise |
 | Hook bypass via "just this once" | The override pattern was used for routine work; it stops being an exception |
 | Pre-spawn becoming ceremony | The protocol is run but the outputs are not used to refine the manifest |
 | Trust score and capability boundary out of sync | Agent at HIGH tier with a capability boundary that no longer matches its role |
-| Ungoverned governance changes | Hook updates, policy edits, and audit format changes applied without HITL — the enforcement layer drifts |
+| Ungoverned governance changes | Hook updates, policy edits, and audit format changes applied without HITL the enforcement layer drifts |
 | "We'll add the audit log entry later" | A control plane action without immediate audit is unrecoverable; the trail can never be reconstructed |
 | Treating shadow mode as the destination | Runtime policy stays in shadow forever because enforcement is "scary"; the system runs without enforcement indefinitely |
 
@@ -70,22 +70,22 @@ When a governance failure is detected, the response escalates through
 a fixed hierarchy. Each level has explicit authority and explicit cost.
 
 ```
-LEVEL 1 — Automated correction
+LEVEL 1 Automated correction
    Trust tier drop, hook block, recurrence flag
    No human intervention; logged to audit
 
-LEVEL 2 — Operator review at next session
+LEVEL 2 Operator review at next session
    Chief-of-Staff Agent surfaces the issue
    Operator decides on instruction refinement, capability boundary
    change, or no action
 
-LEVEL 3 — Boardroom session
+LEVEL 3 Boardroom session
    Triggered by 3+ session probation, recurrence ≥ 3, control plane
    change, or cross-team CRITICAL
    Decision is recorded; outcome is one of: instruction rewrite,
    capability boundary reduction, agent retirement, or escalation
 
-LEVEL 4 — Compliance / risk escalation
+LEVEL 4 Compliance / risk escalation
    Triggered when a governance failure has produced an externally
    visible incident (regulatory, customer, contract)
    Outside the scope of the framework; the framework provides the
@@ -147,7 +147,7 @@ or version history; in-memory or unversioned storage is not permitted.
 
 The 10-minute TTL on the override marker is intentional. It is enough
 time to perform the immediate action. It is not enough time to forget
-the marker exists. Step 5 is mandatory — an override that is not
+the marker exists. Step 5 is mandatory an override that is not
 followed by a hook refinement is a governance failure on its own.
 
 ### Pre-Spawn Wrong Recommendation
@@ -164,7 +164,7 @@ followed by a hook refinement is a governance failure on its own.
 5. Score:     The orchestrator's D1 takes a hit for the misclassification
 ```
 
-This is the protocol for the most common single failure mode — the
+This is the protocol for the most common single failure mode the
 "the orchestrator was confident and wrong" case.
 
 ### Runtime Policy Too Restrictive
@@ -191,7 +191,7 @@ There are exactly three escape hatches built into the framework. They
 exist because the alternative (no escape) makes the framework
 brittle. They are bounded in scope and observable in use.
 
-### Escape Hatch 1 — Hook Override Marker
+### Escape Hatch 1 Hook Override Marker
 
 **What:** A 10-minute TTL marker that grants override on any hook
 block.
@@ -204,10 +204,10 @@ blocking state where the action genuinely needs to happen now.
 
 **When not to use:** Routine work; bypassing pre-spawn; bypassing QA.
 
-The override does not weaken the audit trail — every override is
+The override does not weaken the audit trail every override is
 logged. It creates a visible record that an exception was made.
 
-### Escape Hatch 2 — Operator Reclassification (Upward Only)
+### Escape Hatch 2 Operator Reclassification (Upward Only)
 
 **What:** A human can override the orchestrator's risk classification.
 
@@ -220,9 +220,9 @@ or a regulatory implication.
 **When not to use:** To "speed up" by downgrading. The downward path
 is heavily logged precisely because it is the dangerous direction.
 
-### Escape Hatch 3 — Boardroom Decision to Retire an Agent
+### Escape Hatch 3 Boardroom Decision to Retire an Agent
 
-**What:** A Boardroom session can decide to retire an agent — remove
+**What:** A Boardroom session can decide to retire an agent remove
 it from active use, archive its instruction file, redirect work to
 other agents.
 
@@ -238,7 +238,7 @@ instruction set.
 
 These three escape hatches are the only ways out of the protocol once
 it is started. Adding a fourth requires a control plane change, which
-itself requires HITL — the constraint is recursive on purpose.
+itself requires HITL the constraint is recursive on purpose.
 
 ---
 
@@ -262,7 +262,7 @@ A bulletin entry includes:
 - A correlation ID
 
 A phase transition without a bulletin entry is treated as if the
-transition did not happen — the next hook check that depends on the
+transition did not happen the next hook check that depends on the
 state being current will block.
 
 ### SESSION COMPLETE Blocked Without QA PASS
@@ -295,21 +295,21 @@ weekly) by an authorized human, and items are either:
 
 The evolution queue is the place where "we noticed this but it's not
 urgent" lives. Without it, observations either get lost or get
-escalated as urgent — both are failure modes.
+escalated as urgent both are failure modes.
 
 ---
 
 ## When Meta-Governance Itself Fails
 
 The recursive question is: what happens when the meta-governance
-system fails — when a governance failure is not detected, or is
+system fails when a governance failure is not detected, or is
 detected but the response is not executed?
 
 The framework's answer is that meta-governance failures are
 **externally visible**. The audit trail is append-only and
 cryptographically chained (Wave 2). A governance failure that is not
 detected internally will be visible to any external party reviewing
-the audit trail — typically during a compliance review, an incident
+the audit trail typically during a compliance review, an incident
 investigation, or a post-mortem.
 
 This is the explicit boundary of the framework: it does not claim
@@ -321,13 +321,13 @@ recovery process.
 
 ## Related
 
-- `pre-spawn-protocol.md` — failure mode #4 lives here
-- `build-state-machine.md` — failure modes #4, #5, #7 manifest in the
+- `pre-spawn-protocol.md` failure mode #4 lives here
+- `build-state-machine.md` failure modes #4, #5, #7 manifest in the
   state machine
-- `hitl-gates.md` — failure modes #1, #5 manifest at gates
-- `hook-system.md` — failure mode #8 lives here; the override pattern
+- `hitl-gates.md` failure modes #1, #5 manifest at gates
+- `hook-system.md` failure mode #8 lives here; the override pattern
   is detailed there
-- `audit-trail-patterns.md` — the trail that makes every failure
+- `audit-trail-patterns.md` the trail that makes every failure
   externally observable
-- `compliance-evidence.md` — what the audit trail provides to
+- `compliance-evidence.md` what the audit trail provides to
   external compliance frameworks

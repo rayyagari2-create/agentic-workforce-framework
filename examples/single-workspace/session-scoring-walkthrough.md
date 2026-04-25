@@ -1,4 +1,4 @@
-# Session Scoring Walkthrough — Single Workspace [v1.0]
+# Session Scoring Walkthrough Single Workspace [v1.0]
 
 A full annotated session, end to end. The scenario is a `billing-rate-bug`: a bug in tier-boundary rate computation. Risk is medium because the file touches business logic but no customer-facing surface; the fix flows through the standard pre-spawn path with a manifest, a QA loop with a first-attempt fail and a re-QA pass, trust scoring with evidence per dimension, and one FailureRecord.
 
@@ -20,7 +20,7 @@ This walkthrough is sanitized. There are no product references, no supplier name
 
 The pre-spawn protocol has three steps. Each step has an exit condition; failing the exit condition routes to escalation, not to spawn.
 
-### STEP 1 — Risk classification
+### STEP 1 Risk classification
 
 **Input:** Bug report from the founder. "Tier-boundary rate computation returns the lower-tier rate when the input is exactly equal to the boundary value. Expected: equal-to-boundary returns the higher-tier rate."
 
@@ -38,7 +38,7 @@ The pre-spawn protocol has three steps. Each step has an exit condition; failing
 
 **Exit condition for STEP 1:** Risk level assigned with rationale. **Met.**
 
-### STEP 2 — Manifest creation
+### STEP 2 Manifest creation
 
 The orchestrator authors `[PROJECT_REPO]/manifests/TASK-S20260422-001.md`. Content (rendered as JSON for AJV validation against `schemas/v1/agent-task-manifest.schema.json`):
 
@@ -74,7 +74,7 @@ The orchestrator authors `[PROJECT_REPO]/manifests/TASK-S20260422-001.md`. Conte
 
 **Exit condition for STEP 2:** Manifest validates against the schema; pre-task retrieval performed; eval plan present (required for medium risk). **Met.**
 
-### STEP 3 — Spawn or escalate
+### STEP 3 Spawn or escalate
 
 **Decision logic:**
 
@@ -115,13 +115,13 @@ Hooks fired during BUILD:
 
 | Hook | Result |
 |---|---|
-| `check-bulletin` (PreToolUse, before each write) | exit(0) — agent-srv read its prior bulletin entries before writing the next |
-| `check-bulletin-order` | exit(0) — START before WORKING before DONE |
-| `check-locked-states` | exit(0) — `billingRate.js` and `billingRate.test.js` were both in `interfacesTouched` |
-| `check-failure-lib` (pre-task, at BUILD start) | exit(0) — FAIL-2026-04-12-001 surfaced; agent-srv acknowledged in bulletin |
-| `audit-write` (PostToolUse) | exit(0) — every tool use logged to `audit_log` table |
+| `check-bulletin` (PreToolUse, before each write) | exit(0) agent-srv read its prior bulletin entries before writing the next |
+| `check-bulletin-order` | exit(0) START before WORKING before DONE |
+| `check-locked-states` | exit(0) `billingRate.js` and `billingRate.test.js` were both in `interfacesTouched` |
+| `check-failure-lib` (pre-task, at BUILD start) | exit(0) FAIL-2026-04-12-001 surfaced; agent-srv acknowledged in bulletin |
+| `audit-write` (PostToolUse) | exit(0) every tool use logged to `audit_log` table |
 
-### qa-agent QA phase — first attempt
+### qa-agent QA phase first attempt
 
 ```
 2026-04-22T09:51:27Z [qa-agent] PHASE=QA STATE=START
@@ -129,7 +129,7 @@ Hooks fired during BUILD:
   Reading agent-srv handoff and the bulletin.
 ```
 
-qa-agent ran the test suite. **6/7 pass. One unexpected failure** in a test that was not in the manifest's eval plan: `billingRate.contract.test.js` — a contract test that asserts `rate(input)` for input === 0 returns the zero-tier rate.
+qa-agent ran the test suite. **6/7 pass. One unexpected failure** in a test that was not in the manifest's eval plan: `billingRate.contract.test.js` a contract test that asserts `rate(input)` for input === 0 returns the zero-tier rate.
 
 The fix introduced a regression: input === 0 is now treated as below the lowest-tier boundary (because the lower bound is `<` and 0 is at the lower boundary), so the function falls through to a default rate that is not the zero-tier rate.
 
@@ -189,7 +189,7 @@ fix-agent's analysis: the contract says tier boundaries are inclusive on the upp
 - 0 < input <= upper bound of tier N: tier N rate
 - input > maximum boundary: highest tier rate (or default)
 
-Implementation: change the comparison to dispatch on `>=` lower for the lowest tier and `<` lower / `<=` upper for all other tiers. Or — cleaner — rewrite as a tier-table lookup with `findIndex`. fix-agent chose the lookup rewrite because it is testable per-tier rather than per-comparison.
+Implementation: change the comparison to dispatch on `>=` lower for the lowest tier and `<` lower / `<=` upper for all other tiers. Or cleaner rewrite as a tier-table lookup with `findIndex`. fix-agent chose the lookup rewrite because it is testable per-tier rather than per-comparison.
 
 Bulletin:
 
@@ -199,7 +199,7 @@ Bulletin:
 
 2026-04-22T10:48:29Z [fix-agent] PHASE=FIX STATE=DONE
   All boundary cases pass. Handing back to qa-agent for re-QA.
-  FailureRecord FAIL-2026-04-22-001 created (open) — will close after re-QA pass.
+  FailureRecord FAIL-2026-04-22-001 created (open) will close after re-QA pass.
 ```
 
 ### qa-agent re-QA phase
@@ -237,7 +237,7 @@ QAVerdict QA-S20260422-002:
 
 QA decision: `pass`. Founder reviewed and committed.
 
-### fix-agent — close FailureRecord
+### fix-agent close FailureRecord
 
 ```yaml
 failureId: FAIL-2026-04-22-001
@@ -342,7 +342,7 @@ The framework's value here is in the boundary-condition catch. Without the frame
 
 - The original bug would have been fixed in a one-line change.
 - The regression at input === 0 would have shipped because the developer's mental model had two boundaries, not three.
-- The contract test would have surfaced the regression in staging — or in production if no contract tests existed.
+- The contract test would have surfaced the regression in staging or in production if no contract tests existed.
 
 With the framework:
 

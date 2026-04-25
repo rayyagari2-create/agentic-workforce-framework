@@ -26,7 +26,7 @@ v1.
 At single-founder scale, the framework runs against one workspace, one
 human reviewer, one Orchestrator, and a small team of executing agents.
 Most decisions are made in real time. HITL approval is one person's
-inbox. Trust scoring is one person's judgment. This works well — and it
+inbox. Trust scoring is one person's judgment. This works well and it
 is what runs in the reference implementation today.
 
 At multi-team scale, that operating model breaks in predictable ways:
@@ -48,7 +48,7 @@ identity that travels with trust history, and approval gate chains.
 
 ## Role-Agent Alignment
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 **The question.** When a human team is introduced, does each person get
 their own Orchestrator instance?
@@ -65,7 +65,7 @@ QA Lead            ←→        QA Agent
 ```
 
 Agents are pooled and shared across the team. The Orchestrator belongs
-to whoever is doing architectural coordination — typically the tech
+to whoever is doing architectural coordination typically the tech
 lead or a rotating designated role. HITL approval authority is
 **role-gated**, not tied to who invoked the Orchestrator.
 
@@ -80,7 +80,7 @@ approval before it can even start.
 
 ## Manager Agent Pattern
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 At enterprise scale, the Orchestrator becomes a Manager Agent. The
 hierarchy extends:
@@ -90,12 +90,12 @@ ENTERPRISE STRUCTURE
 ────────────────────────────────────────────────────────────
 Division Orchestrator (VP-equivalent)
     │
-    ├── Team Orchestrator A (Tech Lead — Domain X)
+    ├── Team Orchestrator A (Tech Lead Domain X)
     │       ├── Frontend Agent
     │       ├── Backend Agent
     │       └── QA Agent
     │
-    └── Team Orchestrator B (Tech Lead — Domain Y)
+    └── Team Orchestrator B (Tech Lead Domain Y)
             ├── Backend Agent
             ├── Code Review Agent
             └── QA Agent
@@ -103,7 +103,7 @@ Division Orchestrator (VP-equivalent)
 
 **Key rules at enterprise scale:**
 
-- Manager Agents **route** work — they do not execute it.
+- Manager Agents **route** work they do not execute it.
 - Trust scores are **per-agent-instance**, not per-role. A QA Agent in
   Team A and Team B have separate trust trajectories.
 - The Division Orchestrator can spawn **only** Team Orchestrators —
@@ -115,7 +115,7 @@ Division Orchestrator (VP-equivalent)
 
 ## Central Policy + Federated Execution
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 **The tension.** Enterprises need consistent governance policy across
 all teams. Teams need autonomy to execute without central bottlenecks.
@@ -126,28 +126,28 @@ authority.
 ```
 CENTRAL (Division / Enterprise scope)
     Policy definitions in the agent_policies table
-    Trust tier thresholds — universal
-    HITL gate classifications — universal
-    Failure taxonomy — universal
-    Compliance requirements — universal
+    Trust tier thresholds universal
+    HITL gate classifications universal
+    Failure taxonomy universal
+    Compliance requirements universal
 
 FEDERATED (Team scope)
-    Task routing decisions — team-owned
-    Agent spawning — Team Orchestrator owns
-    File scope — team-defined
-    Bulletin and lock management — per workspace
-    Trust score review — team-owned (within central rubric)
+    Task routing decisions team-owned
+    Agent spawning Team Orchestrator owns
+    File scope team-defined
+    Bulletin and lock management per workspace
+    Trust score review team-owned (within central rubric)
 ```
 
-**What stays central — always:**
+**What stays central always:**
 
 - D1-D4 rubric and calibration anchors.
 - Trust tier thresholds (HIGH / STANDARD / RESTRICTED / PROBATION).
 - HITL gate trigger classifications.
 - Failure library taxonomy classes.
-- Audit log — append-only, enterprise-scoped.
+- Audit log append-only, enterprise-scoped.
 
-**What federates — always:**
+**What federates always:**
 
 - Which agents are active in a workspace.
 - Task assignment and routing.
@@ -158,7 +158,7 @@ FEDERATED (Team scope)
 
 ## Work Queue Architecture
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 At single-founder scale, work is assigned directly in each session.
 At enterprise scale, work enters a queue and agents pull from it.
@@ -179,11 +179,11 @@ At enterprise scale, work enters a queue and agents pull from it.
 **Schema.** `work_queue_items` ships in `database/enterprise/` with the
 v3.0 schema set. The status enum matches this lifecycle exactly. The
 operational lifecycle mutability rule applies: status transitions are
-not mutations of audit entries — they generate new audit events.
+not mutations of audit entries they generate new audit events.
 
 **Assignment rules:**
 
-- The Orchestrator assigns by **capability boundary** — never by
+- The Orchestrator assigns by **capability boundary** never by
   availability alone.
 - An agent at PROBATION may not receive HIGH-risk tasks. The trust
   gate applies at assignment, not at execution.
@@ -194,9 +194,9 @@ not mutations of audit entries — they generate new audit events.
 
 ## Persistent Agent Identity
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
-At single-founder scale, agents are stateless between sessions — they
+At single-founder scale, agents are stateless between sessions they
 read their instruction files and rebuild context each time. At
 enterprise scale, agent identity persists across sessions, teams, and
 projects.
@@ -225,7 +225,7 @@ rather than a metaphor.**
 
 ## Approval Gate Chains
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 **Single-founder model.** All HITL approvals go to one person.
 
@@ -252,16 +252,16 @@ CRITICAL-risk task (cross-team, schema change):
 
 **Delegation rules:**
 
-- Delegation is **explicit** — never implicit.
+- Delegation is **explicit** never implicit.
 - A delegate **cannot** re-delegate.
-- Delegation **expires** — TTL is required on every delegation record.
+- Delegation **expires** TTL is required on every delegation record.
 - The audit log records every delegation and every approval decision.
 
 ---
 
 ## Multi-Workspace Bulletin and Lock Management
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 **Current state (single-founder).** One file-based bulletin, one
 file-based lock list. Append-only.
@@ -273,11 +273,11 @@ three parallel sessions in one workspace.
 **Enterprise state (Postgres-backed).** The bulletin and lock state
 move into Postgres tables (`agent_events` and `agent_locks`).
 Row-level locking handles concurrent writes natively. Workspaces are
-isolated by `workspace_id` — Team A's bulletin is not visible to Team
+isolated by `workspace_id` Team A's bulletin is not visible to Team
 B's agents by default.
 
 **Cross-workspace visibility for the Division Orchestrator.** The
-Division Orchestrator reads aggregate views across workspaces — a
+Division Orchestrator reads aggregate views across workspaces a
 summary, not the full bulletin. This is the management layer, not full
 transparency.
 
@@ -285,7 +285,7 @@ transparency.
 
 ## Trust Score Calibration at Scale
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
 **Single-founder calibration problem.** One human assigns all D1-D4
 scores. Noisy labels degrade the autonomy gate signal over time.
@@ -295,11 +295,11 @@ anchors):
 
 | Layer | Mechanism | Status |
 |---|---|---|
-| 1 | Evidence requirement — one line per dimension | v1.0 |
+| 1 | Evidence requirement one line per dimension | v1.0 |
 | 2 | Calibration anchor table | v1.0 |
 | 3 | Automated scoring routine sending payloads to Eval/Telemetry Service | Wave 3+ |
 | 4 | Cross-scorer calibration sessions | Wave 3+ |
-| 5 | Calibration committee — three or more scorers per high-stakes decision | Wave 3+ |
+| 5 | Calibration committee three or more scorers per high-stakes decision | Wave 3+ |
 
 **Enterprise addition (Layers 4 and 5).** When multiple humans score
 the same agent session, scores are compared before finalizing.
@@ -311,9 +311,9 @@ equivalent of performance review calibration committees.
 
 ## Estimated Governance Overhead at Scale
 
-> *Designed — not yet field-proven at multi-team scale.*
+> *Designed not yet field-proven at multi-team scale.*
 
-The following estimates are **illustrative — not measured.** They will
+The following estimates are **illustrative not measured.** They will
 be updated with empirical data as multi-team deployments are
 instrumented.
 
@@ -321,11 +321,11 @@ instrumented.
 |---|---|---|
 | 1 reviewer, 1 agent | 3-5 decision points | ~15-20% of session time |
 | 1 tech lead, 3 agents | 8-12 decision points | ~20-25% of session time |
-| 5 team members, 8 agents | 15-25 decision points | ~25-30% — async approvals required |
+| 5 team members, 8 agents | 15-25 decision points | ~25-30% async approvals required |
 | Enterprise (50+ agents) | Policy-driven automation | HITL reserved for CRITICAL only |
 
 **The governance gradient.** As agent count grows, human review gates
-narrow — from all MEDIUM+ at small team scale, to CRITICAL-only at
+narrow from all MEDIUM+ at small team scale, to CRITICAL-only at
 enterprise scale. Runtime policy enforcement, trust tiers, and
 automated scoring absorb what humans reviewed manually at small scale.
 
@@ -353,7 +353,7 @@ human judgment to where it has the highest leverage.
 
 **The criterion for v3.0 release.** The reference implementation must
 have validated this model under real multi-team load. Until then, this
-document is the design — not the claim. We do not want to publish an
+document is the design not the claim. We do not want to publish an
 untested model as if it were v1.
 
 ---
@@ -362,9 +362,9 @@ untested model as if it were v1.
 
 - [ADR-0005](decision-records/0005-enterprise-scaling-is-v3-field-proven.md) —
   Decision to defer publication of the enterprise extension to v3.0.
-- `docs/concepts/work-queues.md` — Work queue lifecycle (v2.0).
-- `docs/concepts/approval-gate-chains.md` — Gate chain composition
+- `docs/concepts/work-queues.md` Work queue lifecycle (v2.0).
+- `docs/concepts/approval-gate-chains.md` Gate chain composition
   (v2.0).
-- `docs/concepts/delegation.md` — Explicit-only delegation rules
+- `docs/concepts/delegation.md` Explicit-only delegation rules
   (v3.0).
-- `docs/guides/enterprise-adoption.md` — Adoption walkthrough (v3.0).
+- `docs/guides/enterprise-adoption.md` Adoption walkthrough (v3.0).

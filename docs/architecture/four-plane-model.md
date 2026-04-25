@@ -86,7 +86,7 @@ score history.
 
 **Authority:** The autonomy plane does not block work directly. It feeds the
 control plane, which is what decides whether work proceeds. The separation
-matters: a low trust score does not stop an agent — a low trust score plus a
+matters: a low trust score does not stop an agent a low trust score plus a
 high-risk task plus a control plane gate stops an agent.
 
 **Design rationale:** Behavioral accountability is a long-running signal,
@@ -98,7 +98,7 @@ history. With this plane, the same agent shows up to its sixth task with
 the trust it earned across the previous five.
 
 The autonomy plane is also where failure memory lives. Pre-task failure
-retrieval — agents check their own failure history before starting — is a
+retrieval agents check their own failure history before starting is a
 distinguishing capability of this framework. It exists in the autonomy
 plane because failure memory is a property of an agent over time, not a
 property of any single task.
@@ -150,11 +150,11 @@ alongside the workforce. At v1.0, this is the R1 PR Test Routine
 Security Scan Routine (sensitive data scan on every PR).
 
 **What it produces:** Routine run records. Comments on PRs. Alerts.
-Routines do not write to trust scores or failure records directly — that
+Routines do not write to trust scores or failure records directly that
 violates the separation of concerns.
 
 **Cadence:** Trigger-driven. Schedule, API, or GitHub event. Each Routine
-run is stateless — a new session, no accumulated context.
+run is stateless a new session, no accumulated context.
 
 **Authority:** Lightweight. A Routine cannot spawn an agent. A Routine
 cannot modify governance state. Output review by a human reviewer (or by a
@@ -164,7 +164,7 @@ that gates full agents.
 **Design rationale:** Scheduled automation is qualitatively different
 from agent work. The Orchestrator + QA loop is too stateful, too complex,
 and too governance-heavy to run on a cron timer. Routines fill the gap
-where lightweight, repeatable, unattended tasks need to happen — without
+where lightweight, repeatable, unattended tasks need to happen without
 inheriting the governance overhead that agents carry. See
 [ADR-0002](decision-records/0002-routines-are-not-agents.md).
 
@@ -225,7 +225,7 @@ The planes are independent in implementation but coupled in operation.
   before any agent spawns. The control plane decides when the workforce is
   allowed to proceed.
 - **Automation ↔ All.** Routines emit run records. Some Routines (R1, R4)
-  surface findings as PR comments — output is reviewed by a human, never
+  surface findings as PR comments output is reviewed by a human, never
   auto-acted on. R10 (Wave 3+) sends a scoring payload to the
   Eval/Telemetry Service, which writes the trust score; the Routine itself
   never writes the score.
@@ -240,9 +240,9 @@ coupling that erodes the separation. Keep edges narrow; document them.
 | Plane | v1.0 Status |
 |---|---|
 | Agentic Workforce Plane | Live in reference implementation |
-| Autonomy Plane | Live — manual D1-D4 scoring, file-based failure memory |
-| Control Plane | Partial — hooks live, AGT adapter shadow mode, audit log file-based |
-| Automation Plane | Wave 1 — R1 and R4 templates published; cloud execution next |
+| Autonomy Plane | Live manual D1-D4 scoring, file-based failure memory |
+| Control Plane | Partial hooks live, AGT adapter shadow mode, audit log file-based |
+| Automation Plane | Wave 1 R1 and R4 templates published; cloud execution next |
 
 Status labels follow the convention from the root README. We do not mix
 current state and target state.

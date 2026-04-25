@@ -1,6 +1,6 @@
-# Case Studies — Submission Guide [v1.0]
+# Case Studies Submission Guide [v1.0]
 
-Community-contributed adoption stories. The folder is [FUTURE] — there are no entries yet — but the submission template ships now so the first contribution is unblocked.
+Community-contributed adoption stories. The folder is [FUTURE] there are no entries yet but the submission template ships now so the first contribution is unblocked.
 
 The most useful case studies show what was adapted and what did not work. A case study with only successes is an advertisement, not a case study. The framework is more useful for the next reader when you write the parts you struggled with.
 
@@ -13,7 +13,7 @@ A submission is rejected if any of the following are missing.
 ### 1. Context
 
 - Team size (engineers and AI/ML engineers separately if relevant)
-- Domain (e.g. fintech, devtools, content platform — generic; no company name required)
+- Domain (e.g. fintech, devtools, content platform generic; no company name required)
 - Product stage (pre-launch, growth, mature)
 - Prior experience with AI agent tooling (none / experimenting / running multiple agents already)
 
@@ -22,7 +22,7 @@ This section sets the reader's calibration. A case study from a 200-engineer mat
 ### 2. What you adopted
 
 - Which parts of the framework you took as written
-- D1-D4 trust scoring, FailureRecord lifecycle, autonomy gates, hooks, schemas — list specifically
+- D1-D4 trust scoring, FailureRecord lifecycle, autonomy gates, hooks, schemas list specifically
 - Approximate timeline from first read to first scored session
 - Engineering investment in hours
 
@@ -35,7 +35,7 @@ Be specific. "We adopted the framework" is not adoption. "We adopted D1-D4 manua
 - What you extended (added a sixth dimension, added a tier between RESTRICTED and STANDARD, added a new failure class)
 - Why each change was made
 
-A renamed agent is fine. A removed dimension changes the scoring semantics — say so.
+A renamed agent is fine. A removed dimension changes the scoring semantics say so.
 
 ### 4. Measured outcomes
 
@@ -46,9 +46,9 @@ Quantitative where possible. The framework's claim is behavioral accountability 
 - Trust score trajectory for one or two agents over the first 10-20 sessions
 - Number of repeat failures vs. novel failures
 
-Qualitative observations are welcome but cannot replace the metrics. If you cannot produce metrics yet, label the case study explicitly as "early adoption — quantitative outcomes pending."
+Qualitative observations are welcome but cannot replace the metrics. If you cannot produce metrics yet, label the case study explicitly as "early adoption quantitative outcomes pending."
 
-### 5. What did not work — REQUIRED
+### 5. What did not work REQUIRED
 
 This is the section the reader learns from. Be honest.
 
@@ -64,7 +64,7 @@ If you cannot identify anything that did not work, the case study is too early. 
 
 - One or two paragraphs
 - Aimed at the next reader, not at the framework authors
-- Concrete: "Skip Postgres for the first month — the file-based ledger is fine until n=15" is useful. "Move slower" is not.
+- Concrete: "Skip Postgres for the first month the file-based ledger is fine until n=15" is useful. "Move slower" is not.
 
 ---
 
@@ -76,7 +76,7 @@ If you cannot identify anything that did not work, the case study is too early. 
 4. Open a pull request against the framework repo. Title the PR `case-study: <your-team>`.
 5. Tag the PR with the `case-study` label.
 
-The PR will be reviewed for sanitization and completeness. The framework maintainers do not edit the substance of a case study — they may ask you to remove identifying information or to flesh out a thin section.
+The PR will be reviewed for sanitization and completeness. The framework maintainers do not edit the substance of a case study they may ask you to remove identifying information or to flesh out a thin section.
 
 ---
 
@@ -85,9 +85,9 @@ The PR will be reviewed for sanitization and completeness. The framework maintai
 Before opening the PR, confirm:
 
 - [ ] No customer or supplier names
-- [ ] No internal repo paths — use `[PROJECT_REPO]` as the placeholder
+- [ ] No internal repo paths use `[PROJECT_REPO]` as the placeholder
 - [ ] No production data values (real billing rates, real user IDs, real request bodies)
-- [ ] No proprietary domain names — generic descriptions are fine
+- [ ] No proprietary domain names generic descriptions are fine
 - [ ] No trade secrets, even by paraphrase
 - [ ] The team identifier in the filename is not the legal company name
 - [ ] If the case study mentions a third-party vendor, the vendor is named only when the framework's behavior depends on it (e.g. "we use Postgres" is fine; "we use Vendor X for Y" is fine if the choice is load-bearing in the case study)

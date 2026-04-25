@@ -1,4 +1,4 @@
-# Single Workspace — Reference Implementation [v1.0]
+# Single Workspace Reference Implementation [v1.0]
 
 The full single-workspace reference. This is what the framework's reference implementation actually runs today: file-based bulletin, Postgres governance schema, OS-level hooks, manual D1-D4 scoring, AGT in shadow mode. Five-agent roster.
 
@@ -20,27 +20,27 @@ This example is for teams who have committed to the framework and are ready to i
 | FailureRecord lifecycle | Schema-validated. Pre-task retrieval. Three-tag close. | Live |
 | Pre-spawn protocol | STEP 1 risk classification, STEP 2 manifest creation, STEP 3 spawn or escalate | Live |
 | Build state machine | DEBUG → SPEC → PLAN → BUILD → QA → COMPLETE | Live |
-| AGT runtime policy adapter | Shadow mode — intercepts and logs; does not block | Shadow live |
+| AGT runtime policy adapter | Shadow mode intercepts and logs; does not block | Shadow live |
 | HITL gates | File-based for the single-workspace reference; gate types HITL only (no DELEGATION/ESCALATION/APPROVAL chains yet) | Live |
 
 ---
 
 ## What it costs
 
-Honest engineering time estimate from the reference implementation. Your numbers will differ — the goal is to set expectations, not to claim universality.
+Honest engineering time estimate from the reference implementation. Your numbers will differ the goal is to set expectations, not to claim universality.
 
 | Component | First-time engineering investment | Ongoing per session |
 |---|---|---|
 | Roster + capability boundaries (instruction files for 5 agents) | 8-12 hours | None |
 | Postgres governance schema | 4-6 hours (run the migrations, validate RLS) | None |
-| Hook system (13 hooks, fail closed, override pattern) | 20-30 hours initial; 2-4 hours per new hook | None — runs in band |
+| Hook system (13 hooks, fail closed, override pattern) | 20-30 hours initial; 2-4 hours per new hook | None runs in band |
 | File-based bulletin and lock infrastructure | 10-15 hours | 5-10 minutes per session for entries |
 | AgentTaskManifest tooling (write template, validation) | 4-6 hours | 10-20 minutes per task to author |
 | QAVerdict structure + first eval suite | 12-20 hours | 20-45 minutes per task to verify |
 | D1-D4 manual scoring + ledger discipline | 4-8 hours setup; ongoing calibration | 15-30 minutes per session |
 | FailureRecord process (template, retrieval, three-tag close) | 4-8 hours | 30-60 minutes per failure |
 | Pre-spawn protocol (decision tree, escalation triggers) | 6-10 hours | 5-10 minutes per spawn |
-| AGT shadow mode adapter | 12-20 hours | None — runs in band |
+| AGT shadow mode adapter | 12-20 hours | None runs in band |
 
 **Total first-time investment:** approximately 80-140 engineering hours. Roughly 2-4 working weeks for one engineer with the framework documents as input.
 
@@ -54,12 +54,12 @@ A representative sample from the reference implementation's first 15 scored sess
 
 | Scenario | What was caught | Where it caught |
 |---|---|---|
-| `billing-rate-bug` — agent-srv computed rates with off-by-one on tier boundary | QA-Agent's contract test caught the boundary condition before any commit | QA verdict, D1=10 (significant rework) |
-| `search-index-refactor` — agent-srv wrote a field name not in the contract | Schema validation hook blocked the commit. Without the hook, the camelCase/snake_case mismatch would have shipped to staging. | Hook (PreToolUse on commit), D3=22 |
-| `content-import` — agent-fe attempted a database write outside the assigned interfaces | Capability boundary check at orchestrator task assignment refused the task | Pre-spawn STEP 1, no work performed |
+| `billing-rate-bug` agent-srv computed rates with off-by-one on tier boundary | QA-Agent's contract test caught the boundary condition before any commit | QA verdict, D1=10 (significant rework) |
+| `search-index-refactor` agent-srv wrote a field name not in the contract | Schema validation hook blocked the commit. Without the hook, the camelCase/snake_case mismatch would have shipped to staging. | Hook (PreToolUse on commit), D3=22 |
+| `content-import` agent-fe attempted a database write outside the assigned interfaces | Capability boundary check at orchestrator task assignment refused the task | Pre-spawn STEP 1, no work performed |
 | Repeat `schema_violation` after FAIL-2026-04-12-001 | Pre-task retrieval surfaced the prior FailureRecord; the orchestrator brief included the prevention rule explicitly | D4=25 (pattern caught early) |
 | Subagent attempted to spawn its own subagent | check-agent-spawn hook blocked, exit(2) | Hook layer, no work performed |
-| Bulletin missing entries — agent-srv silently retried after a tool error | check-bulletin-order hook required WORKING entry before allowing DONE; surfaced the gap | Hook layer, D2=18 |
+| Bulletin missing entries agent-srv silently retried after a tool error | check-bulletin-order hook required WORKING entry before allowing DONE; surfaced the gap | Hook layer, D2=18 |
 | `wont_fix` proposed by fix-agent without founder approval | HITL gate triggered. Closure refused until founder approval written. | Pre-spawn STEP 3, fix held |
 | Falsified telemetry (agent claimed test pass that did not run) | D2=0 hard stop. Automatic demotion. FailureRecord required. | Trust scoring, post-session review |
 
@@ -71,12 +71,12 @@ The pattern: hooks catch violations at runtime; QA catches contract issues mid-t
 
 Before adopting the single-workspace reference, you need:
 
-1. **Postgres** (or Supabase). The governance schema in `database/governance/` requires Postgres-compatible SQL. Sqlite will not work — RLS is required.
-2. **A hook runner.** The reference implementation runs Claude Code, which provides PreToolUse and PostToolUse hooks. Equivalent runners include any agent runtime that supports OS-level pre/post execution hooks. Without hooks, the control plane is partial — you have manifest discipline and trust scoring but no enforcement.
+1. **Postgres** (or Supabase). The governance schema in `database/governance/` requires Postgres-compatible SQL. Sqlite will not work RLS is required.
+2. **A hook runner.** The reference implementation runs Claude Code, which provides PreToolUse and PostToolUse hooks. Equivalent runners include any agent runtime that supports OS-level pre/post execution hooks. Without hooks, the control plane is partial you have manifest discipline and trust scoring but no enforcement.
 3. **A file-based or database-backed bulletin.** The reference implementation uses file-based for v1.0 with the migration to Postgres in progress. Either is acceptable.
 4. **One human reviewer with calibration authority.** D1-D4 scoring is observer-assigned. Without a single calibrated reviewer, scores drift.
 5. **A version-controlled instruction file per agent.** The agent's job description and capability boundary live in the instruction file. Changes are tracked in git.
-6. **A discipline budget.** Approximately 60-120 minutes of governance overhead per scored session. If you cannot commit to this, the reference is not yet appropriate — go back to minimum viable adoption.
+6. **A discipline budget.** Approximately 60-120 minutes of governance overhead per scored session. If you cannot commit to this, the reference is not yet appropriate go back to minimum viable adoption.
 
 ---
 
@@ -118,6 +118,6 @@ See [`../multi-team/README.md`](../multi-team/README.md) for the v3.0 status.
 
 ## Files in this directory
 
-- [`README.md`](README.md) — this file
-- [`agent-roster-template.md`](agent-roster-template.md) — extended roster with trust history, autonomy gates per agent, ADR references, instruction file ownership
-- [`session-scoring-walkthrough.md`](session-scoring-walkthrough.md) — full annotated session: pre-spawn through trust scoring, including a QA loop with first-attempt fail and re-QA pass
+- [`README.md`](README.md) this file
+- [`agent-roster-template.md`](agent-roster-template.md) extended roster with trust history, autonomy gates per agent, ADR references, instruction file ownership
+- [`session-scoring-walkthrough.md`](session-scoring-walkthrough.md) full annotated session: pre-spawn through trust scoring, including a QA loop with first-attempt fail and re-QA pass

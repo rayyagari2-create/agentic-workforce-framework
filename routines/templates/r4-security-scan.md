@@ -26,7 +26,7 @@ hitl_gate:
   reviewer_group: "[REVIEWER_GROUP]"
 ---
 
-# R4 — Security Scan on PR
+# R4 Security Scan on PR
 
 A GitHub-triggered routine that scans agent-authored pull requests for
 common security issues and surfaces findings to a human reviewer before
@@ -40,7 +40,7 @@ above MAJOR severity blocks merge until a designated reviewer signs off.
 ## What it scans for
 
 The routine flags four categories of issue. These categories are the
-operationally useful ones — narrow enough to be high signal, broad enough
+operationally useful ones narrow enough to be high signal, broad enough
 to catch the most common failure modes.
 
 ### 1. Secrets
@@ -81,8 +81,8 @@ whether the routine blocks the merge gate.
 
 | Severity   | Examples                                                | Gate behavior                |
 |------------|---------------------------------------------------------|------------------------------|
-| CRITICAL   | Live API key in source; eval of user input              | **Block** — reviewer required |
-| MAJOR      | Hardcoded credential in test; high-CVE dep; unsafe eval | **Block** — reviewer required |
+| CRITICAL   | Live API key in source; eval of user input              | **Block** reviewer required |
+| MAJOR      | Hardcoded credential in test; high-CVE dep; unsafe eval | **Block** reviewer required |
 | MINOR      | Old-but-not-vulnerable dep; logging session ID          | Annotate; do not block       |
 | INFO       | Style issues, non-security findings                     | Annotate; do not block       |
 
@@ -115,7 +115,7 @@ The routine does **not** dismiss its own findings. Only a member of
 PR comment template (used on every run with findings):
 
 ```markdown
-### Security scan — {{pull_request.head.sha[:7]}}
+### Security scan {{pull_request.head.sha[:7]}}
 
 **Status:** {{status}}    **Findings:** {{count_total}}
 **Critical:** {{count_critical}} · **Major:** {{count_major}} · **Minor:** {{count_minor}}
@@ -131,7 +131,7 @@ PR comment template (used on every run with findings):
 [Full report (correlation_id={{correlation_id}})]({{report_url}})
 ```
 
-If no findings: a single-line `### Security scan — clean` comment.
+If no findings: a single-line `### Security scan clean` comment.
 
 ---
 
@@ -139,7 +139,7 @@ If no findings: a single-line `### Security scan — clean` comment.
 
 R4 writes only to `routine_runs`. It does **not** write to
 `failure_records`. A confirmed finding may eventually become a failure
-record — but only after a human reviewer triages it. The routine surfaces
+record but only after a human reviewer triages it. The routine surfaces
 evidence; the operator decides whether it constitutes a failure event.
 
 ---

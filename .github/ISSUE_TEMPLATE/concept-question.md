@@ -44,4 +44,4 @@ A specific question is far easier to answer than a general one. If you have mult
 
 ## Additional context
 
-Optional. Domain you are working in (in generic terms — fintech, devtools, content platform), team size, current adoption stage. Helps the maintainers tailor the answer.
+Optional. Domain you are working in (in generic terms fintech, devtools, content platform), team size, current adoption stage. Helps the maintainers tailor the answer.

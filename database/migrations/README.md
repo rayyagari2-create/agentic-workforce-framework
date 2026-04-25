@@ -28,7 +28,7 @@ This is the absolute rule of the framework:
   transitioning from `open` to `resolved`) MUST emit a new `audit_log`
   event capturing `before_state` and `after_state`. The original row in
   `failure_records` is updated; the historical state lives in `audit_log`.
-- `agent_events` is append-only by convention but not by trigger — agents
+- `agent_events` is append-only by convention but not by trigger agents
   insert one row per event and never edit prior rows.
 
 ## File naming
@@ -70,16 +70,16 @@ seconds who writes to the table and where the design originated.
 
 ## What never goes in a migration
 
-- Application data seeds — those belong in a separate `seed/` directory if
+- Application data seeds those belong in a separate `seed/` directory if
   ever needed. Migrations are schema only.
-- `tenant_id` constants — single-workspace deployments treat `tenant_id` as
+- `tenant_id` constants single-workspace deployments treat `tenant_id` as
   application-level configuration, not as a database default.
 - Vendor-specific extensions beyond `pgcrypto`. The framework ships
   Postgres / Supabase compatible SQL.
-- Anything that touches the `audit_log` data — the table structure is
+- Anything that touches the `audit_log` data the table structure is
   fixed at v1.0 and any change requires a new schema version path, not a
   migration.
 
 ## Status
 
-- **v1.0** — conventions current. Apply to all migrations going forward.
+- **v1.0** conventions current. Apply to all migrations going forward.

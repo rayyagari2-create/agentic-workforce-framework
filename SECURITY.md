@@ -1,6 +1,6 @@
 # Security Policy
 
-The Agentic Workforce Framework ships schemas, SQL, and hook patterns that are intended to govern autonomous agent behavior. Security issues in these artifacts — even in examples — can propagate into downstream deployments. We take them seriously.
+The Agentic Workforce Framework ships schemas, SQL, and hook patterns that are intended to govern autonomous agent behavior. Security issues in these artifacts even in examples can propagate into downstream deployments. We take them seriously.
 
 ---
 
@@ -10,7 +10,7 @@ Only the latest v1.x release receives security fixes. Once v2.0 ships, v1.x will
 
 | Version | Supported |
 |---|---|
-| v1.x (current) | Yes — security fixes and patch releases |
+| v1.x (current) | Yes security fixes and patch releases |
 | Pre-v1.0 | No |
 
 ---
@@ -19,7 +19,7 @@ Only the latest v1.x release receives security fixes. Once v2.0 ships, v1.x will
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Report vulnerabilities privately by emailing **security@agentic-workforce-framework.org** (placeholder — confirm the maintainer email in the repo maintainer list before depending on it).
+Report vulnerabilities privately by emailing **security@agentic-workforce-framework.org** (placeholder confirm the maintainer email in the repo maintainer list before depending on it).
 
 Alternatively, use GitHub's private vulnerability reporting on this repository: Security tab → Report a vulnerability.
 
@@ -52,7 +52,7 @@ This framework is not a running service, so the typical vulnerability classes di
 
 **Hook pattern vulnerabilities**
 
-- Example hooks that fail open on error (any hook must fail closed — if an example does not, it is a vulnerability)
+- Example hooks that fail open on error (any hook must fail closed if an example does not, it is a vulnerability)
 - Example hooks that could be bypassed by path manipulation, environment variable injection, or subagent spawn
 - Audit-log examples that could be silenced by a caller
 
@@ -93,7 +93,7 @@ We will not pursue legal action against researchers who:
 
 ## Dependencies
 
-This framework has no runtime dependencies — it ships documentation, schemas, SQL, and example code. Schema validation uses AJV or any JSON Schema Draft 2020-12 validator; vulnerabilities in those validators are not in scope here and should be reported upstream.
+This framework has no runtime dependencies it ships documentation, schemas, SQL, and example code. Schema validation uses AJV or any JSON Schema Draft 2020-12 validator; vulnerabilities in those validators are not in scope here and should be reported upstream.
 
 ---
 
@@ -105,4 +105,4 @@ If you have adopted this framework and discover a vulnerability in your own impl
 - Assumptions in the framework that did not hold in production
 - Enforcement gaps between what the docs describe and what the examples implement
 
-Reports of this kind are the most valuable — they improve the framework for everyone.
+Reports of this kind are the most valuable they improve the framework for everyone.

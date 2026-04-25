@@ -44,7 +44,7 @@ applicable to high-risk AI systems and general-purpose AI systems.
 | Recordkeeping | Append-only audit log; per-session agent runs; per-decision gate records; immutable failure records | Records cover agent operation; do not cover end-user interactions unless those are routed through the framework |
 | Transparency / instructions for use | Manifest format captures task definition, risk level, and prior-failure context; trust tier visible to operators | The framework does not generate end-user-facing transparency artifacts |
 | Human oversight | HITL gates at HIGH risk; APPROVAL gates at CRITICAL risk; Boardroom sessions; override marker creates auditable exception path | Oversight mechanisms are evidence; effectiveness depends on the human reviewers' actual scrutiny |
-| Accuracy, robustness, cybersecurity | Trust scoring D1 (correctness) and D2 (observability) capture per-session quality; failure memory drives recurrence detection | Does not measure model-level accuracy or hallucination rates — those are model-provider concerns |
+| Accuracy, robustness, cybersecurity | Trust scoring D1 (correctness) and D2 (observability) capture per-session quality; failure memory drives recurrence detection | Does not measure model-level accuracy or hallucination rates those are model-provider concerns |
 | Post-market monitoring | Trust score evolution over time; failure record recurrence; routine-based alerting | Framework provides the operational data feed; the post-market monitoring system itself is organizational |
 | Serious incident reporting | Audit trail provides reconstructable forensic record per correlation ID; failure records capture incident classification | Reporting workflow to authorities is outside framework scope |
 
@@ -64,35 +64,35 @@ contributes evidence across all four.
 
 | RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| GV-1 — Policies, processes, procedures | Pre-spawn protocol, build state machine, HITL gates, hook system are documented procedures with enforcement |
-| GV-3 — Roles and responsibilities | Approval authority levels (Team / Division / Enterprise); delegation rules with TTL; role-gated authority distinct from invocation rights |
-| GV-4 — Accountability structures | Audit trail with `actor_id` on every entry; Boardroom decision records; trust score evolution per agent instance |
-| GV-6 — Stakeholder engagement | Self-reporting protocol mandates bulletin writes at every transition (operator visibility) |
+| GV-1 Policies, processes, procedures | Pre-spawn protocol, build state machine, HITL gates, hook system are documented procedures with enforcement |
+| GV-3 Roles and responsibilities | Approval authority levels (Team / Division / Enterprise); delegation rules with TTL; role-gated authority distinct from invocation rights |
+| GV-4 Accountability structures | Audit trail with `actor_id` on every entry; Boardroom decision records; trust score evolution per agent instance |
+| GV-6 Stakeholder engagement | Self-reporting protocol mandates bulletin writes at every transition (operator visibility) |
 
 ### MAP
 
 | RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| MP-1 — AI system context | AgentTaskManifest captures task scope, domain, files in scope, prior failure context |
-| MP-3 — Risk identification | Risk classification table; pre-task failure retrieval; recurrence escalation thresholds |
-| MP-5 — Impacts characterization | Risk levels are explicit (LOW → CRITICAL); higher levels require explicit human acknowledgment |
+| MP-1 AI system context | AgentTaskManifest captures task scope, domain, files in scope, prior failure context |
+| MP-3 Risk identification | Risk classification table; pre-task failure retrieval; recurrence escalation thresholds |
+| MP-5 Impacts characterization | Risk levels are explicit (LOW → CRITICAL); higher levels require explicit human acknowledgment |
 
 ### MEASURE
 
 | RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| MS-1 — Methods identified for testing | QAVerdict format captures per-AC pass/fail with evidence; trust score evidence requirement (one line per dimension) |
-| MS-2 — Performance assessed | D1-D4 trust scoring with calibration anchors; confidence band reflects sample size; recency weighting decays old data |
-| MS-4 — Feedback mechanisms | Failure library with three-tag close; evolution queue captures `pass_with_notes` observations |
+| MS-1 Methods identified for testing | QAVerdict format captures per-AC pass/fail with evidence; trust score evidence requirement (one line per dimension) |
+| MS-2 Performance assessed | D1-D4 trust scoring with calibration anchors; confidence band reflects sample size; recency weighting decays old data |
+| MS-4 Feedback mechanisms | Failure library with three-tag close; evolution queue captures `pass_with_notes` observations |
 
 ### MANAGE
 
 | RMF Subcategory (selected) | Control Plane Contribution |
 |---|---|
-| MG-1 — Risk responses | Trust tier degradation is automatic; Boardroom escalation is explicit; agent retirement is a recorded decision |
-| MG-2 — Risk treatment documented | Manifest captures decisions; gate records capture rationale; audit log captures before/after on every mutation |
-| MG-3 — Risks from third-party AI | Runtime policy adapter wraps upstream policy SDK; degraded mode behavior defined when third-party layer unavailable |
-| MG-4 — Risk treatment monitored | Recurrence count drives escalation; routine layer enables scheduled monitoring |
+| MG-1 Risk responses | Trust tier degradation is automatic; Boardroom escalation is explicit; agent retirement is a recorded decision |
+| MG-2 Risk treatment documented | Manifest captures decisions; gate records capture rationale; audit log captures before/after on every mutation |
+| MG-3 Risks from third-party AI | Runtime policy adapter wraps upstream policy SDK; degraded mode behavior defined when third-party layer unavailable |
+| MG-4 Risk treatment monitored | Recurrence count drives escalation; routine layer enables scheduled monitoring |
 
 **What the framework contributes most directly to NIST AI RMF:** A
 working implementation of GOVERN-3 (roles and responsibilities) and
@@ -111,39 +111,39 @@ Integrity**, with auxiliary contribution to **Confidentiality**.
 
 | Criterion (selected) | Control Plane Contribution |
 |---|---|
-| CC2.1 — Information communicated to those responsible | Self-reporting protocol; bulletin writes at every transition; Chief-of-Staff Agent flags anomalies for operator review |
-| CC4.1 — Internal control monitoring | Trust scoring captures per-session performance; failure library captures recurrence; routine layer runs scheduled monitoring |
-| CC5.1 — Logical access controls | Capability boundaries per agent; role-gated approval authority; control plane directory is operator-zone (no agent access) |
-| CC6.1 — Logical access — provisioning | Persistent agent identity with cryptographic DID; agent instance lifecycle (active / suspended / archived); workspace assignment |
-| CC6.6 — Logical access — modifications | Operational lifecycle mutability rule limits which fields can change; every mutation emits an audit entry |
-| CC7.2 — System monitoring | Routine-based scheduled checks; PR scan routines; alert triage routine |
-| CC7.3 — Detection and monitoring of incidents | Failure library with classification; recurrence escalation; 3-strike rule on QA failures |
-| CC8.1 — Change management | HITL gates at HIGH/CRITICAL; control plane changes require Boardroom session; hook updates are CRITICAL-risk by default |
-| CC9.1 — Risk mitigation activities | Pre-spawn risk classification; failure retrieval; trust tier downgrade on D4 violations |
+| CC2.1 Information communicated to those responsible | Self-reporting protocol; bulletin writes at every transition; Chief-of-Staff Agent flags anomalies for operator review |
+| CC4.1 Internal control monitoring | Trust scoring captures per-session performance; failure library captures recurrence; routine layer runs scheduled monitoring |
+| CC5.1 Logical access controls | Capability boundaries per agent; role-gated approval authority; control plane directory is operator-zone (no agent access) |
+| CC6.1 Logical access provisioning | Persistent agent identity with cryptographic DID; agent instance lifecycle (active / suspended / archived); workspace assignment |
+| CC6.6 Logical access modifications | Operational lifecycle mutability rule limits which fields can change; every mutation emits an audit entry |
+| CC7.2 System monitoring | Routine-based scheduled checks; PR scan routines; alert triage routine |
+| CC7.3 Detection and monitoring of incidents | Failure library with classification; recurrence escalation; 3-strike rule on QA failures |
+| CC8.1 Change management | HITL gates at HIGH/CRITICAL; control plane changes require Boardroom session; hook updates are CRITICAL-risk by default |
+| CC9.1 Risk mitigation activities | Pre-spawn risk classification; failure retrieval; trust tier downgrade on D4 violations |
 
 ### Availability
 
 | Criterion | Control Plane Contribution |
 |---|---|
-| A1.2 — Environmental protections, software, data backup | Audit log append-only with point-in-time recovery (database tier); cryptographic chaining (Wave 1+) |
-| A1.3 — Recovery testing | Recovery protocols defined per failure mode in `meta-governance.md` |
+| A1.2 Environmental protections, software, data backup | Audit log append-only with point-in-time recovery (database tier); cryptographic chaining (Wave 1+) |
+| A1.3 Recovery testing | Recovery protocols defined per failure mode in `meta-governance.md` |
 
 ### Processing Integrity
 
 | Criterion | Control Plane Contribution |
 |---|---|
-| PI1.1 — System processing accuracy | Build state machine has no skippable states; QA-Agent verdict is the only path to COMPLETE; hook layer enforces invariants |
-| PI1.2 — Processing input validation | AgentTaskManifest schema validation; QAVerdict schema validation; FailureRecord schema validation |
-| PI1.3 — Processing completeness | SESSION COMPLETE blocked without QA PASS; bulletin entries required at every transition |
-| PI1.4 — Processing output validity | PostToolUse hooks validate side effects of audit-relevant actions |
-| PI1.5 — Processing output stored completely | Audit trail captures before/after for every lifecycle mutation; correlation ID threading enables reconstruction |
+| PI1.1 System processing accuracy | Build state machine has no skippable states; QA-Agent verdict is the only path to COMPLETE; hook layer enforces invariants |
+| PI1.2 Processing input validation | AgentTaskManifest schema validation; QAVerdict schema validation; FailureRecord schema validation |
+| PI1.3 Processing completeness | SESSION COMPLETE blocked without QA PASS; bulletin entries required at every transition |
+| PI1.4 Processing output validity | PostToolUse hooks validate side effects of audit-relevant actions |
+| PI1.5 Processing output stored completely | Audit trail captures before/after for every lifecycle mutation; correlation ID threading enables reconstruction |
 
 ### Confidentiality
 
 | Criterion | Control Plane Contribution |
 |---|---|
-| C1.1 — Confidential information identified | Capability boundaries identify which agents may access which data scopes; cross-schema writes prohibited |
-| C1.2 — Disposal of confidential information | Agent instance archived state; delegation TTL prevents indefinite extension of authority |
+| C1.1 Confidential information identified | Capability boundaries identify which agents may access which data scopes; cross-schema writes prohibited |
+| C1.2 Disposal of confidential information | Agent instance archived state; delegation TTL prevents indefinite extension of authority |
 
 **What the framework contributes most directly to SOC 2:** Strong
 evidence for CC2 (communication), CC4 (monitoring), CC5 (access),
@@ -158,7 +158,7 @@ auditor expects.
 
 HIPAA's Security Rule applies to electronic Protected Health
 Information (ePHI). The framework does not, on its own, make a system
-HIPAA-compliant — that requires the entire data handling stack
+HIPAA-compliant that requires the entire data handling stack
 (encryption at rest and in transit, BAA contracts, ePHI segregation,
 breach notification process, etc.) to be in scope.
 
@@ -169,22 +169,22 @@ Safeguards** and the **Audit Controls** technical safeguard.
 
 | Standard | Control Plane Contribution |
 |---|---|
-| § 164.308(a)(1)(ii)(D) — Information system activity review | Audit trail with append-only retention; routine-based scheduled review |
-| § 164.308(a)(2) — Assigned security responsibility | Approval authority levels; Boardroom session as final escalation point |
-| § 164.308(a)(3) — Workforce security | Role-gated authority distinct from invocation; trust tier as evidence of demonstrated trustworthiness |
-| § 164.308(a)(4) — Information access management | Capability boundaries per agent; cross-schema writes prohibited |
-| § 164.308(a)(5)(ii)(C) — Log-in monitoring | Audit trail captures every action with `actor_id` and timestamp |
-| § 164.308(a)(6) — Security incident procedures | Failure library captures incidents; meta-governance recovery protocols |
-| § 164.308(a)(7)(ii)(B) — Disaster recovery plan | Recovery protocols in `meta-governance.md`; audit trail point-in-time recovery |
-| § 164.308(a)(8) — Evaluation | Trust scoring with calibration anchors; recurrence detection drives improvement |
+| § 164.308(a)(1)(ii)(D) Information system activity review | Audit trail with append-only retention; routine-based scheduled review |
+| § 164.308(a)(2) Assigned security responsibility | Approval authority levels; Boardroom session as final escalation point |
+| § 164.308(a)(3) Workforce security | Role-gated authority distinct from invocation; trust tier as evidence of demonstrated trustworthiness |
+| § 164.308(a)(4) Information access management | Capability boundaries per agent; cross-schema writes prohibited |
+| § 164.308(a)(5)(ii)(C) Log-in monitoring | Audit trail captures every action with `actor_id` and timestamp |
+| § 164.308(a)(6) Security incident procedures | Failure library captures incidents; meta-governance recovery protocols |
+| § 164.308(a)(7)(ii)(B) Disaster recovery plan | Recovery protocols in `meta-governance.md`; audit trail point-in-time recovery |
+| § 164.308(a)(8) Evaluation | Trust scoring with calibration anchors; recurrence detection drives improvement |
 
 ### Technical Safeguards (45 CFR § 164.312)
 
 | Standard | Control Plane Contribution |
 |---|---|
-| § 164.312(b) — Audit controls | Append-only audit log with cryptographic signing (Wave 1+); correlation-ID threading enables reconstruction |
-| § 164.312(c)(1) — Integrity (ePHI alteration/destruction) | Operational lifecycle mutability rule + audit before/after capture provides evidence of every mutation |
-| § 164.312(d) — Person or entity authentication | AGT DID for agent identity; `actor_id` on every audit entry — note: this addresses agent-actor authentication, not end-user authentication |
+| § 164.312(b) Audit controls | Append-only audit log with cryptographic signing (Wave 1+); correlation-ID threading enables reconstruction |
+| § 164.312(c)(1) Integrity (ePHI alteration/destruction) | Operational lifecycle mutability rule + audit before/after capture provides evidence of every mutation |
+| § 164.312(d) Person or entity authentication | AGT DID for agent identity; `actor_id` on every audit entry note: this addresses agent-actor authentication, not end-user authentication |
 
 **Key limitation for HIPAA readiness:** The framework provides the
 audit, integrity, and oversight mechanisms. It does **not** address:
@@ -265,10 +265,10 @@ designed end state.
 
 ## Related
 
-- `audit-trail-patterns.md` — the trail that compliance evidence
+- `audit-trail-patterns.md` the trail that compliance evidence
   draws from
-- `hitl-gates.md` — the human oversight mechanism
-- `hook-system.md` — the enforcement layer
-- `meta-governance.md` — failure-mode recovery protocols
-- `pre-spawn-protocol.md` — risk management at the per-task level
-- `build-state-machine.md` — processing integrity surface
+- `hitl-gates.md` the human oversight mechanism
+- `hook-system.md` the enforcement layer
+- `meta-governance.md` failure-mode recovery protocols
+- `pre-spawn-protocol.md` risk management at the per-task level
+- `build-state-machine.md` processing integrity surface

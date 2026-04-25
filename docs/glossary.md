@@ -1,7 +1,7 @@
 # Glossary
 
 A single alphabetical reference for the precise terms used throughout the
-Agentic Workforce Framework. Each entry is short — one to three sentences —
+Agentic Workforce Framework. Each entry is short one to three sentences —
 and points to the document where the term is fully defined.
 
 When two terms in the framework look similar but mean different things,
@@ -30,7 +30,7 @@ employment-contract primitive. Schema:
 
 **Agents-as-employees**
 The framing that treats autonomous agents as accountable workers with
-persistent identity, performance reviews, and incident records — not as
+persistent identity, performance reviews, and incident records not as
 ephemeral function calls. The foundation for every other concept in the
 framework. Defined in
 [concepts/agentic-workforce-model.md](concepts/agentic-workforce-model.md).
@@ -188,7 +188,7 @@ or capability boundary crossings. Defined in
 **Hybrid**
 A component classification where the reasoning portion is agentic but the
 persistence portion is service-like. Must declare an explicit internal split
-(the universal hybrid rule) — reasoning never writes to canonical tables
+(the universal hybrid rule) reasoning never writes to canonical tables
 directly. Defined in [concepts/agentic-workforce-model.md](concepts/agentic-workforce-model.md).
 
 ---
@@ -272,7 +272,7 @@ individuals. Agents are pooled and shared across the team. Defined in
 
 **Routine**
 A short-lived, trigger-driven, stateless component. Runs on a schedule, an
-API call, or a repository event. Not a long-running agent — does not accumulate
+API call, or a repository event. Not a long-running agent does not accumulate
 a trust score. Defined in
 [concepts/agentic-workforce-model.md](concepts/agentic-workforce-model.md).
 
@@ -297,7 +297,7 @@ sustained HIGH performance. Defined in
 ## T
 
 **Trust tier**
-One of HIGH, STANDARD, RESTRICTED, PROBATION, or PROVISIONAL — the
+One of HIGH, STANDARD, RESTRICTED, PROBATION, or PROVISIONAL the
 operational consequence of a trust score. Determines what the agent can
 do without a gate. Defined in
 [concepts/autonomy-gates.md](concepts/autonomy-gates.md).
@@ -319,7 +319,7 @@ complete. Eight-state lifecycle. v2.0+ concept. Defined in
 
 **Workforce plane**
 The framework plane that contains the agents themselves: Orchestrator,
-executing agents, QA, Fix. The headline plane — the others govern this one.
+executing agents, QA, Fix. The headline plane the others govern this one.
 Defined in `docs/architecture/four-plane-model.md`.
 
 ---

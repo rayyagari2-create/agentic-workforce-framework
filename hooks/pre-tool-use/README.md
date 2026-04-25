@@ -31,22 +31,22 @@ The runtime invokes the hook with a JSON payload on stdin:
 
 The exact field names depend on your runtime. Adapt as needed; the **shape**
 matters more than the field names. Your hook code should treat the payload
-defensively — every field could be missing.
+defensively every field could be missing.
 
 ## Output contract
 
 A PreToolUse hook signals its decision via **exit code only**:
 
-- `exit(0)` — allow the tool call to proceed
-- `exit(2)` — block the tool call
+- `exit(0)` allow the tool call to proceed
+- `exit(2)` block the tool call
 
 The hook may write a human-readable explanation to stderr; the runtime will
-surface it to the agent on block. Do not rely on stdout — the runtime may
+surface it to the agent on block. Do not rely on stdout the runtime may
 ignore it.
 
 ## Audit requirement
 
-**Every** PreToolUse hook MUST write an audit entry — both on allow and on
+**Every** PreToolUse hook MUST write an audit entry both on allow and on
 block. A blocked call is just as much an event as an allowed one, and an
 audit log that only records permitted calls is incomplete by design.
 

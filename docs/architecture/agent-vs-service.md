@@ -20,15 +20,15 @@ policy/schema-bound.
 
 **Hybrid:** reasoning is agentic; truth-handling must remain service-like.
 
-**Routine:** short-lived, trigger-driven, stateless per-run — not a
+**Routine:** short-lived, trigger-driven, stateless per-run not a
 long-running agent.
 
 | Kind | Reasoning | Identity | Trust History | Writes Canonical Truth |
 |---|---|---|---|---|
-| **Agent** | Yes — under uncertainty | Persistent | Yes — D1-D4 over sessions | Sometimes (per role) |
-| **Service** | No — deterministic | Persistent | No | Yes — owns canonical tables |
-| **Hybrid** | Yes — in reasoning subpart | Persistent | Per subpart | Only the persistence subpart writes |
-| **Routine** | Light — short prompt | None — runs as user | None | Only `routine_runs` |
+| **Agent** | Yes under uncertainty | Persistent | Yes D1-D4 over sessions | Sometimes (per role) |
+| **Service** | No deterministic | Persistent | No | Yes owns canonical tables |
+| **Hybrid** | Yes in reasoning subpart | Persistent | Per subpart | Only the persistence subpart writes |
+| **Routine** | Light short prompt | None runs as user | None | Only `routine_runs` |
 
 These four rows are the entire rubric. Anything else is a refinement of
 one of these rows.
@@ -39,7 +39,7 @@ one of these rows.
 
 Every framework-plane component carries one of these four classifications.
 The classification is fixed when the component is named. Reclassifying
-a component is a non-trivial governance event — it implies the
+a component is a non-trivial governance event it implies the
 write-access boundary is changing.
 
 | Name | Classification | Reason |
@@ -54,13 +54,13 @@ write-access boundary is changing.
 | Chief of Staff Agent | Agent | Reasons about session state, task prioritization |
 | Frontend Agent | Agent | Exercises judgment on complex frontend changes |
 | Backend Agent | Agent | Exercises judgment on complex server-side changes |
-| Evolve Service | Service | Applies approved changes mechanically — no discretion |
-| Eval/Telemetry Service | Service | Computes trust scores from defined inputs — deterministic |
-| Deploy Service | Service | Executes defined deployment steps — deterministic |
+| Evolve Service | Service | Applies approved changes mechanically no discretion |
+| Eval/Telemetry Service | Service | Computes trust scores from defined inputs deterministic |
+| Deploy Service | Service | Executes defined deployment steps deterministic |
 | Routines (framework plane) | Routine | Short-lived, trigger-driven, stateless |
 
 The framework plane v1.0 contains 10 Agents, 3 Services, and Routines.
-Hybrids are not present at the framework plane in v1.0 — they appear in
+Hybrids are not present at the framework plane in v1.0 they appear in
 reference implementations that ship a product layer on top of the
 framework.
 
@@ -85,7 +85,7 @@ A hybrid has at least two internal subparts:
 
 Both subparts are named separately in the component spec, and each
 subpart's write access is listed explicitly. Without that explicit
-sub-boundary, the component is not a valid hybrid yet — it is an
+sub-boundary, the component is not a valid hybrid yet it is an
 under-specified component that needs to be further decomposed before
 classification.
 
@@ -93,8 +93,8 @@ classification.
 
 | Subpart | Type | Owns | Write Access |
 |---|---|---|---|
-| Source / option selection | Agent-shaped | Which sources to call, order, fallback | None — decisions only |
-| Evidence / confidence evaluation | Agent-shaped | Weighting freshness, source reliability, contradictions | None — annotation only |
+| Source / option selection | Agent-shaped | Which sources to call, order, fallback | None decisions only |
+| Evidence / confidence evaluation | Agent-shaped | Weighting freshness, source reliability, contradictions | None annotation only |
 | Normalization | Deterministic service | Raw payload → internal schema | Writes to canonical table |
 | Cache / freshness tracking | Deterministic service | Freshness metadata, expiry, invalidation | Writes metadata fields only |
 
@@ -122,7 +122,7 @@ production load and a "hybrid" that is really an agent with database
 credentials.
 
 If the reasoning subpart and the persistence subpart are not separated —
-in code, in process, in identity, and in write-access — the component
+in code, in process, in identity, and in write-access the component
 is not a hybrid. It is an agent with a write side, which is the
 classification mistake the rubric exists to prevent.
 
@@ -150,12 +150,12 @@ Is this trigger-driven (cron, API, GitHub event), stateless, no identity?
                   Did you define the reasoning subpart and the persistence
                   subpart separately, with explicit write access per subpart?
                   ├── Yes → Valid hybrid
-                  └── No  → Not a valid hybrid yet — define the sub-boundary
+                  └── No  → Not a valid hybrid yet define the sub-boundary
                             before classifying
 ```
 
 The decision tree is strict. A "kind of agent that also writes to a
-schema-bound table" is not a category — it is a hybrid that has not been
+schema-bound table" is not a category it is a hybrid that has not been
 specified yet.
 
 ---
@@ -168,8 +168,8 @@ specified yet.
 | Has persistent identity (DID)? | Yes | Yes | Yes | No (runs as user) |
 | Has D1-D4 trust history? | Yes | No | Reasoning subpart only | No |
 | Pre-spawn protocol applies? | Yes | No | Yes | No (output review instead) |
-| Writes to canonical table? | Per role, narrow | Yes — owns it | Persistence subpart only | Only `routine_runs` |
-| Long-running session? | Yes | Yes | Yes | No — short, stateless |
+| Writes to canonical table? | Per role, narrow | Yes owns it | Persistence subpart only | Only `routine_runs` |
+| Long-running session? | Yes | Yes | Yes | No short, stateless |
 | Failure memory tracked? | Yes | No | Reasoning subpart | No |
 | Promotion / demotion possible? | Yes | No | Per subpart | No |
 
@@ -191,19 +191,19 @@ In a framework that does not separate these kinds:
 In a framework that does separate them:
 
 - Each kind has the governance treatment that fits its risk profile.
-- The write rules are obvious — for any given table, exactly one
+- The write rules are obvious for any given table, exactly one
   component writes to it.
 - Trust scoring stays meaningful, because it is applied only where
   reasoning under uncertainty is happening.
 - Routines stay lightweight, because they are not trying to be agents.
 
-The classification is what allows the rest of the framework — the
-schemas, the audit log, the autonomy gates — to be precise.
+The classification is what allows the rest of the framework the
+schemas, the audit log, the autonomy gates to be precise.
 
 ---
 
 ## Related
 
-- [agent-roster.md](agent-roster.md) — Framework plane roster, classified.
+- [agent-roster.md](agent-roster.md) Framework plane roster, classified.
 - [decision-records/0002-routines-are-not-agents.md](decision-records/0002-routines-are-not-agents.md) —
   Why routines are not agents.

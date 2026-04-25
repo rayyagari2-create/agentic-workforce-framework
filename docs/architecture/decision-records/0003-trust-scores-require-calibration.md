@@ -1,4 +1,4 @@
-# ADR 0003 — Trust Scores Require Calibration
+# ADR 0003 Trust Scores Require Calibration
 
 ## Status
 
@@ -30,15 +30,15 @@ and behave like opinion.
 
 ## Decision
 
-Calibration is a **non-negotiable operational discipline** — not a nice-to-have.
+Calibration is a **non-negotiable operational discipline** not a nice-to-have.
 Five layers of calibration are defined, and at minimum the first two ship at
 public launch.
 
 | Layer | Mechanism                                                  | Ships    |
 |-------|------------------------------------------------------------|----------|
-| 1     | Evidence requirement — one line per dimension, per score   | v1.0     |
-| 2     | Calibration anchor table — per score band, per dimension   | v1.0     |
-| 3     | Automated scoring routine — computes from QAVerdicts       | v2.0     |
+| 1     | Evidence requirement one line per dimension, per score   | v1.0     |
+| 2     | Calibration anchor table per score band, per dimension   | v1.0     |
+| 3     | Automated scoring routine computes from QAVerdicts       | v2.0     |
 | 4     | Cross-scorer calibration sessions at enterprise scale      | v3.0     |
 | 5     | Calibration committee for high-stakes decisions (3+ scorers)| v3.0     |
 
@@ -77,11 +77,11 @@ Hard-stop rules (per dimension) exist and bypass the aggregate score:
 **Negative.**
 
 - Evidence requirements raise the cost of scoring a session. This is intentional
-  — a cheap-to-record score is a cheap-to-ignore score.
+  a cheap-to-record score is a cheap-to-ignore score.
 - `PROVISIONAL` tier persists until n >= 5. Adopters want to see HIGH tiers early;
   they cannot, and no tooling will fabricate the data.
 - At single-founder scale, Layers 4-5 (cross-scorer calibration, committee) are
-  not available. This is a known limitation, not a flaw in the design — the
+  not available. This is a known limitation, not a flaw in the design the
   calibration layers are additive.
 
 **Follow-on.**
@@ -89,6 +89,6 @@ Hard-stop rules (per dimension) exist and bypass the aggregate score:
 - `calibration/d1-d4-rubric.md` carries the anchor table, the evidence format,
   and the hard-stop rules as a single reference document.
 - The trust score schema requires evidence fields at the schema level, not just
-  by convention — missing evidence fails schema validation.
+  by convention missing evidence fails schema validation.
 - The enterprise layer introduces cross-scorer review when multiple humans score
   the same session; disagreements > 5 points require explicit resolution.

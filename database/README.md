@@ -7,8 +7,8 @@ Postgres / Supabase compatible. Tested against Postgres 14+.
 
 | Directory | Scope | Status |
 | --- | --- | --- |
-| [`governance/`](governance/) | Single-workspace governance plane — audit log, agent events, trust scores, failure records, routine runs | **v1.0** — ships at launch, run this first |
-| [`enterprise/`](enterprise/) | Multi-workspace, divisions, queues, gate records, delegation rules | **v3.0** — designed, not yet field-proven, do not deploy |
+| [`governance/`](governance/) | Single-workspace governance plane audit log, agent events, trust scores, failure records, routine runs | **v1.0** ships at launch, run this first |
+| [`enterprise/`](enterprise/) | Multi-workspace, divisions, queues, gate records, delegation rules | **v3.0** designed, not yet field-proven, do not deploy |
 
 **Run `governance/` first for any deployment.** Enterprise tables presume
 governance tables exist and emit audit events through them.
@@ -58,7 +58,7 @@ governance bug, so the rules are encoded in table-level comments:
 | --- | --- |
 | `audit_log` | Hooks, runtime policy layer, and lifecycle triggers |
 | `agent_events` | Agents during their own activity |
-| `trust_scores` | Eval/Telemetry Service only — agents never self-score |
+| `trust_scores` | Eval/Telemetry Service only agents never self-score |
 | `failure_records` | Fix-Agent writes; QA-Agent flags |
 | `routine_runs` | Routines write only here; the Eval/Telemetry Service consumes |
 
@@ -71,7 +71,7 @@ on every table at once.
 
 ## Status
 
-- **v1.0** — `governance/` ships at public launch.
-- **v3.0** — `enterprise/` is reserved. Do not implement until single-workspace
+- **v1.0** `governance/` ships at public launch.
+- **v3.0** `enterprise/` is reserved. Do not implement until single-workspace
   governance is running reliably and the Division Orchestrator model has been
   validated.

@@ -11,7 +11,7 @@ unlocks.
 The framework uses five trust tiers. Each tier defines a default scope of
 autonomous action, the events that promote an agent to a higher tier, and
 the events that demote it to a lower tier. Promotion and demotion are not
-discretionary — they follow rules that can be audited.
+discretionary they follow rules that can be audited.
 
 ---
 
@@ -31,7 +31,7 @@ Two factors determine the tier:
 2. The confidence band, derived from session count.
 
 The confidence band is a floor, not a ceiling. An agent with 4 sessions and a
-perfect 100/100 score is at PROVISIONAL — its score is not yet statistically
+perfect 100/100 score is at PROVISIONAL its score is not yet statistically
 meaningful. The same agent at 20 sessions with 100/100 is at HIGH with a HIGH
 confidence band.
 
@@ -90,10 +90,10 @@ review than STANDARD.
 
 **Without a gate, a RESTRICTED agent can:**
 - Read any file in its capability boundary.
-- Propose changes — proposals are not auto-applied.
+- Propose changes proposals are not auto-applied.
 
 **A gate fires when:**
-- Any file write happens — the change must be reviewed before commit.
+- Any file write happens the change must be reviewed before commit.
 - Any phase transition happens.
 - Any tool call that produces side effects beyond the workspace.
 
@@ -112,8 +112,8 @@ operational equivalent of a performance improvement plan.
 - That is the entire list.
 
 **A gate fires when:**
-- Any write at all is proposed — every file change requires explicit approval.
-- Any tool call is proposed — every tool call requires explicit approval.
+- Any write at all is proposed every file change requires explicit approval.
+- Any tool call is proposed every tool call requires explicit approval.
 - Three sessions in a row at PROBATION triggers Boardroom-level review:
   either the agent's instruction file is rewritten, the capability boundary
   is reduced, or the agent is retired.
@@ -134,7 +134,7 @@ no track record on which to base autonomy.
 **A gate fires when:**
 - Any write is proposed.
 - Any side-effect tool call is proposed.
-- The first complete session is scored — at which point the agent moves to
+- The first complete session is scored at which point the agent moves to
   the appropriate tier based on score.
 
 PROVISIONAL is the framework's onboarding tier. Every new agent starts here.
@@ -151,13 +151,13 @@ is not a single-session event.
 | From → To | Conditions |
 |---|---|
 | PROVISIONAL → STANDARD | n ≥ 5 sessions, average score ≥ 75, no hard-stop in any session. |
-| PROVISIONAL → HIGH | n ≥ 5 sessions, average score ≥ 90, all dimensions ≥ 22 in every session, no hard-stop. (Rare — usually goes through STANDARD first.) |
+| PROVISIONAL → HIGH | n ≥ 5 sessions, average score ≥ 90, all dimensions ≥ 22 in every session, no hard-stop. (Rare usually goes through STANDARD first.) |
 | RESTRICTED → STANDARD | 2 consecutive sessions at score ≥ 75, no hard-stop. |
 | STANDARD → HIGH | 5 consecutive sessions at score ≥ 90, confidence band ≥ MEDIUM. |
 | PROBATION → RESTRICTED | 1 session at score ≥ 60 with a clean evidence line on every dimension. |
 
 Promotion is monotonic in evidence. A single high session does not promote
-from STANDARD to HIGH — the framework requires demonstrated consistency
+from STANDARD to HIGH the framework requires demonstrated consistency
 because tier escalation expands the agent's autonomous scope.
 
 The confidence band gates promotion to HIGH. An agent cannot be HIGH with
@@ -169,8 +169,8 @@ basis is not.
 ## Demotion triggers
 
 Demotion is more responsive than promotion. A single bad event can demote.
-The framework treats authority as easy to lose and hard to earn — the
-inverse of tenure-based systems — because the operational risk of leaving
+The framework treats authority as easy to lose and hard to earn the
+inverse of tenure-based systems because the operational risk of leaving
 an underperforming agent at HIGH outweighs the cost of a wrongful demotion.
 
 | Trigger | Effect |
@@ -243,7 +243,7 @@ fresh start with full audit trail.
 ### Capability boundary reset
 
 Independent of trust score, an agent's capability boundary may be tightened
-or relaxed. Tightening does not require a trust event. Relaxing does — a
+or relaxed. Tightening does not require a trust event. Relaxing does a
 wider boundary is granted only when trust history supports it. Capability
 boundary changes are also audit-logged.
 
@@ -277,7 +277,7 @@ not multiple. Audit the scoring.
 
 The framework allows it. PROBATION agents continue to operate; every action
 just requires approval. The path back is one clean session at score ≥ 60
-to return to RESTRICTED. The framework does not rule the agent out — it
+to return to RESTRICTED. The framework does not rule the agent out it
 just makes "another chance" expensive enough that the operator pays attention
 to whether the agent is actually improving.
 

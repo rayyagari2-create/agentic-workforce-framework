@@ -2,7 +2,7 @@
 
 Routines are lightweight, scheduled, or event-triggered automation. They
 execute on cloud infrastructure on a defined cadence or in response to a
-trigger event. They are part of the framework's automation plane — they sit
+trigger event. They are part of the framework's automation plane they sit
 **around** the agent system, not inside it.
 
 This directory contains the framework-level definitions, the adapter pattern
@@ -14,7 +14,7 @@ that isolates routines from framework drift, and a set of public templates.
 
 A routine is a saved configuration consisting of:
 
-- A **prompt** — the instructions the routine executes
+- A **prompt** the instructions the routine executes
 - One or more **repositories** the routine can read or write
 - A set of **connectors** (MCP, GitHub, etc.) the routine has access to
 - A **trigger** that fires the routine
@@ -27,7 +27,7 @@ A routine writes only to the routine execution log (`routine_runs` in the
 database schema). Routines never write to `trust_scores` directly. The
 Eval/Telemetry Service is the sole writer to trust_scores; if you need a
 routine to influence trust scoring, the routine produces a *payload* and
-hands it off — it does not perform the write itself.
+hands it off it does not perform the write itself.
 
 ---
 
@@ -35,7 +35,7 @@ hands it off — it does not perform the write itself.
 
 | Trigger type | Description                                            | Use when                                  |
 |--------------|--------------------------------------------------------|-------------------------------------------|
-| **Schedule** | Recurring cadence — hourly, daily, weekly, custom cron | Periodic scans, digests, freshness checks |
+| **Schedule** | Recurring cadence hourly, daily, weekly, custom cron | Periodic scans, digests, freshness checks |
 | **API**      | Dedicated HTTP endpoint, fired by external system      | Pipeline hooks, alert triage, deploy events |
 | **GitHub**   | Reacts to repository events (PR, release)              | PR-time validation, release verification  |
 
@@ -84,17 +84,17 @@ fire on every event when they only need to fire on a subset.
 
 ---
 
-## Agent vs routine — the distinction
+## Agent vs routine the distinction
 
 This is the most important conceptual line in this directory.
 
 | Aspect                | Agent                                  | Routine                              |
 |-----------------------|----------------------------------------|--------------------------------------|
-| State                 | Stateful across sessions               | Stateless — every run is fresh       |
+| State                 | Stateful across sessions               | Stateless every run is fresh       |
 | Duration              | Long-running, holds context            | Short-lived, trigger-driven          |
 | Identity              | Persistent ID, trust history           | No identity, no trust history        |
 | Governance            | D1-D4 trust scoring, pre-spawn protocol | Output review replaces pre-spawn    |
-| Scoring write target  | `trust_scores` (via Eval Service)      | `routine_runs` only — never `trust_scores` |
+| Scoring write target  | `trust_scores` (via Eval Service)      | `routine_runs` only never `trust_scores` |
 | Reasoning             | Reasoning under uncertainty            | Deterministic logic, repeatable      |
 | Complexity            | High                                    | Low to medium                        |
 | When to use           | Complex builds, ambiguous tasks        | Scheduled scans, alerts, reports     |

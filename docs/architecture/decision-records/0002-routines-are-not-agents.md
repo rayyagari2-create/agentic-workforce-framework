@@ -1,4 +1,4 @@
-# ADR 0002 — Routines Are Not Agents
+# ADR 0002 Routines Are Not Agents
 
 ## Status
 
@@ -13,7 +13,7 @@ carry the user's connector identity, and can be composed with MCP sources.
 
 Superficially, a routine looks like an agent: it takes a prompt, makes tool calls,
 and produces work. That superficial similarity has caused confusion in more than
-one design discussion — specifically: can a routine *replace* an Orchestrator? Can
+one design discussion specifically: can a routine *replace* an Orchestrator? Can
 a routine *self-score* and write to the trust tables?
 
 The architectural distinction is sharp, and collapsing it would break the
@@ -21,11 +21,11 @@ trust model.
 
 | Property              | Agent                                    | Routine                                   |
 |-----------------------|------------------------------------------|-------------------------------------------|
-| State                 | Stateful across sessions                 | Stateless — each run is a new session     |
+| State                 | Stateful across sessions                 | Stateless each run is a new session     |
 | Duration              | Long-running, maintains context          | Short-lived, trigger-driven               |
-| Governance            | D1-D4 trust scoring, pre-spawn protocol  | Lightweight — output review replaces it   |
+| Governance            | D1-D4 trust scoring, pre-spawn protocol  | Lightweight output review replaces it   |
 | Identity              | Runtime-policy-layer cryptographic DID   | Runs as the user's connector identity     |
-| Complexity ceiling    | High — full reasoning loops              | Low to medium — unattended, repeatable    |
+| Complexity ceiling    | High full reasoning loops              | Low to medium unattended, repeatable    |
 | When to use           | Reasoning under uncertainty              | Scheduled scans, event triggers, reports  |
 
 ## Decision
@@ -58,7 +58,7 @@ tests, nightly digests.
   writes to `trust_scores`; no actor outside the Fix-Agent writes to
   `failure_records`. This is enforceable at the schema level and at code review.
 - The routine adapter isolates routine-system breaking changes behind one call
-  site — the same pattern used for the runtime policy layer (AGT adapter).
+  site the same pattern used for the runtime policy layer (AGT adapter).
 - The agent/routine distinction gives operators a clear question to ask before
   building a new automation: *does this need reasoning under uncertainty?* If no,
   it's a routine. If yes, it's an agent.
@@ -67,14 +67,14 @@ tests, nightly digests.
 
 - Daily-cap limits on routines (plan-tier dependent) require filtering. The
   recommended filter is "only fire on branches prefixed with the agent's branch
-  convention" — prevents every external PR from consuming the cap.
+  convention" prevents every external PR from consuming the cap.
 - The cloud execution environment means routine runs carry the user's connector
   identity, not an agent DID. The audit trail must therefore capture
   `fired_by` explicitly and correlate it to the triggering entity.
 
 **Follow-on.**
 
-- `routines/` is a top-level directory — routines are a framework artifact, not
+- `routines/` is a top-level directory routines are a framework artifact, not
   just docs.
 - Every routine template includes a "Governance" note that names the human
   reviewer and the write rules.

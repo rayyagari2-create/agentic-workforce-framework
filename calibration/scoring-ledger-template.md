@@ -1,7 +1,7 @@
 # Scoring Ledger Template
 
 Copy-paste markdown template for tracking D1-D4 scores across sessions.
-This is the operating ledger — the canonical record of trust decisions.
+This is the operating ledger the canonical record of trust decisions.
 
 The ledger is **append-only**. Once a score is recorded, do not edit it
 in place. If a score needs correction (calibration drift, second-scorer
@@ -52,12 +52,12 @@ The flat ledger above captures totals and notes. For full audit-grade
 records, keep a per-session detail block:
 
 ```markdown
-### Session 01HX...A2 — agent-srv — T-2026-105 — 2026-04-22
+### Session 01HX...A2 agent-srv T-2026-105 2026-04-22
 
-D1 Correctness:  22 — 4/5 ACs first attempt; one missing test path added round 2
-D2 Observability: 23 — all transitions logged; out-of-scope edit surfaced in bulletin
-D3 Compliance:   14 — significant drift: edited session.ts outside scope without amendment
-D4 Recurrence:   12 — recurrence of "scope drift on refactor" pattern (existed at session start)
+D1 Correctness:  22 4/5 ACs first attempt; one missing test path added round 2
+D2 Observability: 23 all transitions logged; out-of-scope edit surfaced in bulletin
+D3 Compliance:   14 significant drift: edited session.ts outside scope without amendment
+D4 Recurrence:   12 recurrence of "scope drift on refactor" pattern (existed at session start)
 
 Total: 71 → RESTRICTED (band: MEDIUM, n=11)
 Scorer: scorer-rja
@@ -99,7 +99,7 @@ correction and the reason.
 Copy this block to start a new ledger file:
 
 ```markdown
-# Trust Score Ledger — [YOUR_REPO]
+# Trust Score Ledger [YOUR_REPO]
 
 Format: see calibration/scoring-ledger-template.md
 

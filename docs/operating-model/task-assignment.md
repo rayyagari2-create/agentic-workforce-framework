@@ -15,11 +15,11 @@ audited.
 A casual model of "I gave the agent a task" produces three failure
 modes:
 
-1. **Routing by availability** — the next idle agent gets the work,
+1. **Routing by availability** the next idle agent gets the work,
    regardless of capability fit.
-2. **Implicit context** — the agent is expected to infer files in
+2. **Implicit context** the agent is expected to infer files in
    scope, risk level, and verification requirements from prose.
-3. **No record of what was promised** — when the work fails, there is
+3. **No record of what was promised** when the work fails, there is
    no contract to compare against.
 
 Task assignment closes all three. The unit of currency is the
@@ -56,7 +56,7 @@ Each box is documented below.
 
 ---
 
-## Step 1 — Work Queue
+## Step 1 Work Queue
 
 A task enters the work queue at status `CREATED`. At single-team scale
 this can be a markdown file, a GitHub issue, or a row in
@@ -77,7 +77,7 @@ failure mode.
 
 ---
 
-## Step 2 — Classify
+## Step 2 Classify
 
 Classification fixes two attributes that drive everything downstream:
 **taskType** and **riskLevel**.
@@ -100,7 +100,7 @@ rationale. Downward overrides are a known anti-pattern (see
 
 ---
 
-## Step 3 — Pre-Spawn Protocol
+## Step 3 Pre-Spawn Protocol
 
 Before any agent is spawned, the pre-spawn protocol runs. This is a
 three-step decision tree, fully specified in
@@ -131,7 +131,7 @@ check before assignment.
 
 ---
 
-## Step 4 — Route
+## Step 4 Route
 
 Routing selects a specific agent. Two filters apply:
 
@@ -154,38 +154,38 @@ If no agent's boundary covers the task, this is a routing failure (see
 | CRITICAL | HIGH only, plus explicit Boardroom approval |
 
 An agent at PROBATION may not receive a HIGH-risk task. The trust gate
-fires at assignment, not at spawn — assignment failure is the early,
+fires at assignment, not at spawn assignment failure is the early,
 cheap signal.
 
 ---
 
-## Step 5 — Create Manifest
+## Step 5 Create Manifest
 
 The orchestrator instantiates an AgentTaskManifest. Required fields
 (see schema for the full list):
 
-- `taskId` — ULID, generated here
+- `taskId` ULID, generated here
 - `taskType`
-- `domains` — at least one
+- `domains` at least one
 - `riskLevel`
-- `interfacesTouched` — at least one
-- `verificationRequired` — what verification gates must pass to close
+- `interfacesTouched` at least one
+- `verificationRequired` what verification gates must pass to close
 - `assignedAgent`
-- `createdAt` — ISO 8601
+- `createdAt` ISO 8601
 
 Optional but strongly recommended:
 
-- `taskDescription` — plain-English statement of what is to be done
-- `contractsReferenced` — contract files governing this task's domain
-- `priorFailureContext` — populated from pre-task retrieval
-- `evalPlan` — required for MEDIUM and HIGH
+- `taskDescription` plain-English statement of what is to be done
+- `contractsReferenced` contract files governing this task's domain
+- `priorFailureContext` populated from pre-task retrieval
+- `evalPlan` required for MEDIUM and HIGH
 
 The manifest is the employment contract for this task. It is the
 artifact a QA-Agent later checks the work against.
 
 ---
 
-## Step 6 — Handoff
+## Step 6 Handoff
 
 Handoff is the moment the manifest is delivered to the agent and the
 agent's session begins. Three things must happen:
@@ -217,7 +217,7 @@ TASK
   verification:  [unit_test, qa_agent_review]
 
 PRIOR FAILURES (pre-task retrieval)
-  FAIL-2026-04-12-003 — null reference in invoice.render
+  FAIL-2026-04-12-003 null reference in invoice.render
   Prevention check: assert non-null before pricing computation
 
 CONTRACTS
@@ -239,10 +239,10 @@ An assignment can fail at four points. Each has a defined recovery.
 |---|---|---|
 | Classification | Risk cannot be determined; task too vague | Return to queue; require human refinement |
 | Pre-spawn | Acceptance criteria missing, or HITL required and unavailable | Route to `/spec` or surface for human approval |
-| Routing — capability | No agent's boundary covers the task | Either onboard a new agent (rare) or split the task |
-| Routing — trust | All capable agents are at PROBATION for this risk class | Escalate to human; do not run the task at lower review than required |
+| Routing capability | No agent's boundary covers the task | Either onboard a new agent (rare) or split the task |
+| Routing trust | All capable agents are at PROBATION for this risk class | Escalate to human; do not run the task at lower review than required |
 
-A failure does not "consume" the task — the task stays in the queue.
+A failure does not "consume" the task the task stays in the queue.
 Every assignment failure is logged so that systemic gaps (always the
 same domain, always the same agent) become visible.
 
@@ -255,14 +255,14 @@ Beyond the scope of this document, but as a pointer:
 - QA-Agent runs against the manifest's `verificationRequired`
 - A QAVerdict is produced (schema: `schemas/v1/qa-verdict.schema.json`)
 - The work item moves to `COMPLETE`, `FAILED`, or `BLOCKED`
-- The session is scored — see
+- The session is scored see
   `docs/operating-model/performance-review-cycle.md`
 
 ---
 
 ## Related
 
-- `docs/control-plane/pre-spawn-protocol.md` — full pre-spawn detail.
-- `docs/control-plane/hitl-gates.md` — when HITL fires inside this flow.
-- `schemas/v1/agent-task-manifest.schema.json` — manifest schema.
-- `docs/concepts/work-queues.md` — queue lifecycle (v2.0).
+- `docs/control-plane/pre-spawn-protocol.md` full pre-spawn detail.
+- `docs/control-plane/hitl-gates.md` when HITL fires inside this flow.
+- `schemas/v1/agent-task-manifest.schema.json` manifest schema.
+- `docs/concepts/work-queues.md` queue lifecycle (v2.0).

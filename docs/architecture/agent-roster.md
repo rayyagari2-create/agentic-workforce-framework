@@ -7,7 +7,7 @@ introduction, and its current implementation status.
 
 The framework plane governs the build process: planning, executing,
 reviewing, and recording work. It does not include any product-layer
-runtime components — those live in private reference implementations
+runtime components those live in private reference implementations
 that build on top of the framework.
 
 For the classification rubric (agent vs service vs hybrid vs routine),
@@ -20,10 +20,10 @@ see [agent-vs-service.md](agent-vs-service.md).
 | Symbol | Meaning |
 |---|---|
 | 🟢 LIVE | Running in production today |
-| 🟡 PARTIAL | Partially implemented — some components live |
-| 🔵 WAVE 1 | Next implementation target — designed, not built |
-| 🟣 WAVE 2 | Designed — Wave 2 build target |
-| ⚪ WAVE 3+ | Planned — not yet fully designed |
+| 🟡 PARTIAL | Partially implemented some components live |
+| 🔵 WAVE 1 | Next implementation target designed, not built |
+| 🟣 WAVE 2 | Designed Wave 2 build target |
+| ⚪ WAVE 3+ | Planned not yet fully designed |
 
 Every entry below carries one of these labels. No mixing of current
 state and target state.
@@ -42,13 +42,13 @@ are the public framework's headline.
 | qa-agent | QA Agent | Agent | QA Lead | HIGH 100/100 | 🟢 LIVE |
 | fix-agent | Fix Agent | Agent | SRE | HIGH | 🟢 LIVE |
 | security-check | Security Check Agent | Agent | Security Engineer | PROVISIONAL | 🔵 WAVE 1 |
-| evolve | Evolve Service | Service | Process Engineer | — | 🔵 WAVE 1 |
-| code-review | Code Review Agent | Agent | Staff Engineer | — | 🟣 WAVE 2 |
-| boardroom | Boardroom Agent | Agent | VP Engineering | — | 🟣 WAVE 2 |
-| chief-of-staff | Chief of Staff Agent | Agent | Ops Manager | — | 🟣 WAVE 2 |
-| deep-research | Deep Research Agent | Agent | Research Analyst | — | 🟣 WAVE 2 |
-| eval-telemetry | Eval/Telemetry Service | Service | Data Engineer | — | ⚪ WAVE 3+ |
-| deploy | Deploy Service | Service | DevOps Engineer | — | ⚪ WAVE 3+ |
+| evolve | Evolve Service | Service | Process Engineer | | 🔵 WAVE 1 |
+| code-review | Code Review Agent | Agent | Staff Engineer | | 🟣 WAVE 2 |
+| boardroom | Boardroom Agent | Agent | VP Engineering | | 🟣 WAVE 2 |
+| chief-of-staff | Chief of Staff Agent | Agent | Ops Manager | | 🟣 WAVE 2 |
+| deep-research | Deep Research Agent | Agent | Research Analyst | | 🟣 WAVE 2 |
+| eval-telemetry | Eval/Telemetry Service | Service | Data Engineer | | ⚪ WAVE 3+ |
+| deploy | Deploy Service | Service | DevOps Engineer | | ⚪ WAVE 3+ |
 
 **Notes on trust at introduction:**
 
@@ -64,7 +64,7 @@ are the public framework's headline.
 
 **Human-role equivalents** are not titles bestowed on the agent. They
 are framing devices that map the component's accountability into the
-"agents are employees" model — useful when explaining the roster to
+"agents are employees" model useful when explaining the roster to
 people who don't think in agent-frameworks language.
 
 ---
@@ -114,9 +114,9 @@ A new component is added to the roster only when:
 
 1. Its classification (agent / service / hybrid / routine) is documented
    per the rubric in [agent-vs-service.md](agent-vs-service.md).
-2. Its boundary is documented — what files / tables / APIs it touches,
+2. Its boundary is documented what files / tables / APIs it touches,
    and what it explicitly does not touch.
-3. Its human-role equivalent is named — the framing device that maps
+3. Its human-role equivalent is named the framing device that maps
    its accountability into the agents-as-employees model.
 4. Its trust tier at introduction is set. Default: PROVISIONAL until
    five sessions of D1-D4 evidence accumulate.
@@ -124,13 +124,13 @@ A new component is added to the roster only when:
 
 Removing a component from the roster is a Boardroom-level decision.
 Components that earned trust history do not vanish from the audit log
-when retired — their identity persists, marked as retired.
+when retired their identity persists, marked as retired.
 
 ---
 
 ## Related
 
-- [agent-vs-service.md](agent-vs-service.md) — The classification rubric.
+- [agent-vs-service.md](agent-vs-service.md) The classification rubric.
 - `docs/concepts/agentic-workforce-model.md` —
   The agents-as-employees framing.
 - `docs/concepts/trust-scoring.md` —

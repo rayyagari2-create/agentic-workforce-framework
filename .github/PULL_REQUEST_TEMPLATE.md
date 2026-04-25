@@ -20,7 +20,7 @@ List the files or areas touched. Be specific. Examples:
 <!--
 What problem does this solve for the reader?
 Concrete is better than abstract. "Adopters reading the trust-scoring doc could not
-find the hard-stop rules without scrolling — moved them above the calibration anchors"
+find the hard-stop rules without scrolling moved them above the calibration anchors"
 is more useful than "improved trust-scoring docs."
 -->
 
@@ -53,7 +53,7 @@ private context leaks into the public repo.
 
 - [ ] No private repository names or paths (use `[PROJECT_REPO]` as placeholder)
 - [ ] No product names from any private implementation
-- [ ] No customer, supplier, or vendor names (unless the framework's behavior depends on the named tool — Postgres, AGT, Claude Code are acceptable)
+- [ ] No customer, supplier, or vendor names (unless the framework's behavior depends on the named tool Postgres, AGT, Claude Code are acceptable)
 - [ ] No production data values
 - [ ] No internal architecture details that are not also public
 

@@ -3,8 +3,8 @@
 ## What this concept defines
 
 Failure memory is the framework's institutional incident system. Every agent
-failure is recorded as a structured FailureRecord — not a narrative log entry
-or a chat message — with a fixed taxonomy, a recurrence count, and a prevention
+failure is recorded as a structured FailureRecord not a narrative log entry
+or a chat message with a fixed taxonomy, a recurrence count, and a prevention
 artifact. Agents read their own failure history before starting a related task.
 
 Failure memory is what makes "the agent learned from that mistake" a measurable
@@ -34,7 +34,7 @@ matching reliable. Each class has a precise definition.
 | prompt_regression | A change to instructions or prompts caused output quality to drop on previously working cases. |
 | entitlement_bypass | An access check was missed, skipped, or returned the wrong answer. Authorization-class failure. |
 | data_loss | A write was lost, overwritten, or never persisted when it should have been. |
-| security_vulnerability | A vector that could be exploited — secret in code, unvalidated input, missing sanitization, exposed key. |
+| security_vulnerability | A vector that could be exploited secret in code, unvalidated input, missing sanitization, exposed key. |
 | performance_degradation | Latency, throughput, or resource use moved outside the acceptable envelope. |
 | ux_regression | A user-facing flow that previously worked correctly now produces a worse experience. |
 | truth_ownership | A component wrote to a table or store that another component owns canonical truth for. Write-ownership rule violated. |
@@ -54,14 +54,14 @@ agent was added.
 
 The list is short enough to memorize. It is long enough to capture the
 real distribution of failures. If your domain produces failures that genuinely
-do not match any of the seventeen, that is a signal to extend — not to
+do not match any of the seventeen, that is a signal to extend not to
 shoehorn the failure into a class that does not fit.
 
 ---
 
 ## What a FailureRecord contains
 
-A FailureRecord is structured. Free-form prose is not enough — the framework
+A FailureRecord is structured. Free-form prose is not enough the framework
 needs fields that can be queried, grouped, and counted.
 
 | Field | Purpose |
@@ -70,7 +70,7 @@ needs fields that can be queried, grouped, and counted.
 | failureClass | One of the seventeen classes above |
 | domain | Domain classification for pre-task retrieval matching |
 | agentsInvolved | Which agents created or detected the failure |
-| files | File paths in scope when the failure occurred — used for retrieval matching |
+| files | File paths in scope when the failure occurred used for retrieval matching |
 | symptom | Observable symptom as seen by a user or QA |
 | rootCause | Confirmed root cause after investigation |
 | recurrenceCount | How many times this class has occurred to date |
@@ -80,9 +80,9 @@ needs fields that can be queried, grouped, and counted.
 | detectionSource | qa_agent / fix_agent / human_reviewer / automated_test / runtime_monitoring / user_report |
 | status | open / investigating / fix_in_progress / resolved / wont_fix |
 | fixTag | hotfix-only / hotfix-plus-prevention / systemic-refactor-required |
-| preventionArtifacts | Concrete artifacts produced — regression test, schema validation, instruction update, etc. |
-| rootCauseConfirmed | Boolean — true only if the root cause has been verified, not hypothesized |
-| regressionTestAdded | Boolean — was a regression test added with the fix? |
+| preventionArtifacts | Concrete artifacts produced regression test, schema validation, instruction update, etc. |
+| rootCauseConfirmed | Boolean true only if the root cause has been verified, not hypothesized |
+| regressionTestAdded | Boolean was a regression test added with the fix? |
 
 Full schema: `schemas/v1/failure-record.schema.json`.
 
@@ -130,7 +130,7 @@ implicated.
 ## Pre-task failure retrieval
 
 Before an agent spawns on a task, it reads its own failure history. The
-retrieval is not optional and not advisory — it is part of the pre-spawn
+retrieval is not optional and not advisory it is part of the pre-spawn
 protocol and enforced by a hook.
 
 ### What the agent retrieves
@@ -148,8 +148,8 @@ proceeding.
 ### Why this is enforced, not encouraged
 
 If retrieval is optional, agents skip it under time pressure. The result is
-that known failure patterns recur, and the failure library — which is
-expensive to build — produces no operational value. Enforcement at the hook
+that known failure patterns recur, and the failure library which is
+expensive to build produces no operational value. Enforcement at the hook
 layer means the agent literally cannot proceed without the retrieval.
 
 The pre-task retrieval is the framework's reference-check-before-task primitive.
@@ -182,7 +182,7 @@ A FailureRecord progresses through a fixed set of statuses.
 | investigating | Root cause being identified |
 | fix_in_progress | Fix is being implemented |
 | resolved | Fix complete, prevention artifact in place, regression test added |
-| wont_fix | Determined not to be worth fixing — must be explicitly justified |
+| wont_fix | Determined not to be worth fixing must be explicitly justified |
 
 Status transitions are append-only in the audit log. A record cannot skip from
 open to resolved without passing through investigating and fix_in_progress.
@@ -193,8 +193,8 @@ a root cause and producing a prevention artifact.
 
 A FailureRecord cannot be closed (status = resolved) unless:
 
-1. rootCauseConfirmed is true — the cause has been verified, not just guessed
-2. At least one preventionArtifact is recorded — a regression test, a schema
+1. rootCauseConfirmed is true the cause has been verified, not just guessed
+2. At least one preventionArtifact is recorded a regression test, a schema
    validation, an instruction update, a guardrail, or another concrete artifact
 3. fixTag is set to one of the three completion classifications
 
@@ -247,7 +247,7 @@ useful. They are not the same artifact.
 
 - Not a bug tracker. Bug trackers track work items. Failure memory tracks
   failure patterns. The same fix may close ten bug tickets and produce one
-  FailureRecord — or vice versa.
+  FailureRecord or vice versa.
 - Not a postmortem document. Postmortems are narratives written by humans
   for humans. FailureRecords are structured records written for agents.
 - Not a chat log. Failure memory is queryable by class, domain, file, and

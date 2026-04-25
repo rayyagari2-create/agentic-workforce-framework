@@ -1,4 +1,4 @@
-# ADR 0004 — The Audit Log Is Append-Only
+# ADR 0004 The Audit Log Is Append-Only
 
 ## Status
 
@@ -13,7 +13,7 @@ equivalent) signs those rows cryptographically where supported.
 
 Two properties of the audit log are load-bearing for the entire framework:
 
-1. It is the evidence trail that supports compliance claims — EU AI Act control
+1. It is the evidence trail that supports compliance claims EU AI Act control
    evidence, NIST AI RMF traceability, SOC 2 logging requirements, HIPAA
    accountability.
 2. It is the ground truth the framework reads back during incident response.
@@ -32,7 +32,7 @@ Concretely:
 
 - `agentforce_governance.audit_log` has a BEFORE UPDATE OR DELETE trigger that
   raises an exception on any attempt to mutate or remove a row. No role in the
-  database has a safe path past this — not even `superuser` roles operating
+  database has a safe path past this not even `superuser` roles operating
   inside the application.
 - Every lifecycle table that *can* mutate (work queue items, gate records,
   agent instances) must emit an immutable audit_log event on every change. The
@@ -61,7 +61,7 @@ The append-only audit log is the invariant that survives that migration.
 
 **Negative.**
 
-- Storage grows monotonically. This is a feature, not a bug — but deployments
+- Storage grows monotonically. This is a feature, not a bug but deployments
   need a retention policy that archives rather than deletes (e.g., partition
   and migrate cold partitions to object storage, retaining cryptographic chain).
 - "Fix" workflows require a new row, not an edit. A mistaken gate approval
