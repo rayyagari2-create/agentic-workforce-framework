@@ -21,15 +21,20 @@ equivalent. The mapping is not metaphor. It is operational.
 | HR Concept | Agent Equivalent | Why It Matters |
 |---|---|---|
 | Job description | Capability boundary plus instruction file | The agent's scope is defined and bounded. |
+| Background check | Runtime policy layer identity registration | Identity is registered before any task is assigned — no anonymous agents. |
 | Employment contract | AgentTaskManifest | Each task has an explicit, structured statement of mission, files in scope, risk level, and verification required. |
 | Work log | Agent bulletin | Every state transition is recorded by the agent itself. No silent execution. |
 | Performance review | D1-D4 trust scoring per session | Measured, evidence-backed, accumulated over time. |
 | KPIs / OKRs | Acceptance criteria plus QAVerdict | Pass/fail with per-criterion evidence — no ambiguity. |
 | Incident report | FailureRecord | Structured failure with root cause, prevention artifact, and recurrence count. |
 | Reference check before task | Pre-task failure retrieval | The agent reads its own failure history before starting work on a related task. |
+| Whistleblower policy | Self-reporting protocol | Mandatory bulletin writes; SESSION COMPLETE blocked without QA PASS. |
 | Manager | Orchestrator | Routes tasks, governs spawn decisions, owns session-level coordination. |
+| Team lead | Manager Agent | Per-team routing role at enterprise scale. Routes work; does not execute it. |
 | Promotion | Autonomy gate expansion | Demonstrated trust unlocks a wider scope of action without per-step review. |
 | Performance improvement plan | RESTRICTED or PROBATION trust tier | Underperforming agents have narrower autonomy and more frequent review. |
+| Termination | Boardroom review and agent retirement | Sustained PROBATION leads to instruction rewrite, scope reduction, or retirement. |
+| Scheduled recurring work | Routines | Stateless, trigger-driven scheduled work — distinct from long-running agents. |
 | HR policy engine | Runtime policy layer | What the agent is permitted to do, enforced at runtime. |
 | Department head | Division Orchestrator | Multi-team coordination at enterprise scale. |
 | Workforce analytics | Command Center | Cross-agent, cross-workspace performance and trust trajectory views. |
@@ -90,6 +95,54 @@ Hard rule:          reasoning layer NEVER writes to canonical tables directly
 This rule prevents the most common hybrid failure mode: an agent that "decides
 something" and then "writes it" with no intervening validation. The reasoning
 output is always intermediate. The persistence layer is always the gatekeeper.
+
+### Hybrid sub-boundary — explicit internal split
+
+"Hybrid" without a precise internal split is a hand-wave. Every hybrid
+component must declare exactly which sub-component reasons and which
+sub-component owns writes. Generic template:
+
+| Subpart | Type | Owns | Write Access |
+|---|---|---|---|
+| Source / option selection | Agent-shaped | Which sources to call, order, fallback logic | None — decisions only |
+| Confidence / quality evaluation | Agent-shaped | Weighting freshness, source reliability, contradiction detection | None — annotation only |
+| Normalization | Deterministic service | Raw payload → internal schema | Writes to canonical tables |
+| Caching / freshness tracking | Deterministic service | Expiry, freshness metadata, cache invalidation | Writes metadata fields only |
+
+The reasoning sub-parts may rank, infer, annotate, and recommend. They do not
+write. The persistence sub-parts are the only writers. The split is declared
+in the agent's instruction file and enforced at the schema and tool layer.
+
+---
+
+## Framework plane agent roster
+
+These are the framework-plane components that ship in v1.0. The roster is
+deliberately small — every component listed here has earned its place by
+appearing in real production sessions, not by speculative design.
+
+| ID | Name | Class | Human Equivalent |
+|---|---|---|---|
+| orchestrator | Orchestrator | Agent | Engineering Manager |
+| qa-agent | QA-Agent | Agent | QA Lead |
+| fix-agent | Fix-Agent | Agent | SRE |
+| security-check | Security-Check Agent | Agent | Security Engineer |
+| code-review | Code-Review Agent | Agent | Staff Engineer |
+| boardroom | Boardroom Agent | Agent | VP Engineering |
+| chief-of-staff | Chief-of-Staff Agent | Agent | Operations Manager |
+| deep-research | Deep-Research Agent | Agent | Research Analyst |
+| evolve | Evolve Agent | Service | Process Engineer |
+| eval-telemetry | Eval/Telemetry Agent | Service | Data Engineer |
+| deploy | Deploy Agent | Service | DevOps Engineer |
+
+Plus framework routines (R1 PR test, R4 security scan) which are short-lived
+and not long-running agents — see the Routine classification above.
+
+The classification (Agent vs Service) follows the rubric. Components that
+reason under uncertainty are Agents; components that apply approved changes
+mechanically or own canonical truth are Services. An organization adopting
+the framework should not feel obliged to spawn all eleven on day one — start
+with Orchestrator, QA-Agent, and one executing agent.
 
 ---
 
