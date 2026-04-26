@@ -63,6 +63,11 @@ The files in this section are sequenced. Read in order on first pass.
    What triggers an autonomy gate to expand or contract.
 6. **[incident-management.md](incident-management.md)** The failure
    record flow, recurrence checks, escalation to the Boardroom.
+7. **[controlled-learning-protocol.md](controlled-learning-protocol.md)**
+   Controlled Learning Protocol — how the agentic workforce improves
+   through failure memory, recurrence tracking and human-reviewed
+   instruction evolution. Agents surface patterns and propose changes.
+   No agent self-modification.
 
 ---
 

@@ -127,3 +127,10 @@ A concept is useful in three places:
 
 Concepts are the long-lived layer. They change rarely. Operational details
 change with each implementation.
+
+---
+
+## See also
+
+See also: [Controlled Learning Protocol](../operating-model/controlled-learning-protocol.md)
+for how failure memory feeds into instruction evolution and trust scoring.

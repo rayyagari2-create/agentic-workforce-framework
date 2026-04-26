@@ -248,6 +248,7 @@ covers what you can run today without Postgres or hooks.
 | [Build State Machine](docs/control-plane/build-state-machine.md) | Agent execution lifecycle from DEBUG through COMPLETE, with loop conditions, QA enforcement and escalation triggers. |
 | [Hook System](docs/control-plane/hook-system.md) | OS-level enforcement via PreToolUse and PostToolUse hooks. exit(2) = hard block. Fail-closed by default. Operator override with TTL. |
 | [Enterprise Scaling](docs/architecture/enterprise-scaling.md) | Multi-workspace model, Division Orchestrator, role-agent alignment and work queues at team, division and enterprise scope. |
+| [Controlled Learning Protocol](docs/operating-model/controlled-learning-protocol.md) | How agentic teams improve over time without self-modification. Agents surface failure patterns and propose instruction changes. Human review is the approval boundary. Feeds directly into D4 trust scoring. |
 
 ---
 
