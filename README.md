@@ -160,21 +160,21 @@ The framework maps every HR concept to an agent governance equivalent.
 
 | HR Concept | Agent Equivalent | Status |
 |---|---|---|
-| Job description | Capability boundary + instruction file | ✅ Live |
-| Employment contract | AgentTaskManifest | ✅ Live |
-| Work log | Agent bulletin | ✅ Live |
-| Performance review | D1-D4 trust scoring per session | ✅ Live |
-| KPIs / OKRs | Acceptance criteria + QAVerdict | ✅ Live |
-| Incident report | FailureRecord | ✅ Live |
-| Manager | Orchestrator | ✅ Live |
-| Reference check before task | Pre-task failure retrieval | ✅ Live |
-| Promotion | Autonomy gate expansion | ✅ Live |
-| PIP | RESTRICTED / PROBATION trust tier | ✅ Live |
-| Scheduled recurring work | Claude Code Routines | Next |
-| HR policy engine | Runtime policy layer | Next |
-| Workforce analytics | Command Center | Designed |
-| Team lead | Manager Agent | Designed |
-| Department head | Division Orchestrator | Designed |
+| Job description | Capability boundary + instruction file | Implemented |
+| Employment contract | AgentTaskManifest | Implemented |
+| Work log | Agent bulletin | Implemented |
+| Performance review | D1-D4 trust scoring per session | Implemented |
+| KPIs / OKRs | Acceptance criteria + QAVerdict | Implemented |
+| Incident report | FailureRecord | Implemented |
+| Manager | Orchestrator | Implemented |
+| Reference check before task | Pre-task failure retrieval | Implemented |
+| Promotion | Autonomy gate expansion | Implemented |
+| PIP | RESTRICTED / PROBATION trust tier | Implemented |
+| Scheduled recurring work | Claude Code Routines | Planned |
+| HR policy engine | Runtime policy layer | Planned |
+| Workforce analytics | Command Center | Reference Pattern |
+| Team lead | Manager Agent | Reference Pattern |
+| Department head | Division Orchestrator | Reference Pattern |
 
 ---
 

@@ -63,17 +63,17 @@ Honest accounting. No mixing of current state with target state.
 
 | Capability | Status |
 |---|---|
-| Single-workspace orchestrator model | Live. Running in private reference implementation. |
-| D1-D4 trust scoring | Live. Manual scoring with evidence line per dimension. 15+ sessions completed. |
-| Failure memory | Live. File-based, 17-class taxonomy. Recurrence detection working multiple recurrence escalations have fired and produced fixes. |
-| Hook enforcement | Live. Local runtime. 13 hooks across pre-tool-use and post-tool-use boundaries. Fail-closed by default. |
-| AGT-style runtime policy adapter | Shadow mode live. The adapter intercepts and logs but does not yet block. Enforcement-mode promotion is pending shadow validation. |
-| Postgres governance schema | Schema live. Tables, constraints, and indexes are in place. Data migration from file-based to Postgres is in progress. |
-| R1 PR test routine | Designed. Template published. Not yet running on the reference repo. |
-| R4 security scan routine | Designed. Template published. Not yet running on the reference repo. |
-| Automated trust scoring (R10-style) | Designed. Held until shadow-mode validation completes and the Eval/Telemetry write-rule is enforced. |
-| Enterprise multi-workspace model | Designed. Schema published. Not yet field-proven at multi-team scale. |
-| Approval gate chains | Designed. Schema published. Single-operator model has not exercised the full chain. |
+| Single-workspace orchestrator model | Implemented. Running in private reference implementation. |
+| D1-D4 trust scoring | Implemented. Manual scoring with evidence line per dimension. 15+ sessions completed. |
+| Failure memory | Implemented. File-based, 17-class taxonomy. Recurrence detection working multiple recurrence escalations have fired and produced fixes. |
+| Hook enforcement | Implemented. Local runtime. 13 hooks across pre-tool-use and post-tool-use boundaries. Fail-closed by default. |
+| AGT-style runtime policy adapter | Experimental. Shadow-mode adapter intercepts and logs but does not yet block. Enforcement-mode promotion is pending shadow validation. |
+| Postgres governance schema | Experimental. Tables, constraints, and indexes are in place. Data migration from file-based to Postgres is in progress. |
+| R1 PR test routine | Planned. Template published. Not yet running on the reference repo. |
+| R4 security scan routine | Planned. Template published. Not yet running on the reference repo. |
+| Automated trust scoring (R10-style) | Planned. Held until shadow-mode validation completes and the Eval/Telemetry write-rule is enforced. |
+| Enterprise multi-workspace model | Reference Pattern. Schema published. Not yet field-proven at multi-team scale. |
+| Approval gate chains | Planned. Schema published. Single-operator model has not exercised the full chain. |
 
 The pattern: anything labeled "live" has run in production sessions and
 produced observable governance value. Anything labeled "designed" has a

@@ -105,6 +105,32 @@ The manifest is the contract. It conforms to
 
 ---
 
+### Manifest and Sidecar Convention
+
+The reference implementation uses a single manifest sidecar file:
+
+`docs/manifests/<taskId>.json`
+
+This file acts as both the task manifest and the hook-readable
+sidecar. The hook extracts `taskId` from the Agent description,
+reads this file, verifies `session_id` and freshness, then
+validates the spawn.
+
+For stricter enterprise deployments, teams may split this into
+two physical files:
+
+- `docs/manifests/<taskId>.manifest.json` — full task contract
+- `docs/manifests/<taskId>.sidecar.json` — minimal hook-readable
+  spawn authorization record
+
+The split-file model is optional. The default reference
+implementation stays single-file to keep adoption simple and
+avoid unnecessary orchestration complexity.
+
+In this scenario, we show the stricter enterprise split-file
+pattern for clarity. The minimal reference implementation uses
+`docs/manifests/<taskId>.json`.
+
 ## Step 3 — Orchestrator writes the manifest sidecar
 
 The manifest sidecar is a separate artifact from the AgentTaskManifest
@@ -466,8 +492,8 @@ Every artifact produced by this session:
 
 | Artifact | Location | Purpose |
 |---|---|---|
-| AgentTaskManifest | `docs/manifests/TASK-2026-04-25-001.json` | Task contract; the employment contract for the work |
-| Manifest sidecar | `docs/manifests/TASK-2026-04-25-001.json` | Hook validation target; the runtime payload the PreToolUse hook reads |
+| AgentTaskManifest | `docs/manifests/TASK-2026-04-25-001.manifest.json` | Task contract |
+| Manifest sidecar | `docs/manifests/TASK-2026-04-25-001.sidecar.json` | Hook validation target |
 | Audit log entry | `audit_log` table | Spawn authorization record; out-of-band proof the hook decided allow |
 | Agent bulletin | `docs/agent-bulletin.md` | Real-time state log; the trail D2 is scored against |
 | FailureRecord | `docs/failure-records/FAIL-2026-04-25-001.json` | Defect record and prevention artifacts; the recurrence-detection input for future sessions |

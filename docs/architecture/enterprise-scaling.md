@@ -1,6 +1,6 @@
 # Enterprise Scaling
 
-> **Status: Designed, not yet field-proven at multi-team scale. Ships with v3.0.**
+> **Status: Reference Pattern at multi-team scale. Ships with v3.0.**
 >
 > The single-workspace operating model is live in the reference
 > implementation. The multi-workspace, multi-team extension described in
@@ -48,7 +48,7 @@ identity that travels with trust history, and approval gate chains.
 
 ## Role-Agent Alignment
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 **The question.** When a human team is introduced, does each person get
 their own Orchestrator instance?
@@ -80,7 +80,7 @@ approval before it can even start.
 
 ## Manager Agent Pattern
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 At enterprise scale, the Orchestrator becomes a Manager Agent. The
 hierarchy extends:
@@ -115,7 +115,7 @@ Division Orchestrator (VP-equivalent)
 
 ## Central Policy + Federated Execution
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 **The tension.** Enterprises need consistent governance policy across
 all teams. Teams need autonomy to execute without central bottlenecks.
@@ -158,7 +158,7 @@ FEDERATED (Team scope)
 
 ## Work Queue Architecture
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 At single-founder scale, work is assigned directly in each session.
 At enterprise scale, work enters a queue and agents pull from it.
@@ -194,7 +194,7 @@ not mutations of audit entries they generate new audit events.
 
 ## Persistent Agent Identity
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 At single-founder scale, agents are stateless between sessions they
 read their instruction files and rebuild context each time. At
@@ -225,7 +225,7 @@ rather than a metaphor.**
 
 ## Approval Gate Chains
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 **Single-founder model.** All HITL approvals go to one person.
 
@@ -261,7 +261,7 @@ CRITICAL-risk task (cross-team, schema change):
 
 ## Multi-Workspace Bulletin and Lock Management
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 **Current state (single-founder).** One file-based bulletin, one
 file-based lock list. Append-only.
@@ -285,7 +285,7 @@ transparency.
 
 ## Trust Score Calibration at Scale
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 **Single-founder calibration problem.** One human assigns all D1-D4
 scores. Noisy labels degrade the autonomy gate signal over time.
@@ -311,7 +311,7 @@ equivalent of performance review calibration committees.
 
 ## Estimated Governance Overhead at Scale
 
-> *Designed not yet field-proven at multi-team scale.*
+> *Status: Reference Pattern at multi-team scale.*
 
 The following estimates are **illustrative not measured.** They will
 be updated with empirical data as multi-team deployments are

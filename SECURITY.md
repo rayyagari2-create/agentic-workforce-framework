@@ -30,9 +30,9 @@ cookies, customer data, internal hostnames, tenant identifiers, and excerpts
 from private logs. If a reproduction requires sensitive data, redact it
 before sending and describe the shape of the data instead.
 
-Report vulnerabilities privately by emailing **security@agentic-workforce-framework.org** (placeholder confirm the maintainer email in the repo maintainer list before depending on it).
-
-Alternatively, use GitHub's private vulnerability reporting on this repository: Security tab → Report a vulnerability.
+Report vulnerabilities through GitHub private vulnerability reporting
+for this repository. Navigate to the repository's Security tab and
+select "Report a vulnerability."
 
 ### What to include in your report
 

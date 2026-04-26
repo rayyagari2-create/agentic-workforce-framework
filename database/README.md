@@ -28,6 +28,11 @@ psql "$DATABASE_URL" -f database/governance/005_routine_runs.sql
 
 All tables live in the `awf_governance` schema.
 
+`database/governance/999_enable_rls.example.sql` — Example Row
+Level Security policies for all five governance tables. Status:
+Reference Pattern. Run after migrations are stable. See file
+header for prerequisites and testing guidance.
+
 ## Migration conventions
 
 See [`migrations/README.md`](migrations/README.md) for full conventions.

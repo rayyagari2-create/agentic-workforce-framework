@@ -3,7 +3,7 @@
 
 // 15-step manifest validation flow:
 //   1.  Start timer
-//   2.  Read + parse stdin (fail open on parse error — not our event)
+//   2.  Read + parse stdin (fail closed in ENFORCE; fail open in SHADOW)
 //   3.  Guard: tool_name must be 'Agent' — exit 0 otherwise
 //   4.  Extract tool_input.description
 //   5.  Detect [MANIFEST:taskId] token — risk-tiered fail-safe if missing
@@ -129,19 +129,39 @@ function main() {
   // Step 1: start timer.
   startTime = Date.now();
 
-  // Step 2: read + parse stdin. Fail open on parse error — this hook
-  // may be invoked with payloads that are not for us; we must not
-  // block unrelated tool calls.
+  // ── Step 2: Read + parse stdin ──────────────────────────────────
+  //
+  // Agent-scoped matcher: this hook is wired only to the Agent tool
+  // via the PreToolUse matcher in claude-code-settings.example.json.
+  //
+  // In ENFORCE mode: any stdin read or parse failure is treated as
+  // an enforcement failure — exit(2). We cannot verify what we
+  // cannot read, and an unreadable Agent spawn payload must block.
+  //
+  // In SHADOW mode: stdin failures exit(0) with a warning. Shadow
+  // mode is for validation, not enforcement.
+  //
+  // If this hook is ever rewired to a broader matcher (all tools),
+  // revisit this behavior: non-Agent payloads may legitimately
+  // produce unreadable stdin and should not block in that context.
   let raw;
   try {
     raw = fs.readFileSync(0, 'utf8');
   } catch (_e) {
+    if (ENFORCE) {
+      console.error('[check-agent-spawn] BLOCKED: stdin unreadable in enforce mode. Cannot verify Agent spawn.');
+      process.exit(2);
+    }
     process.exit(0);
   }
   let input;
   try {
     input = JSON.parse(raw);
   } catch (_e) {
+    if (ENFORCE) {
+      console.error('[check-agent-spawn] BLOCKED: stdin not valid JSON in enforce mode. Cannot verify Agent spawn.');
+      process.exit(2);
+    }
     process.exit(0);
   }
 
