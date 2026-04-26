@@ -112,14 +112,25 @@ a routine.
 routines/
 ├── README.md                              ← this file
 ├── adapter-pattern.md                     ← isolation pattern, correlation IDs
-└── templates/
-    ├── README.md                          ← template index, parameterization
-    ├── r1-pr-test.md                      ← Playwright on PR (v1.0)
-    ├── r4-security-scan.md                ← Security scan on PR (v1.0)
-    ├── r10-nightly-trust-score.md         ← [v2.0] placeholder
-    ├── r-alert-triage.md                  ← [v2.0] placeholder
-    └── r-deploy-verification.md           ← [v3.0] placeholder
+├── templates/                             ← v1.0 shipped templates
+│   ├── README.md                          ← template index, parameterization
+│   ├── r1-pr-test.md                      ← Playwright on PR (Implemented)
+│   └── r4-security-scan.md                ← Security scan on PR (Implemented)
+└── roadmap/                               ← planned, not yet shipped
+    ├── README.md                          ← roadmap index, dependencies
+    ├── r10-nightly-trust-score.md         ← Planned
+    ├── r-alert-triage.md                  ← Planned
+    └── r-deploy-verification.md           ← Planned
 ```
+
+**v1.0 shipped templates (in `routines/templates/`):**
+- `r1-pr-test.md` — PR test routine (Implemented)
+- `r4-security-scan.md` — Security scan routine (Implemented)
+
+**Roadmap templates (in `routines/roadmap/`):**
+- `r10-nightly-trust-score.md` — Planned
+- `r-alert-triage.md` — Planned
+- `r-deploy-verification.md` — Planned
 
 ---
 

@@ -13,9 +13,9 @@ trigger model itself.
 |-----------------------------------|------------------------------------------------------|--------|
 | `r1-pr-test.md`                   | Run test suite on agent-authored PRs                 | v1.0   |
 | `r4-security-scan.md`             | Security scan on agent-authored PRs                  | v1.0   |
-| `r10-nightly-trust-score.md`      | Nightly D1-D4 scoring routine                        | v2.0   |
-| `r-alert-triage.md`               | API-triggered alert classification                   | v2.0   |
-| `r-deploy-verification.md`        | Deploy pipeline smoke test + health check            | v3.0   |
+
+For planned routines that have not yet shipped (nightly trust score,
+alert triage, deploy verification), see `routines/roadmap/`.
 
 ---
 

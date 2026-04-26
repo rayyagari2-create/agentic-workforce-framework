@@ -181,8 +181,9 @@ before calling the Agent tool. The hook resolves the path from the
 
 The Orchestrator calls the Agent tool with
 `description = "Fix CheckoutForm validation [MANIFEST:TASK-2026-04-25-001]"`
-and `subagent_type = "fix-agent"`. The PreToolUse hook fires and runs
-its 15-step validation.
+and `runtime_subagent_type = "general-purpose"` (Claude Code API value).
+The sidecar carries `agent_role = "fix-agent"` for governance. The
+PreToolUse hook fires and runs its 15-step validation.
 
 Key steps for this scenario:
 
@@ -192,14 +193,20 @@ Step  7: Resolves docs/manifests/TASK-2026-04-25-001.json
 Step  8: File found and readable.
 Step  9: JSON parses correctly.
 Step 10: AJV schema validation passes.
-Step 11: subagent_type 'fix-agent' is in allowed roster.
+Step 11: agent_role 'fix-agent' is in allowed roster.
 Step 12: riskLevel=medium, hitlApproved not required. Passes.
 Step 13: issuedAt within 30-minute TTL. Passes.
 Step 14: [MANIFEST:TASK-2026-04-25-001] stripped from description.
 Step 15: audit_log entry written. exit(0).
 ```
 
-**Audit log entry written by the PostToolUse hook:**
+**Audit log entry written by the PreToolUse hook:**
+
+> Note: The PreToolUse hook writes the spawn authorization
+> record on allow decisions. The PostToolUse hook separately
+> records the spawn outcome (success/failure) after the agent
+> returns. Both are shown in the artifact summary.
+
 
 ```json
 {

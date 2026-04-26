@@ -19,7 +19,7 @@ discretionary they follow rules that can be audited.
 
 | Tier | Score Band | Confidence Floor | Default Behavior |
 |---|---|---|---|
-| HIGH | 90 – 100 | MEDIUM or higher | Medium-risk tasks proceed without step-by-step review. |
+| HIGH | 90 – 100 | HIGH | Medium-risk tasks proceed without step-by-step review. |
 | STANDARD | 75 – 89 | LOW or higher | Reviewer reviews at major decision points. |
 | RESTRICTED | 60 – 74 | any | Reviewer reviews before each phase transition. |
 | PROBATION | < 60 | any | Every file change reviewed. Three sessions at this tier triggers Boardroom-level review. |
@@ -48,6 +48,16 @@ regardless of tier).
 
 The agent has demonstrated reliable performance across enough sessions that
 routine work can proceed without step-by-step review.
+
+HIGH autonomy requires both:
+1. A trust score in the HIGH tier (90-100) sustained over
+   multiple sessions
+2. confidenceBand = HIGH (minimum 15 scored sessions for
+   this agent role)
+
+An agent with a HIGH score and MEDIUM confidence band
+operates at STANDARD autonomy. The confidence band is the
+gate — the score is the signal.
 
 **Without a gate, a HIGH agent can:**
 - Read any file in its capability boundary.
@@ -153,7 +163,7 @@ is not a single-session event.
 | PROVISIONAL → STANDARD | n ≥ 5 sessions, average score ≥ 75, no hard-stop in any session. |
 | PROVISIONAL → HIGH | n ≥ 5 sessions, average score ≥ 90, all dimensions ≥ 22 in every session, no hard-stop. (Rare usually goes through STANDARD first.) |
 | RESTRICTED → STANDARD | 2 consecutive sessions at score ≥ 75, no hard-stop. |
-| STANDARD → HIGH | 5 consecutive sessions at score ≥ 90, confidence band ≥ MEDIUM. |
+| STANDARD → HIGH | 5 consecutive sessions at score ≥ 90, confidence band = HIGH. |
 | PROBATION → RESTRICTED | 1 session at score ≥ 60 with a clean evidence line on every dimension. |
 
 Promotion is monotonic in evidence. A single high session does not promote

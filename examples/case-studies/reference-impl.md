@@ -213,7 +213,7 @@ than the immediate fix.
 
 ---
 
-## What did not work REQUIRED
+## What did not work
 
 Three issues. Honest writeup. The framework is more useful for the
 next reader because of these — the parts that worked are easy to

@@ -162,7 +162,9 @@ function main() {
 
   // Step 10: record to audit bridge.
   const agentName = correlatedManifest
-    ? correlatedManifest.subagent_type
+    ? (correlatedManifest.agent_role
+        || correlatedManifest.runtime_subagent_type
+        || 'unknown')
     : 'unknown';
 
   // Step 11: wrap in try/catch — never block on audit failure.

@@ -87,6 +87,12 @@ score is allowed to determine the tier**.
 | RESTRICTED   | Default for new agents; or assigned on demotion                         |
 | PROBATION    | Total < 60, **OR** any hard-stop on D2/D3, **OR** D4 = 0 (hard-stop)    |
 
+A score in the HIGH tier (90-100) reflects session performance. Autonomy
+expansion to the HIGH autonomy gate requires confidenceBand = HIGH (n ≥ 20
+scored sessions for this agent role). An agent scoring in the HIGH tier with
+MEDIUM confidence operates at STANDARD autonomy until the confidence band
+lifts.
+
 An agent at MEDIUM band with a 95 mean total **does not promote to HIGH**.
 It stays at STANDARD. The score is high but the band is insufficient. The
 agent must accumulate sessions before HIGH becomes available.

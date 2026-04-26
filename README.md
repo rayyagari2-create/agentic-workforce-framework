@@ -10,7 +10,7 @@ control planes.
 
 > Status: Production-informed reference architecture.
 > Current implementation: single-founder / single-workspace.
-> Evidence base: 50+ scored sessions in the reference implementation reporting period.
+> Evidence base: 50+ scored sessions in the reference implementation reporting period. Metrics are self-reported from the private reference implementation and have not been independently audited.
 > Enterprise scaling model: designed extension, not yet field-proven at multi-team scale.
 
 ---
@@ -303,7 +303,7 @@ Top-level folders in this repository:
 
 ## Schemas
 
-Four generic JSON schemas ship with v1.0, all AJV Draft 2020-12 compatible.
+Five JSON schemas ship with v1.0, all AJV Draft 2020-12 compatible.
 Schemas are versioned under `schemas/v1/`. Breaking changes require a new version path.
 
 | Schema | Purpose |
@@ -312,6 +312,7 @@ Schemas are versioned under `schemas/v1/`. Breaking changes require a new versio
 | [QAVerdict](schemas/v1/qa-verdict.schema.json) | Structured pass/fail with per-criterion evidence and ULID key. No judgment calls in the output format. |
 | [FailureRecord](schemas/v1/failure-record.schema.json) | 17-class failure taxonomy, recurrenceCount, prevention rule and agents involved. |
 | [TrustScore](schemas/v1/trust-score.schema.json) | D1-D4 per dimension, total score, trust level and confidence band. |
+| [AgentSpawnSidecar](schemas/v1/agent-spawn-sidecar.schema.json) | Hook-readable spawn authorization record. Written by the Orchestrator before Agent tool call. Validated by the PreToolUse hook. The enforcement artifact for agent spawn governance. |
 
 ---
 
