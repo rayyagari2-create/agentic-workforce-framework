@@ -52,7 +52,7 @@ routine work can proceed without step-by-step review.
 HIGH autonomy requires both:
 1. A trust score in the HIGH tier (90-100) sustained over
    multiple sessions
-2. confidenceBand = HIGH (minimum 15 scored sessions for
+2. confidenceBand = HIGH (minimum 20 scored sessions for
    this agent role)
 
 An agent with a HIGH score and MEDIUM confidence band

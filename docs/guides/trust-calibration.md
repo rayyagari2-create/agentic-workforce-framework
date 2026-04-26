@@ -260,7 +260,7 @@ the same; the **threshold for action** can differ.
 |---|---|
 | Low (regulated, customer-facing critical) | Hard-stop hits taken seriously; promotion requires HIGH confidence band; HITL on most MEDIUM work |
 | Standard (most teams) | Default thresholds as documented |
-| High (internal tools, prototyping) | More tolerance for imperfect scores; HITL on HIGH only; promotion at MEDIUM band acceptable |
+| High (internal tools, prototyping) | More tolerance for imperfect scores; HITL on HIGH only; promotion to STANDARD at MEDIUM band acceptable; HIGH autonomy still requires HIGH band |
 
 A high-tolerance team should not lower the rubric the score still
 means what it means. They should adjust the **gate** (e.g., what

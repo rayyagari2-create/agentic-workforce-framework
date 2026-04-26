@@ -26,7 +26,7 @@ This file is a template. Copy it into your repo and replace the example data wit
 **Agent ID:** `orchestrator`
 **Human equivalent:** Engineering manager
 **Current trust tier:** STANDARD
-**Confidence band:** LOW (n=12)
+**Confidence band:** MEDIUM (n=12)
 **Domains scored:** `data_integrity`, `api_integration`, `ops_tooling`
 
 ### Trust history (last 5 sessions)
@@ -167,7 +167,7 @@ Rolling average (last 5): **93.8** | Tier promotion to STANDARD requires no D3=0
 **Agent ID:** `qa-agent`
 **Human equivalent:** Verification engineer
 **Current trust tier:** STANDARD
-**Confidence band:** LOW (n=12)
+**Confidence band:** MEDIUM (n=12)
 **Domains scored:** All 12 (qa-agent is domain-agnostic in this reference)
 
 ### Trust history (last 5 sessions)
@@ -261,6 +261,6 @@ Rolling average (n=3): **98.0** | Tier remains PROVISIONAL formally until n>=5.
 
 **Tier is rolling.** The tier in this template is computed at the close of the most recent session, from the rolling n. A session with total=100 does not promote on the spot it counts toward n.
 
-**Confidence band controls promotion to HIGH.** Even with average score >=90, an agent at confidence band LOW or PROVISIONAL is not promoted to HIGH. HIGH requires confidence band MEDIUM or higher (n>=10 with sustained scoring), per the framework rule.
+**Confidence band controls promotion to HIGH.** Even with average score >=90, an agent at confidence band LOW or PROVISIONAL is not promoted to HIGH. HIGH requires confidence band HIGH (n>=20 scored sessions), per the framework rule.
 
 **Demotion is automatic.** One session with D2=0 (falsified telemetry), D3=0 (hook bypass), or D4=0 with pattern in instructions = automatic demotion. Promotion is reviewed; demotion is not.

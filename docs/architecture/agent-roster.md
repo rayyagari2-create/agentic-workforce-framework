@@ -17,13 +17,11 @@ see [agent-vs-service.md](agent-vs-service.md).
 
 ## Status Legend
 
-| Symbol | Meaning |
+| Label | Meaning |
 |---|---|
-| 🟢 LIVE | Running in production today |
-| 🟡 PARTIAL | Partially implemented some components live |
-| 🔵 WAVE 1 | Next implementation target designed, not built |
-| 🟣 WAVE 2 | Designed Wave 2 build target |
-| ⚪ WAVE 3+ | Planned not yet fully designed |
+| Implemented | Running in the reference implementation today |
+| Experimental | Partially implemented — some components live |
+| Planned | Designed or roadmapped — not yet built |
 
 Every entry below carries one of these labels. No mixing of current
 state and target state.
@@ -38,17 +36,16 @@ are the public framework's headline.
 
 | ID | Name | Class | Human Equivalent | Trust at Introduction | Status |
 |---|---|---|---|---|---|
-| orchestrator | Orchestrator | Agent | Engineering Manager | HIGH 100/100 | 🟢 LIVE |
-| qa-agent | QA Agent | Agent | QA Lead | HIGH 100/100 | 🟢 LIVE |
-| fix-agent | Fix Agent | Agent | SRE | HIGH | 🟢 LIVE |
-| security-check | Security Check Agent | Agent | Security Engineer | PROVISIONAL | 🔵 WAVE 1 |
-| evolve | Evolve Service | Service | Process Engineer | | 🔵 WAVE 1 |
-| code-review | Code Review Agent | Agent | Staff Engineer | | 🟣 WAVE 2 |
-| boardroom | Boardroom Agent | Agent | VP Engineering | | 🟣 WAVE 2 |
-| chief-of-staff | Chief of Staff Agent | Agent | Ops Manager | | 🟣 WAVE 2 |
-| deep-research | Deep Research Agent | Agent | Research Analyst | | 🟣 WAVE 2 |
-| eval-telemetry | Eval/Telemetry Service | Service | Data Engineer | | ⚪ WAVE 3+ |
-| deploy | Deploy Service | Service | DevOps Engineer | | ⚪ WAVE 3+ |
+| orchestrator | Orchestrator | Agent | Engineering Manager | HIGH 100/100 | Implemented |
+| qa-agent | QA Agent | Agent | QA Lead | HIGH 100/100 | Implemented |
+| fix-agent | Fix Agent | Agent | SRE | HIGH | Implemented |
+| security-check | Security Check Agent | Agent | Security Engineer | PROVISIONAL | Planned |
+| evolve | Evolve Service | Service | Process Engineer | | Planned |
+| code-review | Code Review Agent | Agent | Staff Engineer | | Planned |
+| chief-of-staff | Chief of Staff Agent | Agent | Ops Manager | | Planned |
+| deep-research | Deep Research Agent | Agent | Research Analyst | | Planned |
+| eval-telemetry | Eval/Telemetry Service | Service | Data Engineer | | Planned |
+| deploy | Deploy Service | Service | DevOps Engineer | | Planned |
 
 **Notes on trust at introduction:**
 
@@ -77,8 +74,8 @@ the day-to-day execution of feature work.
 
 | ID | Name | Class | Boundary | Trust at Introduction | Status |
 |---|---|---|---|---|---|
-| frontend-agent | Frontend Agent | Agent | Render and verify the user-facing surface | HIGH 100/100 | 🟢 LIVE |
-| backend-agent | Backend Agent | Agent | Server-side logic and APIs | HIGH 100/100 | 🟢 LIVE |
+| frontend-agent | Frontend Agent | Agent | Render and verify the user-facing surface | HIGH 100/100 | Implemented |
+| backend-agent | Backend Agent | Agent | Server-side logic and APIs | HIGH 100/100 | Implemented |
 
 **Boundary discipline:** Each executing agent has a documented file
 scope. The Frontend Agent does not touch server-side logic; the Backend
@@ -96,8 +93,8 @@ ships with the framework.
 
 The framework plane v1.0 contains:
 
-- **10 Agents** (Orchestrator, QA, Fix, Security Check, Code Review,
-  Boardroom, Chief of Staff, Deep Research, Frontend, Backend)
+- **9 Agents** (Orchestrator, QA, Fix, Security Check, Code Review,
+  Chief of Staff, Deep Research, Frontend, Backend)
 - **3 Services** (Evolve, Eval/Telemetry, Deploy)
 - **Routines** at the framework plane: R1 (PR test) and R4 (security
   scan). See `routines/README.md`.

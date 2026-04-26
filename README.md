@@ -424,5 +424,5 @@ covered by this license.
 
 ---
 
-*Agentic Workforce Framework — originated by Ramesh Ayyagari <ramesh@ignitevibesolutions.com> (https://github.com/rayyagari2-create), 2026*
+*Agentic Workforce Framework — originated by Ramesh Ayyagari (https://github.com/rayyagari2-create), 2026*
 *First public release: 2026*

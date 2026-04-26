@@ -14,9 +14,11 @@ gates what models are permitted to do.
 Two architectural observations made that framing wrong:
 
 1. **Runtime policy enforcement already exists at the infrastructure layer.**
-   Microsoft AGT (MIT, April 2026) provides deterministic, sub-millisecond policy
-   enforcement with 0.00% bypass, zero-trust agent identity, sandboxing, OWASP
-   coverage, and an append-only cryptographically chained audit trail. It answers
+   Runtime policy layers such as AGT can provide deterministic
+   policy enforcement, zero-trust agent identity, sandboxing,
+   and security test coverage. Specific enforcement guarantees
+   should be validated against the provider's current
+   documentation before adoption. It answers
    *what agents are permitted to do.* A second framework that restates the same
    question adds no value.
 

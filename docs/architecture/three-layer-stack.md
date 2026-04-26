@@ -29,7 +29,7 @@ accountability layer is the framework you are reading.
 The runtime governance layer answers the question: *what is this agent
 permitted to do right now, in this call, with these inputs?*
 
-It enforces identity, policy, and sandboxing at sub-millisecond
+It enforces identity, policy, and sandboxing at
 latency, deterministically, with no model inference in the hot path.
 It produces an append-only, cryptographically chained audit log of
 every permission check.
@@ -38,12 +38,18 @@ every permission check.
 MIT-licensed). AGT provides:
 
 - DID-based agent identity with Ed25519 cryptographic signing.
-- Sub-millisecond deterministic policy enforcement, 0.00% bypass rate.
+- Deterministic policy enforcement with near-zero bypass rate.
 - Five-level execution sandboxing.
-- OWASP top-10 coverage with 9,500+ tests.
+- Extensive security test coverage including OWASP top-10 scenarios.
 - Append-only audit trail, cryptographically chained.
 - Protocol bridges (A2A, MCP, IATP).
 - Control evidence supporting EU AI Act, NIST AI RMF, HIPAA, SOC 2.
+
+> Note: Specific performance claims about AGT or any runtime
+> policy layer should be validated against the provider's
+> current documentation before adoption. Claims in this
+> document reflect the reference implementation's experience
+> and are not independently audited.
 
 **Operating modes:**
 

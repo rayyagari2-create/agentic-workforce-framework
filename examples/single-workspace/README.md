@@ -16,7 +16,7 @@ This example is for teams who have committed to the framework and are ready to i
 | File locks | Path-qualified advisory lock pattern | Live |
 | Postgres governance schema | `001_audit_log` through `005_routine_runs` from `database/governance/` | Schema live, data migration in progress |
 | OS-level hooks | 13 PreToolUse / PostToolUse hooks. exit(2) blocks. Fail closed. | Live |
-| Manual D1-D4 trust scoring | Per-session, per-agent, evidence per dimension | Live, 15+ sessions |
+| Manual D1-D4 trust scoring | Per-session, per-agent, evidence per dimension | Live, 50+ sessions in reference implementation |
 | FailureRecord lifecycle | Schema-validated. Pre-task retrieval. Three-tag close. | Live |
 | Pre-spawn protocol | STEP 1 risk classification, STEP 2 manifest creation, STEP 3 spawn or escalate | Live |
 | Build state machine | DEBUG → SPEC → PLAN → BUILD → QA → COMPLETE | Live |
