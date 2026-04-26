@@ -1,0 +1,36 @@
+{
+  "failureId": "FAIL-2026-04-25-001",
+  "timestamp": "2026-04-25T10:42:11Z",
+  "domain": "checkout",
+  "agentsInvolved": ["fix-agent", "qa-agent"],
+  "files": [
+    "src/components/PricingTotal.tsx",
+    "src/lib/pricing/computeTotal.ts"
+  ],
+  "symptom": "Pricing total renders as 'NaN' when a coupon with a null discount is applied at checkout.",
+  "rootCause": "computeTotal subtracts discount without null-check; null minus number yields NaN, which is then rendered directly.",
+  "failureClass": "render_error",
+  "severity": "P1",
+  "userImpact": "Checkout total displays as 'NaN' for ~3% of carts using legacy coupons; users abandon at the payment step.",
+  "detectionSource": "qa_agent",
+  "recommendedPrevention": "Validate discount as number at computeTotal boundary; add unit test for null-discount path.",
+  "regressionTestAdded": true,
+  "preventionArtifacts": [
+    {
+      "type": "regression_test",
+      "location": "tests/pricing/computeTotal.null-discount.test.ts",
+      "description": "Asserts that computeTotal returns the unmodified subtotal when discount is null."
+    },
+    {
+      "type": "schema_validation",
+      "location": "src/lib/pricing/discount.schema.ts",
+      "description": "Rejects null discount at the API boundary so it cannot reach computeTotal."
+    }
+  ],
+  "recurrenceCount": 2,
+  "repeatOfFailureIds": ["FAIL-2026-03-12-007"],
+  "status": "resolved",
+  "rootCauseConfirmed": true,
+  "fixTag": "hotfix-plus-prevention",
+  "correlationId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7"
+}

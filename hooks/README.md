@@ -114,22 +114,54 @@ includes sanitized examples of the core agent spawn control pattern.
 
 ```
 hooks/
-├── README.md                  ← this file
+├── README.md
+├── claude-code-settings.example.json
+├── claude-code-settings-README.md
 ├── pre-tool-use/
-│   ├── README.md              ← PreToolUse contract
-│   ├── check-bulletin.example.js
-│   ├── check-lock.example.js
-│   ├── check-locked-states.example.js
-│   ├── check-agent-spawn.example.js
-│   ├── check-failure-lib.example.js
-│   └── check-bulletin-order.example.js
+│   ├── README.md
+│   ├── check-agent-spawn.example.js      ← Claude Code native
+│   ├── check-bulletin-order.example.js   ← Framework-enriched
+│   ├── check-bulletin.example.js         ← Framework-enriched
+│   ├── check-failure-lib.example.js      ← Framework-enriched
+│   ├── check-lock.example.js             ← Framework-enriched
+│   └── check-locked-states.example.js    ← Framework-enriched
+├── sub-agent-start/
+│   ├── check-subagent-start.example.js   ← Claude Code native
+│   └── (README if exists)
 ├── post-tool-use/
-│   ├── README.md              ← PostToolUse contract
-│   └── audit-write.example.js
+│   ├── README.md
+│   ├── audit-write.example.js            ← Framework-enriched
+│   └── check-agent-spawn-result.example.js ← Claude Code native
 └── utils/
-    ├── override-pattern.example.js
-    └── fail-closed-template.example.js
+    ├── fail-closed-template.example.js
+    ├── normalize-claude-code-payload.example.js
+    └── override-pattern.example.js
 ```
+
+---
+
+## Claude Code Native vs Framework-Enriched Hooks
+
+Claude Code native hooks work with the standard Claude Code
+PreToolUse payload shape out of the box. No enrichment required.
+
+Framework-enriched hooks require additional context fields
+(agent_id, agent_depth, session_reads, etc.) that Claude Code
+does not provide by default. These hooks need a payload
+enrichment layer before use. See the warning block at the top
+of each enriched hook file.
+
+| Hook | Category |
+|---|---|
+| check-agent-spawn.example.js | Claude Code native |
+| check-subagent-start.example.js | Claude Code native |
+| check-agent-spawn-result.example.js | Claude Code native |
+| audit-write.example.js | Framework-enriched |
+| check-bulletin.example.js | Framework-enriched |
+| check-bulletin-order.example.js | Framework-enriched |
+| check-failure-lib.example.js | Framework-enriched |
+| check-lock.example.js | Framework-enriched |
+| check-locked-states.example.js | Framework-enriched |
 
 ---
 

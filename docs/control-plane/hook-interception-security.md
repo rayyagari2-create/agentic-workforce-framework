@@ -45,10 +45,44 @@ Before any spawn is authorized, the manifest must pass:
 - `issuedAt` is within the manifest TTL (30 minutes recommended)
 - file path is normalized and within the expected manifests directory
 - JSON schema validation passes (AJV against manifest schema)
-- `subagent_type` is in the allowed roster
+- `agent_role` is in the allowed roster
 - `taskId` is non-guessable (ULID or session-scoped identifier)
 
 If any check fails: `exit(2)`. Block the spawn.
+
+### Dual freshness gate: mtime + issuedAt
+
+The hook validates manifest freshness through two independent checks.
+
+**Primary freshness gate: file mtime must be <= 60 seconds old.**
+This is filesystem evidence — external to the JSON payload and
+harder to spoof. An attacker can copy sidecar JSON with a
+manipulated `issuedAt`; they cannot fake the file mtime without
+write access to the filesystem.
+
+**Secondary freshness gate: `issuedAt` within configured TTL**
+(default 30 minutes). This provides a longer window that
+survives system clock skew and slow orchestrator operations.
+
+Both checks must pass. A sidecar that passes `issuedAt` but fails
+mtime is a replay candidate. A sidecar that passes mtime but
+has an invalid `issuedAt` is malformed.
+
+### subagent_type / agent_role model
+
+Claude Code runtime `subagent_type` is always `"general-purpose"`
+for all agent spawns via the Agent tool. This is the runtime
+harness type — it does not identify which agent is spawning.
+
+Framework agent identity lives in two places:
+
+1. `manifest.agent_role` — the sidecar field validated by the hook
+2. The allow list in `claude-code-settings` — grants permission to
+   `Agent(general-purpose)`, not to individual named agents
+
+The hook validates `manifest.agent_role` against the allowed
+roster. Never attempt to derive agent identity from
+`tool_input.subagent_type`.
 
 ### Fail closed for missing or invalid manifests
 
@@ -58,6 +92,25 @@ If the manifest schema validation fails: block.
 If the manifest is stale: block.
 
 The only path to `exit(0)` is full validation success.
+
+## Audit Failure Policy
+
+The hook layer distinguishes between DENY and ALLOW decisions
+when audit writes fail:
+
+**DENY decisions**: the block stands regardless of audit failure.
+The spawn does not proceed. Audit failure is logged to stderr
+so operators know the audit trail has a gap.
+
+**ALLOW decisions**: the spawn proceeds. Audit failure is logged
+to stderr. Do not block legitimate approved spawns because
+the audit bridge is unavailable — that turns every audit
+outage into a denial-of-service attack on the agent workforce.
+
+The audit trail is critical. But operational continuity for
+approved spawns takes precedence over audit completeness.
+If audit failures are frequent, treat it as an infrastructure
+incident, not a governance gap.
 
 ### Fail closed for HIGH and CRITICAL risk tasks
 

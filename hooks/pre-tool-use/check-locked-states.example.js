@@ -16,6 +16,34 @@
  *   blocked because matching was done on basename, not full path.
  */
 
+// ⚠️  FRAMEWORK-ENRICHED HOOK
+// ──────────────────────────────────────────────────────────────
+// This hook requires context fields that Claude Code does NOT
+// provide by default in its PreToolUse payload:
+//
+//   context.agent_id
+//   context.agent_depth
+//   context.session_reads
+//   context.acquired_locks
+//   context.task
+//
+// Claude Code's verified PreToolUse payload shape is:
+//   { session_id, transcript_path, cwd, permission_mode,
+//     hook_event_name, tool_name, tool_input, tool_use_id }
+//
+// To use this hook with Claude Code, you must enrich the payload
+// using hooks/utils/normalize-claude-code-payload.example.js
+// and a sidecar manifest that carries the missing context.
+//
+// Without enrichment: this hook will fail closed immediately
+// because the expected context fields do not exist.
+//
+// Claude Code native hooks (no enrichment required):
+//   hooks/pre-tool-use/check-agent-spawn.example.js
+//   hooks/sub-agent-start/check-subagent-start.example.js
+//   hooks/post-tool-use/check-agent-spawn-result.example.js
+// ──────────────────────────────────────────────────────────────
+
 const fs = require("fs");
 const path = require("path");
 

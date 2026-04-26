@@ -281,18 +281,26 @@ Step 2b — Retrieve the current runtime session_id via Bash:
 Step 3 — Write {path/to/manifests}/<taskId>.json via Write tool, using
          the retrieved session_id from Step 2b (not a generated UUID):
   {
-    "taskId":       "<taskId matching your AgentTaskManifest>",
-    "session_id":   "<session_id from Step 2b, or 'session-id-unavailable'>",
-    "subagent_type": "<one of your roster's role labels>",
-    "riskLevel":    "<low | medium | high | critical — must match manifest>",
-    "domains":      ["<exact/file/path/1>", "<exact/file/path/2>"],
-    "riskClass":    "<fine-grained class, e.g. backend-governance |
-                     frontend-ui | contracts-schema | content-copy>",
-    "hitlApproved": <true if riskLevel=high+ and founder confirmed; false otherwise>,
-    "issuedAt":     "<ISO 8601 timestamp>",
-    "promptHash":   "<64-char hex from Step 2>",
-    "tool_use_id":  null
+    "taskId":                "<taskId matching your AgentTaskManifest>",
+    "session_id":            "<session_id from Step 2b, or 'session-id-unavailable'>",
+    "runtime_subagent_type": "general-purpose",
+    "agent_role":            "<one of your roster's role labels>",
+    "riskLevel":             "<low | medium | high | critical — must match manifest>",
+    "domains":               ["<exact/file/path/1>", "<exact/file/path/2>"],
+    "riskClass":             "<fine-grained class, e.g. backend-governance |
+                              frontend-ui | contracts-schema | content-copy>",
+    "hitlApproved":          <true if riskLevel=high+ and founder confirmed; false otherwise>,
+    "issuedAt":              "<ISO 8601 timestamp>",
+    "promptHash":             "<64-char hex from Step 2>",
+    "tool_use_id":           null
   }
+
+  Two-field identity model:
+  - runtime_subagent_type is always the literal string "general-purpose".
+    This is the Claude Code API value passed to the Task tool — it is
+    NOT the agent's role. Always write "general-purpose" verbatim.
+  - agent_role is the framework identity the hook validates against
+    its allowed roster. Use one of your project's role labels here.
 
   NOTE: If session_id cannot be retrieved from the runtime environment,
   the mtime freshness check (manifest must be under 60 seconds old)

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/check-agent-spawn.js"
+            "command": "node .claude/hooks/pre-tool-use/check-agent-spawn.js"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/check-subagent-start.js"
+            "command": "node .claude/hooks/sub-agent-start/check-subagent-start.js"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/hooks/check-agent-spawn-result.js"
+            "command": "node .claude/hooks/post-tool-use/check-agent-spawn-result.js"
           }
         ]
       }
@@ -36,11 +36,7 @@
   },
   "permissions": {
     "allow": [
-      "Agent([ORCHESTRATOR_AGENT])",
-      "Agent([SERVER_AGENT])",
-      "Agent([FRONTEND_AGENT])",
-      "Agent([QA_AGENT])",
-      "Agent([FIX_AGENT])"
+      "Agent(general-purpose)"
     ],
     "deny": [
       "Agent(Explore)",

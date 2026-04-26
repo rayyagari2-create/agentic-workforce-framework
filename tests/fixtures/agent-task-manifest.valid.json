@@ -1,0 +1,31 @@
+{
+  "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "taskType": "bug",
+  "taskDescription": "Fix NaN render in pricing total when discount is null.",
+  "domains": ["frontend", "checkout"],
+  "riskLevel": "medium",
+  "interfacesTouched": [
+    "src/components/PricingTotal.tsx",
+    "src/lib/pricing/computeTotal.ts"
+  ],
+  "contractsReferenced": [
+    "contracts/pricing.contract.md"
+  ],
+  "verificationRequired": [
+    "unit_test",
+    "qa_agent_review"
+  ],
+  "blockingDependencies": null,
+  "priorFailureContext": [
+    {
+      "failureId": "FAIL-2026-03-12-007",
+      "preventionCheck": "Reject null discount upstream; never coerce to NaN at render."
+    }
+  ],
+  "evalPlan": "Run pricing eval suite (12 scenarios) and verify zero NaN renders across all discount permutations.",
+  "assignedAgent": "fix-agent",
+  "createdAt": "2026-04-25T10:15:30Z",
+  "completedAt": null,
+  "result": null,
+  "correlationId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7"
+}

@@ -1,0 +1,32 @@
+{
+  "agentId": "fix-agent",
+  "domain": "checkout",
+  "trustTier": "STANDARD",
+  "sessionScore": {
+    "d1": 22,
+    "d1Evidence": "All 12 pricing eval scenarios pass; null-discount regression test added and green.",
+    "d2": 23,
+    "d2Evidence": "Full event chain emitted to agent_events with correlationId; no telemetry gaps observed.",
+    "d3": 25,
+    "d3Evidence": "No hook bypass, no unauthorized commits; all writes within declared interfacesTouched.",
+    "d4": 18,
+    "d4Evidence": "Repeat of FAIL-2026-03-12-007 — prior prevention artifact was missing; this fix adds the missing guard.",
+    "total": 88
+  },
+  "dimensions": {
+    "correctness": 0.92,
+    "repeatDefectRate": 0.08,
+    "falseCompletionRate": 0.04,
+    "catchEffectiveness": 0.71,
+    "policyCompliance": 1.0,
+    "contractStability": 0.97,
+    "recoveryEffectiveness": 0.85,
+    "regressionRecurrence": 0.06
+  },
+  "totalRuns": 47,
+  "nSessions": 23,
+  "confidenceBand": "HIGH",
+  "recencyWeight": 1.0,
+  "lastUpdated": "2026-04-25T10:42:11Z",
+  "notes": "Trust adjustment from QAVerdict 01HW2YB7P0C1Z5T1L4M0D6S9SK: D4 down on repeat defect."
+}

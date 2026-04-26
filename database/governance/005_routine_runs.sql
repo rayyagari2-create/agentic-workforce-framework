@@ -199,7 +199,7 @@ COMMENT ON COLUMN awf_governance.routine_runs.context_payload IS
 --     'PR #1247',
 --     '{"head_sha":"abcd1234","base":"main","branch":"claude/fix-login"}'::jsonb,
 --     'success',
---     'github-app:agentforce-bot',
+--     'github-app:automation-bot',
 --     '01HJ8M00000000000000000000'
 -- );
 --

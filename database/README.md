@@ -18,7 +18,18 @@ governance tables exist and emit audit events through them.
 The governance migrations are numbered and must run in order. Each file is
 idempotent (`CREATE ... IF NOT EXISTS`) and can be rerun safely.
 
+Run governance migrations in this order:
+1. `000_bootstrap.sql` — schema and extensions (run first, always)
+2. `001_audit_log.sql`
+3. `002_agent_events.sql`
+4. `003_trust_scores.sql`
+5. `004_failure_records.sql`
+6. `005_routine_runs.sql`
+7. `999_enable_rls.example.sql` — optional, run after validating
+   the above migrations in your environment
+
 ```bash
+psql "$DATABASE_URL" -f database/governance/000_bootstrap.sql
 psql "$DATABASE_URL" -f database/governance/001_audit_log.sql
 psql "$DATABASE_URL" -f database/governance/002_agent_events.sql
 psql "$DATABASE_URL" -f database/governance/003_trust_scores.sql

@@ -3,8 +3,10 @@
 
 // USAGE
 // ─────
-// 1. Copy to .claude/hooks/check-subagent-start.js
-//    (remove the .example suffix).
+// 1. Copy to .claude/hooks/sub-agent-start/check-subagent-start.js
+//    (remove the .example suffix). The subdirectory matters —
+//    Claude Code wires this hook via the SubagentStart matcher
+//    pointing at this exact path.
 //
 // 2. Configure MANIFEST_DIR to point to your manifests folder.
 //
@@ -40,7 +42,14 @@
 const fs   = require('fs');
 const path = require('path');
 
-const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
+// AWF_PROJECT_ROOT: set this environment variable to your repo
+// root if the hook install path does not resolve correctly
+// via process.cwd(). Example:
+//   AWF_PROJECT_ROOT=/path/to/your/repo node .claude/hooks/...
+// Defaults to process.cwd() which works when Claude Code runs
+// from the repo root (the standard configuration).
+const PROJECT_ROOT = process.env.AWF_PROJECT_ROOT
+  || process.cwd();
 const MANIFEST_DIR = path.join(PROJECT_ROOT, '{path/to/manifests}');
 const HOOK_MODE    = (process.env.HOOK_MODE || 'shadow').toLowerCase();
 

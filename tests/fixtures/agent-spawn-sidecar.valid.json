@@ -1,0 +1,13 @@
+{
+  "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "session_id": "abc-123-runtime-session",
+  "runtime_subagent_type": "general-purpose",
+  "agent_role": "fix-agent",
+  "riskLevel": "medium",
+  "riskClass": "frontend-ui",
+  "domains": ["frontend", "checkout"],
+  "hitlApproved": false,
+  "issuedAt": "2026-04-25T10:15:30Z",
+  "promptHash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+  "tool_use_id": null
+}

@@ -1,0 +1,30 @@
+{
+  "verdictId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "qaDecision": "pass_with_notes",
+  "defectClass": "render_error",
+  "novelty": "repeat",
+  "repeatReferenceIds": [
+    "FAIL-2026-03-12-007"
+  ],
+  "findings": [
+    {
+      "category": "missing_validation",
+      "description": "Discount field is coerced to NaN when null is passed; root cause fixed but no upstream guard added.",
+      "severity": "minor",
+      "file": "src/lib/pricing/computeTotal.ts",
+      "lineRange": "42-58"
+    }
+  ],
+  "recommendedPreventionArtifact": "regression_test at tests/pricing/computeTotal.null-discount.test.ts",
+  "missingEval": "No eval scenario covers the null-discount permutation.",
+  "recommendedEscalation": "fix-agent",
+  "trustScoreDelta": {
+    "agentId": "fix-agent",
+    "dimension": "repeatDefectRate",
+    "direction": "decrement",
+    "reason": "Repeat of FAIL-2026-03-12-007 — prevention artifact was not added on first fix."
+  },
+  "timestamp": "2026-04-25T10:42:11Z",
+  "correlationId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7"
+}

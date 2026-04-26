@@ -19,6 +19,13 @@ deployment must produce and consume:
 | [`v1/qa-verdict.schema.json`](v1/qa-verdict.schema.json) | `QAVerdict` | Structured QA verdict with per-finding evidence and trust delta |
 | [`v1/failure-record.schema.json`](v1/failure-record.schema.json) | `FailureRecord` | 17-class taxonomy, recurrence count, prevention artifacts, agents involved |
 | [`v1/trust-score.schema.json`](v1/trust-score.schema.json) | `TrustScore` | D1-D4 session score plus 8-dimension continuous profile, trust tier, confidence band |
+| [AgentSpawnSidecar](v1/agent-spawn-sidecar.schema.json) | Hook-readable spawn authorization record. Written by the Orchestrator before Agent tool call. Validated by PreToolUse hook. The enforcement artifact for agent spawn governance. |
+
+> **Schema dependency:** The AgentSpawnSidecar schema is the
+> most security-critical schema in this repo. Every agent spawn
+> in enforce mode depends on a valid sidecar. The other four
+> schemas govern accountability artifacts (manifests, verdicts,
+> records, scores) that are produced during and after execution.
 
 ## Validation
 

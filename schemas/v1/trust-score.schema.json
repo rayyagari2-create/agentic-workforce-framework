@@ -39,7 +39,17 @@
     },
     "sessionScore": {
       "type": "object",
-      "required": ["d1", "d2", "d3", "d4", "total"],
+      "required": [
+        "d1",
+        "d1Evidence",
+        "d2",
+        "d2Evidence",
+        "d3",
+        "d3Evidence",
+        "d4",
+        "d4Evidence",
+        "total"
+      ],
       "properties": {
         "d1": {
           "type": "integer",
