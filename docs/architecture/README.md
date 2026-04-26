@@ -130,7 +130,7 @@ auditable later, even if the original participants are gone.
 - Diagrams in this directory use the public-safe four-plane block diagram. No
   product-specific names, supplier names, or private repo paths.
 - Status labels follow the convention used in the root README:
-  *Live*, *Wave 1*, *Wave 2*, *Designed (not yet field-proven)*.
+  Implemented, Experimental, Reference Pattern, Planned.
 - Architecture documents do not duplicate concept content. They reference
   `docs/concepts/` and `docs/control-plane/` instead.
 - Every architectural claim is labeled with implementation status. We do not

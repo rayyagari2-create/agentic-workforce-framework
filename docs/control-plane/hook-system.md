@@ -33,7 +33,7 @@ The agent runtime invokes hooks at two moments per tool call:
        ┌─────────────────┐
        │  PostToolUse hook│
        │   exit(0) →      │ ─────► result returned to agent
-       │   exit(2) →      │ ─────► result REJECTED; logged; agent receives error
+       │   exit(2) →      │ ─────► audit/verification failure surfaced; runtime behavior depends on hook runtime semantics
        └─────────────────┘
 ```
 
@@ -48,9 +48,17 @@ a commit attempt, a session-complete declaration) was accompanied by
 the required side effects (audit log entry, bulletin entry, QA
 verdict).
 
-Both can block. PreToolUse blocks an action before it happens;
-PostToolUse blocks a result from being returned and forces the agent
-to retry or escalate.
+PreToolUse can block. PostToolUse is observational.
+
+PostToolUse is an observation and verification surface. It runs
+after the tool call has completed, so it cannot prevent the tool
+action that already occurred. A PostToolUse hook may return a
+non-zero exit to surface an audit gap, missing side effect, or
+policy concern to the runtime and operator, but deployments must
+document how their runtime treats PostToolUse failures.
+
+PreToolUse is the enforcement point. PostToolUse is the
+verification and audit point.
 
 ---
 
