@@ -9,7 +9,7 @@ enterprise structures such as divisions, workspaces, audit logs and
 control planes.
 
 > Status: Production-informed reference architecture.
-> Current implementation: single-founder / single-workspace.
+> **Current implementation:** Single-workspace operating model with a five-agent reference team.
 > Evidence base: 50+ scored sessions in the reference implementation reporting period. Metrics are self-reported from the private reference implementation and have not been independently audited.
 > Enterprise scaling model: designed extension, not yet field-proven at multi-team scale.
 
