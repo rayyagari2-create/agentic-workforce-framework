@@ -70,6 +70,10 @@ signal that the retrieval step was skipped.
 The manifest is the contract. It conforms to
 [`schemas/v1/agent-task-manifest.schema.json`](../../schemas/v1/agent-task-manifest.schema.json):
 
+> Note: The following example uses human-readable IDs for
+> legibility. Production records must use ULIDs to conform
+> to the schema. Example ULID: 01HW2YA6NXBZ4S0K3K9C5R8RQ7
+
 ```json
 {
   "taskId": "TASK-2026-04-25-001",
@@ -139,11 +143,16 @@ validate a spawn. The Orchestrator writes the sidecar JSON to disk
 before calling the Agent tool. The hook resolves the path from the
 `[MANIFEST:TASK-...]` token in the spawn description.
 
+> Note: The following example uses human-readable IDs for
+> legibility. Production records must use ULIDs to conform
+> to the schema. Example ULID: 01HW2YA6NXBZ4S0K3K9C5R8RQ7
+
 ```json
 {
   "taskId": "TASK-2026-04-25-001",
   "session_id": "abc-123-session",
-  "subagent_type": "fix-agent",
+  "runtime_subagent_type": "general-purpose",
+  "agent_role": "fix-agent",
   "riskLevel": "medium",
   "domains": ["frontend", "checkout"],
   "riskClass": "frontend-ui",
@@ -256,6 +265,10 @@ The fix is complete in code; the framework requires the FailureRecord
 before close. It conforms to
 [`schemas/v1/failure-record.schema.json`](../../schemas/v1/failure-record.schema.json):
 
+> Note: The following example uses human-readable IDs for
+> legibility. Production records must use ULIDs to conform
+> to the schema. Example ULID: 01HW2YA6NXBZ4S0K3K9C5R8RQ7
+
 ```json
 {
   "failureId": "FAIL-2026-04-25-001",
@@ -313,6 +326,10 @@ The Orchestrator spawns QA-Agent with a manifest derived from the
 parent task. QA-Agent walks the three acceptance criteria from
 `evalPlan` and produces a verdict. It conforms to
 [`schemas/v1/qa-verdict.schema.json`](../../schemas/v1/qa-verdict.schema.json):
+
+> Note: The following example uses human-readable IDs for
+> legibility. Production records must use ULIDs to conform
+> to the schema. Example ULID: 01HW2YA6NXBZ4S0K3K9C5R8RQ7
 
 ```json
 {
@@ -382,6 +399,10 @@ At session close, the operator scores Fix Agent and QA Agent. Each
 score conforms to [`schemas/v1/trust-score.schema.json`](../../schemas/v1/trust-score.schema.json),
 with one line of evidence per dimension per the
 [D1-D4 rubric](../../calibration/d1-d4-rubric.md).
+
+> Note: The following example uses human-readable IDs for
+> legibility. Production records must use ULIDs to conform
+> to the schema. Example ULID: 01HW2YA6NXBZ4S0K3K9C5R8RQ7
 
 **Fix Agent:**
 
@@ -492,8 +513,8 @@ Every artifact produced by this session:
 
 | Artifact | Location | Purpose |
 |---|---|---|
-| AgentTaskManifest | `docs/manifests/TASK-2026-04-25-001.manifest.json` | Task contract |
-| Manifest sidecar | `docs/manifests/TASK-2026-04-25-001.sidecar.json` | Hook validation target |
+| AgentTaskManifest | `docs/manifests/TASK-2026-04-25-001.json` | Task contract |
+| Manifest sidecar | `docs/manifests/TASK-2026-04-25-001.json` | Hook validation target |
 | Audit log entry | `audit_log` table | Spawn authorization record; out-of-band proof the hook decided allow |
 | Agent bulletin | `docs/agent-bulletin.md` | Real-time state log; the trail D2 is scored against |
 | FailureRecord | `docs/failure-records/FAIL-2026-04-25-001.json` | Defect record and prevention artifacts; the recurrence-detection input for future sessions |
@@ -501,6 +522,11 @@ Every artifact produced by this session:
 | TrustScore — Fix Agent | `docs/agent-trust-scores.md` | Behavioral accountability over time |
 | TrustScore — QA Agent | `docs/agent-trust-scores.md` | Behavioral accountability over time |
 | Regression test | `tests/checkout-validation.test.js` | Prevention artifact; the codified guard against this specific recurrence |
+
+> The reference implementation uses a single file for both the
+> task manifest and the hook-readable sidecar. See the Manifest
+> and Sidecar Convention note earlier in this document for the
+> optional enterprise split-file pattern.
 
 ---
 

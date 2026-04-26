@@ -131,7 +131,7 @@ Per-agent D1-D4 with one line of evidence per dimension. No score without eviden
 |---|---|---|---|---|
 | FAIL-2026-04-12-001 | schema_violation | P2 | resolved | hotfix-plus-prevention |
 
-Full record: [`failure-records/FAIL-2026-04-12-001.md`](failure-records/FAIL-2026-04-12-001.md)
+Full record schema: [FailureRecord schema](../../schemas/v1/failure-record.schema.json)
 
 ---
 

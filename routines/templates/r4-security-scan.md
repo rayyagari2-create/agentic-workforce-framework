@@ -128,7 +128,7 @@ PR comment template (used on every run with findings):
 | MINOR    | dep-cve    | package.json          | -    | lodash@4.17.10 (CVE-...)       |
 | INFO     | unsafe     | scripts/build.js      | 17   | Dynamic require with literal   |
 
-[Full report (correlation_id={{correlation_id}})]({{report_url}})
+Full report (correlation_id={{correlation_id}}): `{{report_url}}`
 ```
 
 If no findings: a single-line `### Security scan clean` comment.

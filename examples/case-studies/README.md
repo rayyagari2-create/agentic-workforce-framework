@@ -58,7 +58,7 @@ This is the section the reader learns from. Be honest.
 - A tier promotion rule you had to weaken or strengthen
 - A failure class that did not match your domain
 
-If you cannot identify anything that did not work, the case study is too early. Wait until you have run 15+ scored sessions before submitting.
+If you cannot identify anything that did not work, the case study is too early. 15+ sessions is the minimum threshold before publishing a trust tier claim for a given agent role; wait until you have crossed that threshold before submitting.
 
 ### 6. What you would do differently
 
@@ -111,6 +111,6 @@ What the maintainers will not do:
 
 ## Why honest case studies matter
 
-The framework was built alongside one production reference implementation. It is informed by ~15 sessions of single-founder, single-workspace use. The enterprise scaling model is designed, not yet field-proven. Every case study from a different team configuration moves the framework from "production-informed" to "validated across multiple teams."
+The framework was built alongside one production reference implementation. It is informed by 50+ scored sessions in the reference implementation reporting period of single-founder, single-workspace use. The enterprise scaling model is designed, not yet field-proven. Every case study from a different team configuration moves the framework from "production-informed" to "validated across multiple teams."
 
 A case study where everything went well is less useful to the next reader than a case study where one part broke and you wrote down why. The next reader will face the same break. Your write-up shortens their loop.

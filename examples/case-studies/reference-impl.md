@@ -10,7 +10,7 @@ single-founder, single-workspace operation.
 ## Context
 
 **Team size:** 1 founder (operator and reviewer), 5 AI agents
-**Domain:** AI-powered consumer product (family travel planning — a generic description; no product specifics in this case study)
+**Domain:** AI-powered consumer product (AI-powered consumer planning — a generic description; no product specifics in this case study)
 **Product stage:** pre-launch
 **Prior AI tooling experience:** extensive — the framework was built alongside the product, not adopted from outside
 **Adoption start date:** 2026-03
@@ -28,8 +28,8 @@ destroys product quality). Governance was the third option: define
 the contract structure, score behavior consistently, retrieve prior
 failures before each task, and let the agents self-report through a
 bulletin so verification can happen at the right level of detail.
-Family travel content — nap schedules, age-aware recommendations,
-payment flows for families with children — has very low tolerance for
+Consumer planning content — household-specific scheduling constraints, constraint-sensitive recommendations,
+payment flows with household-specific eligibility rules — has very low tolerance for
 error, which made the discipline non-optional from session one.
 
 ---
@@ -106,9 +106,9 @@ manifest discipline.
 auto-promotion to `systemic-refactor-required`, rather than the
 framework default of `>= 3`.
 
-**Why:** the product domain is family travel planning. Repeat
-failures in payment flows, entitlement checks, age-aware content
-filtering, and nap-schedule logic carry user-visible cost on the
+**Why:** the product domain is consumer planning. Repeat
+failures in payment flows, entitlement checks, constraint-sensitive content
+filtering, and household-specific scheduling constraints logic carry user-visible cost on the
 first repeat — there is no second-strike grace period. The framework
 default `>= 3` is appropriate for domains where a third occurrence is
 the signal that prevention has failed; in this domain, the second
@@ -231,9 +231,7 @@ inconsistent — some sessions enforced the full protocol, some skipped
 DEBUG and SPEC because the defect was already known. The variance
 showed up as D3 scoring drift in the ledger (some 25/25 D3 scores on
 sessions that skipped two states; some 22/25 D3 scores on identical
-sessions where the reviewer noticed the skip). Inconsistent protocol
-compliance produces inconsistent D3 scores and erodes trust in the
-scoring system itself.
+sessions where the reviewer noticed the skip).
 
 **What we did instead:** streamlined path for LOW-risk tasks — SPEC
 → SPAWN → QA → COMPLETE. The full state machine runs for MEDIUM and

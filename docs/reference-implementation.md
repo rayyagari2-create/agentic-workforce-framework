@@ -64,7 +64,7 @@ Honest accounting. No mixing of current state with target state.
 | Capability | Status |
 |---|---|
 | Single-workspace orchestrator model | Implemented. Running in private reference implementation. |
-| D1-D4 trust scoring | Implemented. Manual scoring with evidence line per dimension. 15+ sessions completed. |
+| D1-D4 trust scoring | Implemented. Manual scoring with evidence line per dimension. 50+ scored sessions in the reference implementation reporting period. |
 | Failure memory | Implemented. File-based, 17-class taxonomy. Recurrence detection working multiple recurrence escalations have fired and produced fixes. |
 | Hook enforcement | Implemented. Local runtime. 13 hooks across pre-tool-use and post-tool-use boundaries. Fail-closed by default. |
 | AGT-style runtime policy adapter | Experimental. Shadow-mode adapter intercepts and logs but does not yet block. Enforcement-mode promotion is pending shadow validation. |

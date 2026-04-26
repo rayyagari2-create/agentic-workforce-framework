@@ -10,6 +10,7 @@ control planes.
 
 > Status: Production-informed reference architecture.
 > Current implementation: single-founder / single-workspace.
+> Evidence base: 50+ scored sessions in the reference implementation reporting period.
 > Enterprise scaling model: designed extension, not yet field-proven at multi-team scale.
 
 ---
@@ -98,6 +99,26 @@ How this relates to other layers:
 | Model provider layer | What the model produces: output quality, safety |
 
 These three layers are complementary. None replaces the other.
+
+---
+
+## Current Limitations
+
+- Single-workspace reference implementation only. Multi-workspace
+  enterprise scaling is Reference Pattern, not field-proven.
+- Manual D1-D4 scoring is the current implementation. Automated
+  trust scoring is Planned.
+- Hook examples require environment-specific adaptation.
+  Claude Code native hooks work out of the box. Framework-enriched
+  hooks require payload enrichment before use in Claude Code.
+- Runtime policy layer (AGT integration) is Experimental —
+  shadow mode in the reference implementation.
+- Claude Code does not provide framework-enriched context fields
+  (agent_id, agent_depth, session_reads) by default. These must
+  be derived from sidecar manifests or runtime state files.
+- Postgres governance schema is live with schema and constraints
+  in place. Data migration from file-based governance is in
+  progress in the reference implementation.
 
 ---
 
@@ -240,7 +261,7 @@ row uses the four-label legend defined above.
 | Single-workspace orchestrator model | Implemented |
 | D1-D4 trust scoring | Implemented |
 | Failure memory | Implemented |
-| Hook enforcement | Implemented |
+| Hook enforcement | Implemented in reference implementation; public repo ships sanitized hook templates |
 | AGT integration | Experimental |
 | Postgres governance schema | Experimental |
 | R1 PR test routine | Planned |
@@ -402,5 +423,5 @@ covered by this license.
 
 ---
 
-*Agentic Workforce Framework, production-informed from a private reference implementation*
+*Agentic Workforce Framework — originated by Ramesh Ayyagari <ramesh@ignitevibesolutions.com> (https://github.com/rayyagari2-create), 2026*
 *First public release: 2026*
