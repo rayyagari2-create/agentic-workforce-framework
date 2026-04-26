@@ -125,7 +125,7 @@ Integrity**, with auxiliary contribution to **Confidentiality**.
 
 | Criterion | Control Plane Contribution |
 |---|---|
-| A1.2 Environmental protections, software, data backup | Audit log append-only with point-in-time recovery (database tier); cryptographic chaining (Wave 1+) |
+| A1.2 Environmental protections, software, data backup | Audit log append-only with point-in-time recovery (database tier); cryptographic chaining (Experimental) |
 | A1.3 Recovery testing | Recovery protocols defined per failure mode in `meta-governance.md` |
 
 ### Processing Integrity
@@ -182,7 +182,7 @@ Safeguards** and the **Audit Controls** technical safeguard.
 
 | Standard | Control Plane Contribution |
 |---|---|
-| § 164.312(b) Audit controls | Append-only audit log with cryptographic signing (Wave 1+); correlation-ID threading enables reconstruction |
+| § 164.312(b) Audit controls | Append-only audit log with cryptographic signing (Experimental); correlation-ID threading enables reconstruction |
 | § 164.312(c)(1) Integrity (ePHI alteration/destruction) | Operational lifecycle mutability rule + audit before/after capture provides evidence of every mutation |
 | § 164.312(d) Person or entity authentication | AGT DID for agent identity; `actor_id` on every audit entry note: this addresses agent-actor authentication, not end-user authentication |
 
@@ -242,22 +242,22 @@ organization's compliance function, not the framework.
 
 ---
 
-## Wave Status of Compliance-Relevant Capabilities
+## Maturity Status of Compliance-Relevant Capabilities
 
 | Capability | Status | Notes |
 |---|---|---|
-| Audit trail (file-based) | LIVE | Git history is recovery path |
-| Audit trail (database, append-only) | Wave 2 | Cryptographic chaining; point-in-time recovery |
-| Trust scoring with evidence requirement | LIVE | Manual scoring; automated nightly routine in Wave 3+ |
-| HITL gates | LIVE (single-workspace) / Wave 3+ (chains) | Gate chains and delegation TTL are enterprise-scale extensions |
-| Hook layer | LIVE | OS-level enforcement, fail-closed |
-| Runtime policy SDK adapter | LIVE shadow / Wave 1 enforcement | Provides upstream evidence (sub-ms enforcement; OWASP coverage) |
-| Persistent agent identity + DID | Wave 1 | Identity persists across workspaces |
-| Approval gate chains | Wave 3+ | Multi-authority delegation chains |
-| Routine-based scheduled monitoring | Wave 1 | PR scans; alert triage |
+| Audit trail (file-based) | Implemented | Git history is recovery path |
+| Audit trail (database, append-only) | Reference Pattern | Cryptographic chaining; point-in-time recovery |
+| Trust scoring with evidence requirement | Implemented | Manual scoring; automated nightly routine Planned |
+| HITL gates | Implemented (single-workspace) / Planned (chains) | Gate chains and delegation TTL are enterprise-scale extensions |
+| Hook layer | Implemented | OS-level enforcement, fail-closed |
+| Runtime policy SDK adapter | Implemented (shadow) / Experimental (enforcement) | Provides upstream policy-enforcement evidence; performance and OWASP coverage claims should be validated against the runtime provider's current documentation. |
+| Persistent agent identity + DID | Experimental | Identity persists across workspaces |
+| Approval gate chains | Planned | Multi-authority delegation chains |
+| Routine-based scheduled monitoring | Experimental | PR scans; alert triage |
 
 The maturity gradient matters for compliance evidence: capabilities
-labeled `Wave 3+` are designed but not field-proven. A compliance
+labeled `Planned` are designed but not field-proven. A compliance
 assessment must reflect actual implementation maturity, not the
 designed end state.
 

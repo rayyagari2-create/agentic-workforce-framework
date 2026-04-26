@@ -54,6 +54,18 @@ This is the **fail-closed default**. If the hook crashes, cannot read its
 inputs, or hits an unexpected branch, the call is blocked. Hooks are the
 last line of defense silent failure here is worse than a false positive.
 
+**PreToolUse enforcement hooks** use exit(0) to allow and exit(2)
+to block. Any unexpected error should fail closed (exit(2)) in
+enforce mode. These hooks run before the tool call executes and
+can prevent it.
+
+**PostToolUse hooks are observational.** They run after the tool
+call has already completed and cannot prevent it. A PostToolUse
+audit hook may exit non-zero to surface an audit gap to the
+operator, but deployments should document how their runtime
+treats PostToolUse non-zero exits. Do not assume PostToolUse
+exit(2) blocks anything.
+
 ---
 
 ## When to use a hook vs runtime policy

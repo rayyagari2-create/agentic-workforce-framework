@@ -7,7 +7,8 @@ the design was iterated under outside scrutiny rather than written in
 isolation.
 
 Each entry below is a concern (Cn), the response, and the
-implementation status (LIVE, WAVE 1, WAVE 2, WAVE 3+, or Acknowledged).
+implementation status (Implemented, Experimental, Reference Pattern,
+Planned, or Accepted Trade-off).
 
 ---
 
@@ -15,11 +16,11 @@ implementation status (LIVE, WAVE 1, WAVE 2, WAVE 3+, or Acknowledged).
 
 | Symbol | Meaning |
 |---|---|
-| 🟢 LIVE | Resolved and running today |
-| 🔵 WAVE 1 | Resolution scheduled for Wave 1 |
-| 🟣 WAVE 2 | Resolution scheduled for Wave 2 |
-| ⚪ WAVE 3+ | Resolution scheduled for Wave 3+ |
-| 🟢 Acknowledged | Concern accepted; framework documents the trade-off |
+| 🟢 Implemented | Resolved and running today |
+| 🔵 Experimental | Resolved with an early implementation in field use |
+| 🟣 Reference Pattern | Designed and documented; not yet field-proven |
+| ⚪ Planned | Resolution scheduled for future work |
+| 🟢 Accepted Trade-off | Concern accepted; framework documents the trade-off |
 
 ---
 
@@ -37,7 +38,7 @@ trust score can see how much evidence backs it. Confidence bands are
 applied identically everywhere the framework does not paper over
 small-n with optimistic labeling.
 
-**Status:** 🔵 WAVE 1 metrics table grows each session.
+**Status:** 🔵 Experimental metrics table grows each session.
 
 ---
 
@@ -47,16 +48,16 @@ small-n with optimistic labeling.
 author carries execution risk. Bus factor of one is a credibility
 problem for a governance-focused project.
 
-**Response:** Acknowledged. The framework leans on Routines to
+**Response:** Accepted as a trade-off. The framework leans on Routines to
 accelerate the recurring work that does not require full agent
-governance. Wave scoping is ruthless: Wave 1 work is small and
+governance. Maturity scoping is ruthless: Experimental work is small and
 demonstrable, not aspirational. The enterprise scaling model
 (separate document) defines the path from single-operator to
 multi-team operation, including persistent agent identity, work
 queues, and approval gate chains designed extensions, not yet
 field-proven at multi-team scale.
 
-**Status:** 🟢 Acknowledged. The README maturity label states the
+**Status:** 🟢 Accepted Trade-off. The README maturity label states the
 single-operator current state explicitly.
 
 ---
@@ -72,7 +73,7 @@ studies before publication. Reference Implementation Status table is
 required in the public README and lists each capability's actual
 status, with no mixing of current and target state.
 
-**Status:** 🟣 WAVE 2 case studies + evidence table required at
+**Status:** ⚪ Planned case studies + evidence table required at
 publication.
 
 ---
@@ -92,7 +93,7 @@ false-positive blocking legitimate work) and the response for each.
 Recovery protocols for trust-tier degradation and governance data loss
 are documented.
 
-**Status:** 🔵 WAVE 1 see meta-governance section.
+**Status:** 🔵 Experimental see meta-governance section.
 
 ---
 
@@ -124,7 +125,7 @@ for the public README. It draws three lines:
 > model produces (model safety). These three layers are complementary.
 > None replaces the other.
 
-**Status:** 🟣 WAVE 2 verbatim statement is required in the public
+**Status:** ⚪ Planned verbatim statement is required in the public
 README.
 
 ---
@@ -150,14 +151,14 @@ goes wrong.
 components actually demonstrated in production. Publishing a wide
 roster on a narrow evidence base undermines credibility.
 
-**Response:** The public roster publishes only LIVE agents at launch,
+**Response:** The public roster publishes only Implemented agents at launch,
 with their accumulated trust history. Components that are designed but
-not yet deployed are labeled WAVE 1 / WAVE 2 / WAVE 3+ in the roster,
+not yet deployed are labeled Experimental / Reference Pattern / Planned in the roster,
 not promoted as live. No agent is published with a trust score unless
 it has at least 5 sessions of D1-D4 data the `PROVISIONAL` confidence
 band threshold.
 
-**Status:** 🟣 WAVE 2 roster discipline applied at publication.
+**Status:** ⚪ Planned roster discipline applied at publication.
 
 ---
 
@@ -172,17 +173,17 @@ the observers being calibrated.
 
 | Layer | Mechanism | Status |
 |---|---|---|
-| 1 | Evidence requirement one line per dimension | 🟢 LIVE |
-| 2 | Calibration anchor table (full rubric in `concepts/trust-scoring.md`) | 🟢 LIVE |
-| 3 | Automated scoring routine D1-D4 payload computed from QAVerdicts | ⚪ WAVE 3+ |
-| 4 | Cross-scorer calibration sessions (enterprise) | ⚪ WAVE 3+ |
-| 5 | Calibration committee 3+ scorers per high-stakes decision | ⚪ WAVE 3+ |
+| 1 | Evidence requirement one line per dimension | 🟢 Implemented |
+| 2 | Calibration anchor table (full rubric in `concepts/trust-scoring.md`) | 🟢 Implemented |
+| 3 | Automated scoring routine D1-D4 payload computed from QAVerdicts | ⚪ Planned |
+| 4 | Cross-scorer calibration sessions (enterprise) | ⚪ Planned |
+| 5 | Calibration committee 3+ scorers per high-stakes decision | ⚪ Planned |
 
 The first two layers ship in v1.0. The remaining three are the
-enterprise-scale calibration story and ship at Wave 3+.
+enterprise-scale calibration story and are Planned.
 
 **Status:** 🟢 Layers 1 + 2 implemented in the trust scoring spec.
-⚪ Layers 3-5 scheduled for Wave 3+.
+⚪ Layers 3-5 Planned.
 
 ---
 
@@ -198,7 +199,7 @@ failure-to-fix case studies concrete sessions where the framework
 detected a failure, attributed it to a class, applied the
 prevention artifact, and verified the failure did not recur.
 
-**Status:** 🟣 WAVE 2 case studies + trust evolution chart required
+**Status:** ⚪ Planned case studies + trust evolution chart required
 before publication.
 
 ---
@@ -213,8 +214,8 @@ A concern is added to this log when:
 2. The framework either implements a response or accepts the
    trade-off. Either outcome is documented.
 3. The status label is set per the legend. No concern is left at
-   "in progress" either there is a target wave or it is
-   acknowledged.
+   "in progress" either there is a target maturity status or it is
+   recorded as an Accepted Trade-off.
 
 Removing an entry from this log is not allowed. If a resolution turns
 out to be wrong, add a follow-up entry that supersedes it; do not
