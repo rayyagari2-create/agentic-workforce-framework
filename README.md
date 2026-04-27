@@ -8,10 +8,28 @@ governed by approval chains, evaluated over time and integrated into
 enterprise structures such as divisions, workspaces, audit logs and
 control planes.
 
-> Status: Production-informed reference architecture.
+> **Status:** Production-informed reference architecture.
 > **Current implementation:** Single-workspace operating model with a five-agent reference team.
-> Evidence base: 50+ scored sessions in the reference implementation reporting period. Metrics are self-reported from the private reference implementation and have not been independently audited.
-> Enterprise scaling model: designed extension, not yet field-proven at multi-team scale.
+> **Evidence base:** 50+ scored sessions in the reference implementation reporting period. Metrics are self-reported and have not been independently audited.
+> **Enterprise scaling model:** Designed extension, not yet field-proven at multi-team scale.
+
+---
+## Where this fits
+
+This repository is designed to be adapted, not installed.
+
+It is not an agent runtime, SDK, hosted product, or drop-in replacement for
+LangGraph, CrewAI, Claude Code, Microsoft Agent Governance Toolkit, or any
+other execution framework.
+
+Those tools help agents run.
+
+This framework defines the operating discipline around agent work: identity,
+task contracts, failure memory, behavioral trust scoring, escalation, approval
+gates and auditability.
+
+Most teams should adapt the concepts, schemas, controls and reference patterns
+to their own runtime, risk model and enterprise environment.
 
 ---
 
@@ -107,7 +125,7 @@ These three layers are complementary. None replaces the other.
 - Single-workspace reference implementation only. Multi-workspace
   enterprise scaling is Reference Pattern, not field-proven.
 - Manual D1-D4 scoring is the current implementation. Automated
-  trust scoring is Planned.
+  trust scoring is Planned. At enterprise scale, D1-D4 should be computed from structured QA verdicts, policy violations, audit events and failure recurrence data.
 - Hook examples require environment-specific adaptation.
   Claude Code native hooks work out of the box. Framework-enriched
   hooks require payload enrichment before use in Claude Code.
@@ -305,6 +323,7 @@ Top-level folders in this repository:
 ## Schemas
 
 Five JSON schemas ship with v1.0, all AJV Draft 2020-12 compatible.
+Implementations are expected to extend agent rosters, failure classes and domain-specific validation rules through versioned schema extensions rather than modifying adopted schemas silently.
 Schemas are versioned under `schemas/v1/`. Breaking changes require a new version path.
 
 | Schema | Purpose |
