@@ -6,6 +6,33 @@ This project adheres to semantic versioning for schemas and documentation. Break
 
 ---
 
+## [CLI v0.1.0] - 2026-04-28
+
+### Added
+
+- Published installable AWF CLI package: agentic-workforce-framework
+- Added awf init to scaffold framework artifacts into a target repo
+- Added awf check to validate starter framework setup
+- Added awf add <module> for modular installs
+- Added Claude Code scaffold support:
+  - agent templates
+  - hook examples
+  - settings example file
+- Added runtime-agnostic scaffold support for Cursor, Windsurf and Other
+- Added modules:
+  - five-agent-team
+  - trust-scoring
+  - failure-memory
+  - task-manifest
+  - claude-code-hooks
+
+### Notes
+
+The CLI does not run agents directly. It scaffolds the operating model
+around the user's chosen runtime.
+
+---
+
 ## [v1.0] 2026-04-24
 
 ### Added Initial public release

@@ -1,0 +1,39 @@
+{
+  "failureId": "FAIL-2026-04-25-001",
+  "timestamp": "2026-04-25T11:42:18Z",
+  "domain": "api_integration",
+  "agentsInvolved": [
+    "executor",
+    "qa-agent",
+    "fix-agent"
+  ],
+  "files": [
+    "src/api/orders.ts"
+  ],
+  "symptom": "Pagination endpoint returned an empty array instead of the next page when cursor pointed past the final record.",
+  "rootCause": "The query builder treated a missing cursor row as zero results and returned [] instead of null, causing the consumer to assume no more pages existed even when records remained.",
+  "failureClass": "api_contract_break",
+  "severity": "P1",
+  "userImpact": "Consumers of the orders endpoint stopped paginating early and missed records, resulting in incomplete data on downstream dashboards.",
+  "detectionSource": "qa_agent",
+  "recommendedPrevention": "Add a contract assertion that the endpoint always returns either a populated page with a next-cursor or null; add a regression test that exercises end-of-stream cursor behaviour.",
+  "regressionTestAdded": true,
+  "preventionArtifacts": [
+    {
+      "type": "regression_test",
+      "location": "tests/api/orders.pagination.test.ts",
+      "description": "Asserts end-of-stream returns next=null rather than an empty page."
+    },
+    {
+      "type": "schema_validation",
+      "location": "schemas/contracts/orders-response.schema.json",
+      "description": "Tightens the orders response shape so empty pages with non-null cursors fail validation."
+    }
+  ],
+  "recurrenceCount": 1,
+  "repeatOfFailureIds": [],
+  "status": "resolved",
+  "rootCauseConfirmed": true,
+  "fixTag": "hotfix-plus-prevention",
+  "correlationId": null
+}

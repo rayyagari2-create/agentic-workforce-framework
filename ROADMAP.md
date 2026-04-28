@@ -17,6 +17,65 @@ validated it, not on a fixed calendar.
 
 ---
 
+## v0.1.0 - AWF CLI
+
+First installable release of the Agentic Workforce Framework CLI.
+
+    npm install -g agentic-workforce-framework
+
+Commands:
+
+- awf init — scaffold the framework into any repo
+- awf add <module> — install a specific module
+- awf check — validate your setup
+
+Available modules:
+
+- five-agent-team — five agent instruction files
+- trust-scoring — D1-D4 rubric, calibration anchors, TrustScore schema
+- failure-memory — failure library, FailureRecord schema, example
+- task-manifest — AgentTaskManifest schema, sidecar schema, example
+- claude-code-hooks — hook examples and Claude Code settings example
+
+The CLI scaffolds the operating model around your chosen runtime.
+It does not run agents directly.
+
+---
+
+## CLI Roadmap
+
+### v0.1 - Current
+
+- awf init, awf check, awf add
+- Claude Code scaffold support
+- Runtime-agnostic scaffold support for Cursor, Windsurf and Other
+- Modular installs: five-agent-team, trust-scoring, failure-memory,
+  task-manifest, claude-code-hooks
+
+### v0.2 - Next
+
+- awf validate manifest
+- awf validate failure
+- awf validate trust
+- awf new manifest
+- awf new failure
+- Expanded schema fixture validation
+
+### v0.3 - Planned
+
+- awf score
+- Interactive D1-D4 scoring
+- TrustScore JSON generation
+- Calibration guardrails
+
+### v0.4 - Planned
+
+- Runtime adapter templates for LangGraph, CrewAI and OpenAI Agents SDK
+- Postgres scaffold option
+- CI validation examples
+
+---
+
 ## v1.0 - Reference Pattern
 
 Published reference architecture for governed autonomous
@@ -61,6 +120,9 @@ Expected additions:
 - Additional hook examples
 - Community case studies from early adopters
 - Expanded documentation for implementation teams
+- awf score command for interactive D1-D4 trust scoring
+- awf validate command for artifact schema validation
+- awf new manifest and awf new failure artifact creation commands
 
 ---
 

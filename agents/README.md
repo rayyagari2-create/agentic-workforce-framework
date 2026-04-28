@@ -1,5 +1,20 @@
 # agents/
 
+## Install with the AWF CLI
+
+The easiest way to scaffold the reference agent team into a repo:
+
+    npx agentic-workforce-framework@latest init
+
+Select Claude Code as the runtime and choose the five-agent-team
+module. The CLI installs the selected agent templates under
+.awf/agents/ and, when Claude Code is selected, also installs
+Claude-specific hook templates and a settings example file.
+
+The CLI does not make these agents production-ready automatically.
+Review and customize boundaries, file paths, security rules and
+handoff fields before first use.
+
 Reference implementations of the governed agents in the framework. Each
 file is a drop-in Claude Code slash command. They are the executable
 counterpart to the role specs in `docs/architecture/agent-roster.md`.
@@ -19,7 +34,7 @@ reasoning, governed) per `docs/architecture/agent-vs-service.md`. Each
 runs under the bulletin protocol, acquires file locks before writing,
 reads before writing, and writes a handoff on completion.
 
-## How to install into Claude Code
+## Manual install into Claude Code
 
 Copy the agent file into your repo's `.claude/commands/` directory:
 

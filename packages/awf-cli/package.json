@@ -1,0 +1,41 @@
+{
+  "name": "agentic-workforce-framework",
+  "version": "0.1.0",
+  "description": "CLI for scaffolding and validating Agentic Workforce Framework artifacts",
+  "type": "module",
+  "bin": {
+    "awf": "bin/awf.js"
+  },
+  "files": [
+    "bin/",
+    "cli/",
+    "lib/",
+    "templates/",
+    "README.md"
+  ],
+  "dependencies": {
+    "commander": "^12.0.0",
+    "inquirer": "^9.0.0",
+    "chalk": "^5.0.0",
+    "fs-extra": "^11.0.0",
+    "ajv": "^8.0.0",
+    "ajv-formats": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ai-agents",
+    "agentic",
+    "operating-model",
+    "trust-scoring",
+    "failure-memory",
+    "claude-code"
+  ],
+  "author": "Ramesh Ayyagari (https://github.com/rayyagari2-create)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rayyagari2-create/agentic-workforce-framework.git"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agentic-workforce-framework/schemas/v1/failure-record.schema.json",
+  "title": "FailureRecord",
+  "description": "Structured failure record for the self-learning system. Replaces narrative failure-library entries. Source of truth for failure tracking, recurrence detection, and prevention artifact generation. Generic, product-agnostic.",
+  "version": "1.0",
+  "type": "object",
+  "required": [
+    "failureId",
+    "timestamp",
+    "domain",
+    "agentsInvolved",
+    "files",
+    "symptom",
+    "rootCause",
+    "failureClass",
+    "severity",
+    "userImpact",
+    "detectionSource",
+    "recurrenceCount",
+    "status",
+    "fixTag"
+  ],
+  "properties": {
+    "failureId": {
+      "type": "string",
+      "pattern": "^FAIL-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+      "description": "Human-readable failure ID, format FAIL-YYYY-MM-DD-NNN. Used in the failure library and Fix-Agent output. Separate from the database row primary key (ULID, stored elsewhere)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the failure was detected."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain classification for pre-task retrieval matching. Implementations may constrain to a project-specific enum."
+    },
+    "agentsInvolved": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "orchestrator",
+          "qa-agent",
+          "fix-agent",
+          "executor",
+          "reviewer"
+        ]
+      },
+      "minItems": 1,
+      "description": "Generic agent roles involved in creating or detecting this failure."
+    },
+    "files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "File paths involved in the failure. Used for pre-task retrieval matching."
+    },
+    "symptom": {
+      "type": "string",
+      "description": "Observable symptom as seen by a user or QA (e.g., 'numeric field shows NaN')."
+    },
+    "rootCause": {
+      "type": "string",
+      "description": "Confirmed root cause after investigation."
+    },
+    "failureClass": {
+      "type": "string",
+      "enum": [
+        "schema_violation",
+        "state_desync",
+        "render_error",
+        "api_contract_break",
+        "date_time_handling",
+        "null_reference",
+        "race_condition",
+        "prompt_regression",
+        "data_loss",
+        "security_vulnerability",
+        "performance_degradation",
+        "ux_regression",
+        "truth_ownership",
+        "client_side_truth",
+        "policy_violation",
+        "scope_violation",
+        "hook_bypass"
+      ],
+      "description": "Categorical classification for recurrence detection and pattern matching."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["P0", "P1", "P2", "P3"],
+      "description": "Severity level. P0 = user-facing, blocks release. P3 = cosmetic."
+    },
+    "userImpact": {
+      "type": "string",
+      "description": "Plain-English description of impact on the end user or downstream system."
+    },
+    "detectionSource": {
+      "type": "string",
+      "enum": [
+        "qa_agent",
+        "fix_agent",
+        "human_reviewer",
+        "automated_test",
+        "runtime_monitoring",
+        "user_report"
+      ],
+      "description": "How the failure was detected."
+    },
+    "recommendedPrevention": {
+      "type": "string",
+      "description": "What should be done to prevent recurrence."
+    },
+    "regressionTestAdded": {
+      "type": "boolean",
+      "description": "Whether a regression test was added as part of the fix."
+    },
+    "preventionArtifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "location"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "regression_test",
+              "schema_validation",
+              "guardrail",
+              "skill_update",
+              "instruction_update",
+              "policy_update",
+              "memory_update",
+              "trust_adjustment",
+              "contract_update"
+            ],
+            "description": "Category of prevention artifact."
+          },
+          "location": {
+            "type": "string",
+            "description": "File path or identifier of the artifact."
+          },
+          "description": {
+            "type": "string",
+            "description": "What this artifact prevents."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "At least one prevention artifact is required for fix closure."
+    },
+    "recurrenceCount": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "How many times this failure class has occurred. >=2 triggers auto-promotion. >=3 triggers benchmark addition. >=5 makes systemic-refactor-required unavoidable."
+    },
+    "repeatOfFailureIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to prior FailureRecords of the same failure class."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "investigating", "fix_in_progress", "resolved", "wont_fix"],
+      "description": "Current resolution status."
+    },
+    "rootCauseConfirmed": {
+      "type": "boolean",
+      "description": "True if the root cause has been verified, not just hypothesized."
+    },
+    "fixTag": {
+      "type": "string",
+      "enum": ["hotfix-only", "hotfix-plus-prevention", "systemic-refactor-required"],
+      "description": "Three-tag completion classification. Required for Fix-Agent close."
+    },
+    "correlationId": {
+      "type": ["string", "null"],
+      "description": "Correlation ID linking to the session or event chain that surfaced this failure."
+    }
+  },
+  "additionalProperties": false
+}

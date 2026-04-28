@@ -1,0 +1,32 @@
+{
+  "agentId": "executor",
+  "domain": "api_integration",
+  "trustTier": "PROVISIONAL",
+  "sessionScore": {
+    "d1": 23,
+    "d1Evidence": "All acceptance criteria met on first QA attempt; one minor note on response shape addressed within the same loop.",
+    "d2": 24,
+    "d2Evidence": "Bulletin entries at every phase transition; one missing PROGRESS line during the verification step.",
+    "d3": 25,
+    "d3Evidence": "Pre-spawn protocol followed; manifest matched scope; no override flags used; no out-of-scope edits.",
+    "d4": 25,
+    "d4Evidence": "No prior failure-library pattern matched the files in scope; novel task class.",
+    "total": 97
+  },
+  "dimensions": {
+    "correctness": 0.92,
+    "repeatDefectRate": 0.05,
+    "falseCompletionRate": 0.0,
+    "catchEffectiveness": 0.85,
+    "policyCompliance": 1.0,
+    "contractStability": 0.95,
+    "recoveryEffectiveness": 0.9,
+    "regressionRecurrence": 0.07
+  },
+  "totalRuns": 4,
+  "nSessions": 4,
+  "confidenceBand": "PROVISIONAL",
+  "recencyWeight": 1.0,
+  "lastUpdated": "2026-04-25T15:10:00Z",
+  "notes": "Session count below 5; tier remains PROVISIONAL until the next clean session promotes the agent into LOW confidence band."
+}

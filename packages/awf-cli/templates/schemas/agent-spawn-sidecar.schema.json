@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agentic-workforce-framework/schemas/v1/agent-spawn-sidecar.schema.json",
+  "title": "AgentSpawnSidecar",
+  "description": "Hook-readable spawn authorization record. Written by the Orchestrator before calling the Agent tool. Validated by the PreToolUse hook before any agent spawn is authorized. This is the enforcement artifact — not a human-readable task description.",
+  "type": "object",
+  "required": [
+    "taskId",
+    "session_id",
+    "runtime_subagent_type",
+    "agent_role",
+    "riskLevel",
+    "riskClass",
+    "domains",
+    "hitlApproved",
+    "issuedAt",
+    "promptHash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "taskId": {
+      "type": "string",
+      "description": "ULID. Must match the AgentTaskManifest taskId for this spawn.",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Claude Code runtime session ID, or the sentinel value 'session-id-unavailable' when the runtime session ID cannot be retrieved. When sentinel is present, the hook falls back to mtime freshness as the primary gate."
+    },
+    "runtime_subagent_type": {
+      "type": "string",
+      "const": "general-purpose",
+      "description": "Always 'general-purpose'. This is the Claude Code API value for tool_input.subagent_type. It is not the agent's role — it is the runtime harness type. Do not use this field to identify which agent is spawning."
+    },
+    "agent_role": {
+      "type": "string",
+      "enum": [
+        "orchestrator",
+        "agent-srv",
+        "agent-fe",
+        "qa-agent",
+        "fix-agent",
+        "security-check",
+        "code-review",
+        "chief-of-staff",
+        "deep-research"
+      ],
+      "description": "The framework role of the agent being spawned. Validated by the hook against the allowed roster. This is the field the hook uses for identity — not runtime_subagent_type."
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Risk classification from the pre-spawn protocol. Drives HITL gate requirement."
+    },
+    "riskClass": {
+      "type": "string",
+      "description": "Domain-specific risk class. Examples: frontend-ui, server-api, database-schema, auth-flow, payment-flow. Free string — adopters define their own taxonomy."
+    },
+    "domains": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Abstract domain labels for this task. Examples: ['frontend', 'checkout']. Distinct from interfacesTouched in the AgentTaskManifest which carries concrete file paths."
+    },
+    "hitlApproved": {
+      "type": "boolean",
+      "description": "Whether human-in-the-loop approval has been obtained. Must be true for riskLevel 'high' or 'critical'. The hook blocks spawn if false on HIGH/CRITICAL risk."
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this sidecar was written. Used for TTL validation — the hook rejects manifests older than the configured TTL (default 30 minutes). Combined with mtime check for replay protection."
+    },
+    "promptHash": {
+      "type": "string",
+      "description": "SHA-256 hex digest of the full spawn prompt (tool_input.prompt). Computed by the Orchestrator before writing the sidecar. Validated by the hook to detect prompt tampering between sidecar issuance and spawn."
+    },
+    "tool_use_id": {
+      "type": ["string", "null"],
+      "description": "Claude Code tool_use_id from the Agent tool call. Null at pre-spawn time; populated by PostToolUse hook for correlation. Optional — present in stricter implementations."
+    }
+  },
+  "examples": [
+    {
+      "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+      "session_id": "abc-123-runtime-session",
+      "runtime_subagent_type": "general-purpose",
+      "agent_role": "fix-agent",
+      "riskLevel": "medium",
+      "riskClass": "frontend-ui",
+      "domains": ["frontend", "checkout"],
+      "hitlApproved": false,
+      "issuedAt": "2026-04-25T10:15:30Z",
+      "promptHash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+      "tool_use_id": null
+    }
+  ]
+}

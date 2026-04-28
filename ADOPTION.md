@@ -54,6 +54,26 @@ for a day-one path that produces a scored session in 4-6 hours.
 
 ---
 
+## Fast scaffold path
+
+For a starter setup, use the AWF CLI:
+
+    npx agentic-workforce-framework@latest init
+    npx agentic-workforce-framework@latest check
+
+For Claude Code, select the Claude Code runtime. The CLI scaffolds
+the reference agents, framework artifacts, schemas and Claude Code
+hook examples.
+
+For Cursor, Windsurf and other runtimes, select the runtime-agnostic
+option. The CLI scaffolds the framework artifacts, but agent invocation
+and hook wiring must be adapted to that runtime.
+
+The CLI is a scaffold, not a runtime. It installs the operating model
+artifacts so teams can adapt them into their own agent environment.
+
+---
+
 ## What not to implement first
 
 **Do not start with hooks.** Hooks enforce governance that
@@ -82,6 +102,7 @@ The minimum stack that produces governance value on day one:
 
 | Component | Implementation | Where |
 |---|---|---|
+| Starter scaffold | awf init and awf check | packages/awf-cli/ |
 | Agent roster | Instruction files with capability boundaries | agents/ |
 | Task contract | AgentTaskManifest markdown or JSON | schemas/v1/agent-task-manifest.schema.json |
 | Observability | File-based agent bulletin | governance/agent-bulletin.md |

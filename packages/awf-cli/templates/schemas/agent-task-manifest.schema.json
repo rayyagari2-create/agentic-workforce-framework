@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agentic-workforce-framework/schemas/v1/agent-task-manifest.schema.json",
+  "title": "AgentTaskManifest",
+  "description": "Required manifest for medium and high-risk agent tasks. No manifest = no dispatch. Created by the Orchestrator before delegating work. Generic, product-agnostic.",
+  "version": "1.0",
+  "type": "object",
+  "required": [
+    "taskId",
+    "taskType",
+    "domains",
+    "riskLevel",
+    "interfacesTouched",
+    "verificationRequired",
+    "assignedAgent",
+    "createdAt"
+  ],
+  "properties": {
+    "taskId": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "description": "ULID primary key for this task."
+    },
+    "taskType": {
+      "type": "string",
+      "enum": ["feature", "bug", "refactor", "security", "eval", "migration"],
+      "description": "Classification of the task."
+    },
+    "taskDescription": {
+      "type": "string",
+      "description": "Plain-English description of what needs to be done."
+    },
+    "domains": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Domains this task touches. Implementations may constrain to a project-specific enum. Used for pre-task failure retrieval and trust score lookup."
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Risk classification. Medium and above require this manifest. High triggers mandatory QA. Critical triggers escalated review."
+    },
+    "interfacesTouched": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "File paths, API endpoints, or schemas that will be modified."
+    },
+    "contractsReferenced": {
+      "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "Contract file paths that govern this task's domain. Orchestrator verifies these exist."
+    },
+    "verificationRequired": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "unit_test",
+          "integration_test",
+          "schema_validation",
+          "manual_verification",
+          "qa_agent_review",
+          "code_review",
+          "escalated_review",
+          "human_approval"
+        ]
+      },
+      "minItems": 1,
+      "description": "What verification is required before this task can be marked complete."
+    },
+    "blockingDependencies": {
+      "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "Task IDs that must complete before this task can start."
+    },
+    "priorFailureContext": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "required": ["failureId", "preventionCheck"],
+        "properties": {
+          "failureId": {
+            "type": "string",
+            "description": "Identifier of the relevant FailureRecord."
+          },
+          "preventionCheck": {
+            "type": "string",
+            "description": "The specific prevention check to apply during this task."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "FailureRecords surfaced by pre-task retrieval. Injected into the agent brief."
+    },
+    "evalPlan": {
+      "type": ["string", "null"],
+      "description": "Required for medium- and high-risk tasks. How will the result be evaluated?"
+    },
+    "assignedAgent": {
+      "type": "string",
+      "enum": [
+        "orchestrator",
+        "qa-agent",
+        "fix-agent",
+        "executor",
+        "reviewer"
+      ],
+      "description": "Generic agent role assigned to execute this task. Implementations may extend this enum."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the manifest was created."
+    },
+    "completedAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the task was completed. Null while in progress."
+    },
+    "result": {
+      "type": ["string", "null"],
+      "enum": ["pass", "fail", "partial", null],
+      "description": "Final result after QA verdict. Null while in progress."
+    },
+    "correlationId": {
+      "type": ["string", "null"],
+      "description": "Correlation ID for event tracing across the audit log."
+    }
+  },
+  "additionalProperties": false
+}

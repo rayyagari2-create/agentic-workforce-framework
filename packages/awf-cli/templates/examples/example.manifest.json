@@ -1,0 +1,29 @@
+{
+  "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "taskType": "feature",
+  "taskDescription": "Add cursor-based pagination to the orders API. (Note: example IDs are valid ULIDs; production manifests use freshly generated ULIDs at spawn time.)",
+  "domains": [
+    "src/api/orders.ts",
+    "src/db/orders.ts"
+  ],
+  "riskLevel": "medium",
+  "interfacesTouched": [
+    "GET /api/orders",
+    "PaginationShape"
+  ],
+  "contractsReferenced": [
+    "schemas/v1/agent-task-manifest.schema.json"
+  ],
+  "verificationRequired": [
+    "qa_agent_review",
+    "integration_test"
+  ],
+  "blockingDependencies": null,
+  "priorFailureContext": null,
+  "evalPlan": "QA-Agent runs LOOP MODE against the modified endpoint; verifies cursor + limit shape, response pagination, and 429 rate-limit behaviour.",
+  "assignedAgent": "executor",
+  "createdAt": "2026-04-25T10:15:30Z",
+  "completedAt": null,
+  "result": null,
+  "correlationId": null
+}

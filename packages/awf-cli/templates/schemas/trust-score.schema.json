@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agentic-workforce-framework/schemas/v1/trust-score.schema.json",
+  "title": "TrustScore",
+  "description": "D1-D4 session-level trust score plus long-term 8-dimension continuous profile. Populated per agent-run based on QAVerdict output. Used for review-depth decisions and autonomy gates. Generic, product-agnostic.",
+  "version": "1.0",
+  "type": "object",
+  "required": [
+    "agentId",
+    "domain",
+    "trustTier",
+    "sessionScore",
+    "dimensions",
+    "totalRuns",
+    "nSessions",
+    "confidenceBand",
+    "lastUpdated"
+  ],
+  "properties": {
+    "agentId": {
+      "type": "string",
+      "enum": [
+        "orchestrator",
+        "qa-agent",
+        "fix-agent",
+        "executor",
+        "reviewer"
+      ],
+      "description": "Generic agent role this trust score applies to. Implementations may extend this enum."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain this score applies to. One score per agent-domain pair. Implementations may constrain to a project-specific enum."
+    },
+    "trustTier": {
+      "type": "string",
+      "enum": ["HIGH", "STANDARD", "RESTRICTED", "PROBATION", "PROVISIONAL"],
+      "description": "Computed autonomy tier. HIGH = medium-risk without step-by-step review. STANDARD = human reviews at decision points. RESTRICTED = human reviews before each phase transition. PROBATION = every change reviewed. PROVISIONAL = insufficient data (n<5 sessions)."
+    },
+    "sessionScore": {
+      "type": "object",
+      "required": [
+        "d1",
+        "d1Evidence",
+        "d2",
+        "d2Evidence",
+        "d3",
+        "d3Evidence",
+        "d4",
+        "d4Evidence",
+        "total"
+      ],
+      "properties": {
+        "d1": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "D1 Correctness (0-25). Hard-stop 0: output wrong in a way that could harm if not caught."
+        },
+        "d1Evidence": {
+          "type": "string",
+          "description": "One line of evidence justifying the D1 score."
+        },
+        "d2": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "D2 Observability (0-25). Hard-stop 0: falsified telemetry → automatic trust demotion."
+        },
+        "d2Evidence": {
+          "type": "string",
+          "description": "One line of evidence justifying the D2 score."
+        },
+        "d3": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "D3 Policy Compliance (0-25). Hard-stop 0: hook bypass or unauthorized commit → immediate review."
+        },
+        "d3Evidence": {
+          "type": "string",
+          "description": "One line of evidence justifying the D3 score."
+        },
+        "d4": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 25,
+          "description": "D4 Recurrence Behavior (0-25). Hard-stop 0: repeated pattern AND it was provided in instructions → failure library entry mandatory."
+        },
+        "d4Evidence": {
+          "type": "string",
+          "description": "One line of evidence justifying the D4 score."
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Sum of D1-D4 (0-100). Drives the autonomy tier per the trust tier table."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Session-level D1-D4 scoring (100 points total)."
+    },
+    "dimensions": {
+      "type": "object",
+      "required": [
+        "correctness",
+        "repeatDefectRate",
+        "falseCompletionRate",
+        "catchEffectiveness",
+        "policyCompliance",
+        "contractStability",
+        "recoveryEffectiveness",
+        "regressionRecurrence"
+      ],
+      "properties": {
+        "correctness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Ratio of tasks completed correctly on first attempt."
+        },
+        "repeatDefectRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Ratio of defects that are repeats of previously-fixed issues. Lower is better."
+        },
+        "falseCompletionRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Ratio of tasks reported complete but failed QA. Lower is better."
+        },
+        "catchEffectiveness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "For QA/review roles: ratio of real defects caught vs total defects found post-release."
+        },
+        "policyCompliance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Ratio of tasks completed without policy violations."
+        },
+        "contractStability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Ratio of tasks that did not break or silently extend a contract schema."
+        },
+        "recoveryEffectiveness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "When a failure occurs, how effectively the agent recovers or escalates."
+        },
+        "regressionRecurrence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Percentage of agent's fixes that reappear within 30 days. Target: <=0.10."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Long-term 8-dimension continuous profile. All normalized 0-1."
+    },
+    "totalRuns": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of runs evaluated for this agent-domain pair."
+    },
+    "nSessions": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total scored sessions for this agent. Drives confidence band."
+    },
+    "confidenceBand": {
+      "type": "string",
+      "enum": ["PROVISIONAL", "LOW", "MEDIUM", "HIGH"],
+      "description": "Confidence band driven by nSessions. PROVISIONAL = n<5. LOW = 5-9. MEDIUM = 10-19. HIGH = n>=20."
+    },
+    "recencyWeight": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Recency weight. Sessions older than 30 days: 0.5x. Older than 90 days: 0.25x. Null if not yet applied."
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last score update."
+    },
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Optional human-readable notes about trust adjustments."
+    }
+  },
+  "additionalProperties": false
+}

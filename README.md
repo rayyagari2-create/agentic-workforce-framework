@@ -67,6 +67,11 @@ memory, approval gates and enterprise scaling.
 - Reference agent instruction files (five-agent team)
 - Failure memory taxonomy (17 classes)
 - Calibration anchors and scoring rubric
+- Installable CLI for scaffolding framework artifacts into a repo
+- Modular install support for agents, trust scoring, failure memory,
+  task manifests and Claude Code hooks
+- Runtime-aware scaffold support for Claude Code and runtime-agnostic
+  scaffold support for Cursor, Windsurf and other environments
 
 ---
 
@@ -117,6 +122,31 @@ How this relates to other layers:
 | Model provider layer | What the model produces: output quality, safety |
 
 These three layers are complementary. None replaces the other.
+
+---
+
+## Install the CLI
+
+Scaffold the Agentic Workforce Framework into any repo:
+
+    npx agentic-workforce-framework@latest init
+
+Or install globally:
+
+    npm install -g agentic-workforce-framework
+    awf init
+    awf check
+
+The CLI can install a five-agent reference team, trust scoring files,
+failure memory templates, task manifest schemas and Claude Code hook
+examples.
+
+For Claude Code, the CLI scaffolds agent templates, hook templates and
+a settings example file. For Cursor, Windsurf and other runtimes, it
+installs runtime-agnostic framework artifacts only.
+
+The CLI does not run agents directly. It scaffolds the operating model
+around your chosen runtime.
 
 ---
 
@@ -289,12 +319,18 @@ row uses the four-label legend defined above.
 | Automated trust scoring (R10) | Planned |
 | Work queue system | Planned |
 | Approval gate chains | Planned |
+| AWF CLI (awf init, awf check, awf add) | Implemented in v0.1.0 CLI |
 
 ---
 
 ## What You Can Use Today
 
 You can adopt the framework incrementally:
+
+0. Scaffold the starter framework into a repo:
+
+    npx agentic-workforce-framework@latest init
+    npx agentic-workforce-framework@latest check
 
 1. Start with the D1-D4 trust scoring rubric and score your first agent session.
 2. Add FailureRecord tracking for recurring agent mistakes.
@@ -317,6 +353,8 @@ Top-level folders in this repository:
 - `hooks/` — Sanitized PreToolUse / SubagentStart / PostToolUse hook examples plus Claude Code settings template.
 - `routines/` — Scheduled automation routine specs.
 - `schemas/` — JSON Schema files for AgentTaskManifest, QAVerdict, FailureRecord and TrustScore.
+- `packages/awf-cli/` — npm CLI for scaffolding AWF artifacts into
+  a target repo.
 
 ---
 

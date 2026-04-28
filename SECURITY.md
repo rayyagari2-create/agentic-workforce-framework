@@ -72,6 +72,14 @@ This framework is not a running service, so the typical vulnerability classes di
 - Documentation that suggests governance patterns that could be bypassed in practice
 - Overclaims of enforcement strength in a way that would mislead an adopter into under-protecting a deployment
 
+### CLI vulnerabilities
+
+- CLI behavior that overwrites existing user files without clear consent
+- Path traversal or unsafe file-copy behavior during scaffold installation
+- Incorrect runtime-specific scaffold output that weakens enforcement
+- Validation behavior that reports invalid governance artifacts as valid
+- Generated settings examples that could encourage unsafe permissions
+
 ---
 
 ## Responsible Disclosure
@@ -123,7 +131,20 @@ above so the repository history can be addressed.
 
 ## Dependencies
 
-This framework has no runtime dependencies it ships documentation, schemas, SQL, and example code. Schema validation uses AJV or any JSON Schema Draft 2020-12 validator; vulnerabilities in those validators are not in scope here and should be reported upstream.
+The reference framework itself ships documentation, schemas, SQL and
+example code. Schema validation uses AJV or any JSON Schema Draft
+2020-12 validator. Vulnerabilities in those validators are not in
+scope here and should be reported upstream.
+
+The optional AWF CLI is a Node.js package used to scaffold framework
+artifacts into a target repository. Its dependencies are limited to
+CLI interaction, file copying and schema validation.
+
+Security issues in CLI dependencies should be reported upstream when
+they affect the dependency itself. If a dependency issue affects how
+AWF scaffolds files, validates schemas, handles paths or writes
+configuration, report it through this repository's private
+vulnerability reporting process.
 
 ---
 
