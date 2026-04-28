@@ -127,7 +127,7 @@ These three layers are complementary. None replaces the other.
 
 ## Install the CLI
 
-Scaffold the Agentic Workforce Framework into any repo:
+Scaffold the full framework into any repo:
 
     npx agentic-workforce-framework@latest init
 
@@ -137,16 +137,42 @@ Or install globally:
     awf init
     awf check
 
-The CLI can install a five-agent reference team, trust scoring files,
-failure memory templates, task manifest schemas and Claude Code hook
-examples.
+---
 
-For Claude Code, the CLI scaffolds agent templates, hook templates and
-a settings example file. For Cursor, Windsurf and other runtimes, it
-installs runtime-agnostic framework artifacts only.
+## Modules
 
-The CLI does not run agents directly. It scaffolds the operating model
-around your chosen runtime.
+Install individual modules into any repo:
+
+### five-agent-team
+
+Five agent instruction files: Orchestrator, Frontend, Backend, QA and Fix.
+
+    npx agentic-workforce-framework@latest add five-agent-team
+
+### trust-scoring
+
+D1-D4 behavioral trust scoring rubric, calibration anchors and TrustScore schema.
+
+    npx agentic-workforce-framework@latest add trust-scoring
+
+### failure-memory
+
+Failure library template, FailureRecord schema and example record.
+
+    npx agentic-workforce-framework@latest add failure-memory
+
+### task-manifest
+
+AgentTaskManifest schema, sidecar schema and example manifest.
+
+    npx agentic-workforce-framework@latest add task-manifest
+
+### claude-code-hooks
+
+Hook examples and Claude Code settings example file.
+For Claude Code runtimes only.
+
+    npx agentic-workforce-framework@latest add claude-code-hooks
 
 ---
 
