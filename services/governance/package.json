@@ -1,0 +1,18 @@
+{
+  "name": "@awf/governance",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sprint 0 governance service. Owns work intake, risk classification, the priority queue, and the single approval gate (E0-04 through E0-07).",
+  "type": "module",
+  "scripts": {
+    "intake": "node src/intake.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Ramesh Ayyagari",
+  "license": "MIT"
+}

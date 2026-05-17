@@ -1,0 +1,59 @@
+[
+  {
+    "number": 101,
+    "title": "Fix checkout validation error on mobile",
+    "body": "Checkout page rejects valid payment forms on mobile browsers. Affects iOS Safari and Android Chrome. Desktop is unaffected.\n\n## Acceptance Criteria\n\n- [ ] Form submits successfully on iOS Safari and Android Chrome\n- [ ] Validation errors render inline next to the offending field\n- [ ] Regression test covers the previously failing input pattern\n- [ ] No layout shift introduced on the checkout page\n",
+    "labels": [
+      { "name": "bug" },
+      { "name": "ui" },
+      { "name": "mobile" },
+      { "name": "priority: 80" }
+    ],
+    "state": "OPEN"
+  },
+  {
+    "number": 102,
+    "title": "Add retry logic to entitlement webhook",
+    "body": "Entitlement webhook drops events when the downstream billing API returns 5xx. We need a bounded retry policy so paid customers do not lose access.\n\n## Acceptance Criteria\n\n- [ ] Exponential backoff with jitter on transient (5xx, network) errors\n- [ ] Maximum five attempts then dead letter\n- [ ] Idempotency key honored so retries do not double grant entitlements\n- [ ] Metrics emitted for attempt count and final outcome\n",
+    "labels": [
+      { "name": "backend" },
+      { "name": "payment" },
+      { "name": "reliability" },
+      { "name": "priority: 90" }
+    ],
+    "state": "OPEN"
+  },
+  {
+    "number": 103,
+    "title": "Write API documentation for /reveal endpoint",
+    "body": "The /reveal endpoint is undocumented. Partners are reverse engineering from network traces. Publish a reference page.\n\n## Acceptance Criteria\n\n- [ ] Request and response schema documented with examples\n- [ ] All error codes listed with example payloads\n- [ ] Rate limit behavior described\n- [ ] Authentication requirements stated\n",
+    "labels": [
+      { "name": "documentation" },
+      { "name": "priority: 40" }
+    ],
+    "state": "OPEN"
+  },
+  {
+    "number": 104,
+    "title": "Migrate user preferences to Postgres",
+    "body": "User preferences currently live in a legacy key value store that is being retired. Move the data and the read and write paths to Postgres without downtime.\n\n## Acceptance Criteria\n\n- [ ] Dual write window with read from old store and write to both before cutover\n- [ ] Data parity check passes for one hundred percent of users\n- [ ] Rollback runbook reviewed by on call\n- [ ] Old store decommissioned after one full week of green metrics\n",
+    "labels": [
+      { "name": "backend" },
+      { "name": "database" },
+      { "name": "migration" },
+      { "name": "priority: 70" }
+    ],
+    "state": "OPEN"
+  },
+  {
+    "number": 105,
+    "title": "Add rate limiting to public API endpoints",
+    "body": "Public API has no per caller rate limit. A misbehaving client took down the read path last week. Add a token bucket limiter keyed on API key.\n\n## Acceptance Criteria\n\n- [ ] Token bucket limiter applied per API key\n- [ ] 429 response with Retry-After header on exceed\n- [ ] Limits documented in the public API reference\n- [ ] Internal admin keys exempted via allow list\n",
+    "labels": [
+      { "name": "security" },
+      { "name": "backend" },
+      { "name": "priority: 85" }
+    ],
+    "state": "OPEN"
+  }
+]
