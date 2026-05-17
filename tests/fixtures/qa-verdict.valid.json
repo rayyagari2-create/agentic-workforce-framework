@@ -1,6 +1,7 @@
 {
   "verdictId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
   "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "verdict": "pass_with_notes",
   "qaDecision": "pass_with_notes",
   "defectClass": "render_error",
   "novelty": "repeat",

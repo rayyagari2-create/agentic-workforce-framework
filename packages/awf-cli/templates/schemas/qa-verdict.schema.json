@@ -8,8 +8,7 @@
   "required": [
     "verdictId",
     "taskId",
-    "qaDecision",
-    "findings",
+    "verdict",
     "timestamp"
   ],
   "properties": {
@@ -23,10 +22,43 @@
       "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
       "description": "ULID of the AgentTaskManifest this verdict evaluates."
     },
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "fail", "pass_with_notes", "blocked"],
+      "description": "Overall QA verdict. blocked = hard stop, cannot proceed without resolution."
+    },
     "qaDecision": {
       "type": "string",
       "enum": ["pass", "pass_with_notes", "fail", "block_release"],
-      "description": "Overall QA decision. block_release = hard stop, cannot proceed without fix."
+      "description": "Legacy alias of verdict. block_release corresponds to verdict='blocked'. Optional; new producers set verdict instead."
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["criterion_id", "criterion_text", "result", "evidence"],
+        "properties": {
+          "criterion_id": {
+            "type": "string",
+            "description": "Stable identifier for the acceptance criterion."
+          },
+          "criterion_text": {
+            "type": "string",
+            "description": "Human-readable text of the criterion."
+          },
+          "result": {
+            "type": "string",
+            "enum": ["pass", "fail", "blocked"],
+            "description": "Outcome for this individual criterion."
+          },
+          "evidence": {
+            "type": "string",
+            "description": "Plain-text evidence justifying the result for this criterion."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Per-criterion verification results. Each criterion is evaluated independently; the overall verdict is derived from this array."
     },
     "defectClass": {
       "type": ["string", "null"],
@@ -89,8 +121,7 @@
         },
         "additionalProperties": false
       },
-      "minItems": 1,
-      "description": "Detailed findings from the QA review. At least one finding required — even for pass, document what was verified."
+      "description": "Detailed findings from the QA review. Optional; the criteria array is the primary verification record."
     },
     "recommendedPreventionArtifact": {
       "type": ["string", "null"],

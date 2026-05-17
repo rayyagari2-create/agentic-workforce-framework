@@ -5,9 +5,13 @@
   "description": "Sprint 0 scoring service. D1-D4 reference scorer (E0-10). D3 and D4 are deterministic; D1 and D2 emit heuristic candidate scores that a human or QA reviewer can override.",
   "type": "module",
   "scripts": {
-    "test": "node test/scorer.test.js"
+    "test": "node test/scorer.test.js && node test/qa-verdict.test.js",
+    "test:scorer":     "node test/scorer.test.js",
+    "test:qa-verdict": "node test/qa-verdict.test.js"
   },
   "dependencies": {
+    "ajv": "^8.0.0",
+    "ajv-formats": "^3.0.0",
     "pg": "^8.11.0"
   },
   "engines": {

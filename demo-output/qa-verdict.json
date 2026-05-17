@@ -1,0 +1,34 @@
+{
+  "verdictId": "01KRW53G5R7NEF90N7P66114NY",
+  "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "verdict": "pass_with_notes",
+  "qaDecision": "pass_with_notes",
+  "criteria": [
+    {
+      "criterion_id": "AC-1",
+      "criterion_text": "criterion one",
+      "result": "pass",
+      "evidence": "[PREVIEW] simulated"
+    },
+    {
+      "criterion_id": "AC-2",
+      "criterion_text": "criterion two",
+      "result": "pass",
+      "evidence": "[PREVIEW] simulated"
+    }
+  ],
+  "findings": [
+    {
+      "category": "qa_summary",
+      "description": "verdict=pass_with_notes; criteria total=2, failed=0, blocked=0",
+      "severity": "info"
+    },
+    {
+      "category": "simulated_run",
+      "description": "run was simulated; downgraded pass to pass_with_notes",
+      "severity": "info"
+    }
+  ],
+  "novelty": "unknown",
+  "timestamp": "2026-05-17T23:42:22.393Z"
+}
