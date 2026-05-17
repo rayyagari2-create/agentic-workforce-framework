@@ -4,7 +4,7 @@ Status: IN PROGRESS
 Started: 2026-05-17
 
 - [x] E0-01: Core data model
-- [ ] E0-02: Audit service (separate process)
+- [x] E0-02: Audit service (separate process)
 - [ ] E0-03: AWFAgentRuntime interface v1.0
 - [ ] E0-04: Work intake from JSON
 - [ ] E0-05: Risk classifier

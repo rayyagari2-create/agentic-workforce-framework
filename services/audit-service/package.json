@@ -1,0 +1,20 @@
+{
+  "name": "@awf/audit-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sprint 0 audit service. Receives events via an internal EventEmitter and writes a hash chained, append only history into audit.events.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "verify": "node cli.js verify"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Ramesh Ayyagari",
+  "license": "MIT"
+}

@@ -3,6 +3,7 @@ import { program } from 'commander';
 import { init } from '../cli/init.js';
 import { add } from '../cli/add.js';
 import { check } from '../cli/check.js';
+import { audit } from '../cli/audit.js';
 
 program
   .name('awf')
@@ -23,5 +24,10 @@ program
   .command('check')
   .description('Validate that the framework is set up correctly')
   .action(check);
+
+program
+  .command('audit <action>')
+  .description('Audit service operator commands. Supported: verify')
+  .action(audit);
 
 program.parse();
