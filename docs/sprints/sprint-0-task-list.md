@@ -7,7 +7,7 @@ Started: 2026-05-17
 - [x] E0-02: Audit service (separate process)
 - [x] E0-03: AWFAgentRuntime interface v1.0
 - [x] E0-04: Work intake from JSON
-- [ ] E0-05: Risk classifier
+- [x] E0-05: Risk classifier
 - [ ] E0-06: Priority queue
 - [ ] E0-07: Single approval gate
 - [ ] E0-08: Agent assignment

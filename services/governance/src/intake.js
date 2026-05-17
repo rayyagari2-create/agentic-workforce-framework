@@ -47,27 +47,30 @@ const UPSERT_SQL = `
     INSERT INTO public.work_queue_items (
         tenant_id, division_id, workspace_id,
         task_id, title, description, domain,
-        risk_level, priority
+        risk_level, priority, labels
     ) VALUES (
         $1, $2, $3,
         $4, $5, $6, $7,
-        $8, $9
+        $8, $9, $10
     )
     ON CONFLICT (workspace_id, task_id) DO UPDATE
        SET title       = EXCLUDED.title,
            description = EXCLUDED.description,
            domain      = EXCLUDED.domain,
-           priority    = EXCLUDED.priority
+           priority    = EXCLUDED.priority,
+           labels      = EXCLUDED.labels
      WHERE (
             public.work_queue_items.title,
             public.work_queue_items.description,
             public.work_queue_items.domain,
-            public.work_queue_items.priority
+            public.work_queue_items.priority,
+            public.work_queue_items.labels
            ) IS DISTINCT FROM (
             EXCLUDED.title,
             EXCLUDED.description,
             EXCLUDED.domain,
-            EXCLUDED.priority
+            EXCLUDED.priority,
+            EXCLUDED.labels
            )
     RETURNING (xmax = 0) AS inserted
 `;
@@ -118,6 +121,12 @@ async function upsertIssue(client, issue) {
     const priority = extractPriority(names);
     const taskId   = externalRef(issue);
 
+    // Persist the raw label set lower cased for the risk classifier (E0-05).
+    // Drop `priority:NN` since priority is already extracted into its own column.
+    const classifierLabels = names
+        .map((n) => n.toLowerCase())
+        .filter((n) => !/^priority\s*:/i.test(n));
+
     const r = await client.query(UPSERT_SQL, [
         DEMO_TENANT_ID,
         DEMO_DIVISION_ID,
@@ -128,6 +137,7 @@ async function upsertIssue(client, issue) {
         domain,
         'LOW',
         priority,
+        classifierLabels,
     ]);
 
     if (r.rows.length === 0)        return 'skipped';
