@@ -10,7 +10,7 @@ Started: 2026-05-17
 - [x] E0-05: Risk classifier
 - [ ] E0-06: Priority queue
 - [ ] E0-07: Single approval gate
-- [ ] E0-08: Agent assignment
+- [x] E0-08: Agent assignment
 - [x] E0-09: Simulated execution adapter
 - [ ] E0-10: D1-D4 reference scorer
 - [ ] E0-11: QA verdict production
