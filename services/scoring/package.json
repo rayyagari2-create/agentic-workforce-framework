@@ -1,0 +1,18 @@
+{
+  "name": "@awf/scoring",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sprint 0 scoring service. D1-D4 reference scorer (E0-10). D3 and D4 are deterministic; D1 and D2 emit heuristic candidate scores that a human or QA reviewer can override.",
+  "type": "module",
+  "scripts": {
+    "test": "node test/scorer.test.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Ramesh Ayyagari",
+  "license": "MIT"
+}
