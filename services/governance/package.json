@@ -5,10 +5,11 @@
   "description": "Sprint 0 governance service. Owns work intake, risk classification, the priority queue, and the single approval gate (E0-04 through E0-07).",
   "type": "module",
   "scripts": {
-    "intake":     "node src/intake.js",
-    "classify":   "node src/classifier.js",
-    "test":       "node test/classifier.test.js && node test/queue.test.js",
-    "test:queue": "node test/queue.test.js"
+    "intake":         "node src/intake.js",
+    "classify":       "node src/classifier.js",
+    "test":           "node test/classifier.test.js && node test/queue.test.js && node test/approvals.test.js",
+    "test:queue":     "node test/queue.test.js",
+    "test:approvals": "node test/approvals.test.js"
   },
   "dependencies": {
     "pg": "^8.11.0"
