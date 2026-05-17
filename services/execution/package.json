@@ -1,0 +1,16 @@
+{
+  "name": "@awf/execution",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sprint 0 execution layer. Defines the AWFAgentRuntime v1.0 interface that the orchestrator depends on, and ships the simulated adapter used for previews and demos.",
+  "type": "module",
+  "main": "src/runtime-interface.js",
+  "scripts": {
+    "test": "node test/simulated.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Ramesh Ayyagari",
+  "license": "MIT"
+}
