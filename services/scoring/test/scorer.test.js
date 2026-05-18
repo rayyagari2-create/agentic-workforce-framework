@@ -1,8 +1,9 @@
 // services/scoring/test/scorer.test.js
 //
-// Covers the deterministic D3 and D4 rules from services/scoring/src/scorer.js,
-// plus the tier and confidence-band thresholds. Pure functions; no DB.
-// Runs as a plain script:
+// Covers the deterministic D3 and D4 rules and the Sprint 1 upgraded
+// D1/D2 rules in services/scoring/src/scorer.js, plus the tier and
+// confidence-band thresholds and the extractACCoverage helper. Pure
+// functions; no DB. Runs as a plain script:
 //   node test/scorer.test.js
 // A non zero exit indicates failure. Uses node:assert/strict to match
 // the governance suite.
@@ -12,6 +13,7 @@ import {
     computeScore,
     computeTrustLevel,
     computeConfidenceBand,
+    extractACCoverage,
 } from '../src/scorer.js';
 
 const AGENT_ID = 'agent-srv';
@@ -19,23 +21,41 @@ const TASK_CLASS = 'api_development';
 const RUNTIME = 'simulated';
 
 // A clean, full-credit artifact bundle. Reused by D3/D4 cases so the
-// dimension under test is the only thing changing.
+// dimension under test is the only thing changing. The bundle now
+// carries files_changed (required for D1=25 under the Sprint 1 rubric).
 const CLEAN_ARTIFACTS = {
     tests_run: { passed: 5, failed: 0 },
+    files_changed: [
+        'src/api/widgets.js',
+        'tests/api/widgets/post.test.ts',
+        'README.md',
+    ],
     handoff_note:
         'Implemented POST /widgets, added integration test, documented the new error envelope.',
 };
 
+// A clean audit-event stream (3 distinct event_types) so D2 reaches
+// the 25 tier when paired with CLEAN_ARTIFACTS.
+const CLEAN_AUDIT_EVENTS = [
+    { event_type: 'agent_run.started' },
+    { event_type: 'work_item.updated' },
+    { event_type: 'agent_run.completed' },
+];
+
 const EMPTY_CONTRACT = { knownFailures: [], priorFailureContext: [] };
+
+function pick(opts, key, fallback) {
+    return Object.prototype.hasOwnProperty.call(opts, key) ? opts[key] : fallback;
+}
 
 function score(opts) {
     return computeScore(
-        opts.artifacts        ?? CLEAN_ARTIFACTS,
-        opts.contract         ?? EMPTY_CONTRACT,
-        opts.auditEvents      ?? [],
-        opts.agentId          ?? AGENT_ID,
-        opts.taskClass        ?? TASK_CLASS,
-        opts.runtimeProvider  ?? RUNTIME,
+        pick(opts, 'artifacts',       CLEAN_ARTIFACTS),
+        pick(opts, 'contract',        EMPTY_CONTRACT),
+        pick(opts, 'auditEvents',     CLEAN_AUDIT_EVENTS),
+        pick(opts, 'agentId',         AGENT_ID),
+        pick(opts, 'taskClass',       TASK_CLASS),
+        pick(opts, 'runtimeProvider', RUNTIME),
     );
 }
 
@@ -269,6 +289,256 @@ function score(opts) {
     assert.equal(computeConfidenceBand(19), 'MEDIUM');
     assert.equal(computeConfidenceBand(20), 'HIGH');
     assert.equal(computeConfidenceBand(99), 'HIGH');
+}
+
+// ----------------------------------------------------------------------------
+// D1 Sprint 1 rules.
+//   25 tests_run.failed === 0 AND files_changed.length > 0 AND AC covered
+//   18 tests passed but files_changed empty OR AC coverage unclear
+//   10 tests_run.failed > 0 but some tests passed
+//    0 no artifacts OR all tests failed
+// ----------------------------------------------------------------------------
+
+// D1 / case 1: clean run with files_changed and no AC declared (vacuous
+// coverage) -> 25, kind=candidate. Uses default CLEAN_ARTIFACTS plus
+// the default EMPTY_CONTRACT, which declares no acceptance criteria.
+{
+    const s = score({});
+    assert.equal(s.d1.score, 25, 'D1: clean artifacts + no AC declared must score 25');
+    assert.equal(s.d1.kind, 'candidate', 'D1 must be labeled candidate');
+}
+
+// D1 / case 2: tests pass, files changed, AND every declared AC has a
+// supporting file path -> 25.
+{
+    const s = score({
+        artifacts: {
+            tests_run: { passed: 5, failed: 0 },
+            files_changed: [
+                'src/api/widgets.js',
+                'tests/api/widgets/post.test.ts',
+                'README.md',
+            ],
+            handoff_note: 'shipped widgets endpoint',
+        },
+        contract: {
+            knownFailures: [],
+            priorFailureContext: [],
+            acceptanceCriteria: [
+                { id: 'AC-1', text: 'POST /widgets returns 201' },
+                { id: 'AC-2', text: 'Integration test under tests/api/widgets/' },
+                { id: 'AC-3', text: 'Error envelope documented in README' },
+            ],
+        },
+    });
+    assert.equal(s.d1.score, 25, 'D1: tests pass + files + full AC coverage must score 25');
+}
+
+// D1 / case 3: tests pass but files_changed is empty -> 18.
+{
+    const s = score({
+        artifacts: {
+            tests_run: { passed: 3, failed: 0 },
+            files_changed: [],
+            handoff_note: 'no code change required',
+        },
+    });
+    assert.equal(s.d1.score, 18, 'D1: tests passed but empty files_changed must score 18');
+}
+
+// D1 / case 4: tests pass, files changed, but AC coverage is unclear
+// (criterion text mentions paths/symbols not present in files_changed)
+// -> 18.
+{
+    const s = score({
+        artifacts: {
+            tests_run: { passed: 4, failed: 0 },
+            files_changed: ['src/unrelated/helper.js'],
+            handoff_note: 'fixed helper',
+        },
+        contract: {
+            knownFailures: [],
+            priorFailureContext: [],
+            acceptanceCriteria: [
+                { id: 'AC-1', text: 'POST /widgets returns 201 with widget body' },
+                { id: 'AC-2', text: 'Integration test added under tests/api/widgets/' },
+            ],
+        },
+    });
+    assert.equal(s.d1.score, 18, 'D1: AC coverage unclear must score 18');
+}
+
+// D1 / case 5: some tests failed but some passed -> 10.
+{
+    const s = score({
+        artifacts: {
+            tests_run: { passed: 4, failed: 2 },
+            files_changed: ['src/api/widgets.js'],
+            handoff_note: 'partial',
+        },
+    });
+    assert.equal(s.d1.score, 10, 'D1: mixed test results must score 10');
+}
+
+// D1 / case 6: all tests failed (no passing tests) -> 0.
+{
+    const s = score({
+        artifacts: {
+            tests_run: { passed: 0, failed: 3 },
+            files_changed: ['src/api/widgets.js'],
+            handoff_note: 'attempted',
+        },
+    });
+    assert.equal(s.d1.score, 0, 'D1: all tests failed must score 0');
+}
+
+// D1 / case 7: no artifacts at all -> 0.
+{
+    const s = score({ artifacts: null });
+    assert.equal(s.d1.score, 0, 'D1: null artifacts must score 0');
+}
+
+// ----------------------------------------------------------------------------
+// D2 Sprint 1 rules.
+//   25 handoff_note present AND audit events include >=3 distinct event_types
+//   18 handoff_note present but audit events sparse (<3 distinct types)
+//   10 handoff_note missing but artifacts present
+//    0 no artifacts and no handoff_note
+// ----------------------------------------------------------------------------
+
+// D2 / case 1: handoff_note + 3 distinct event_types -> 25,
+// kind=candidate. Default CLEAN_AUDIT_EVENTS supplies 3 distinct types.
+{
+    const s = score({});
+    assert.equal(s.d2.score, 25, 'D2: note + >=3 distinct event types must score 25');
+    assert.equal(s.d2.kind, 'candidate', 'D2 must be labeled candidate');
+}
+
+// D2 / case 2: handoff_note present but audit events sparse (2 distinct
+// types) -> 18. Duplicate types do not raise distinctness.
+{
+    const s = score({
+        auditEvents: [
+            { event_type: 'agent_run.started' },
+            { event_type: 'agent_run.started' },
+            { event_type: 'agent_run.completed' },
+        ],
+    });
+    assert.equal(s.d2.score, 18, 'D2: <3 distinct event types must score 18');
+}
+
+// D2 / case 3: handoff_note present but no audit events at all -> 18.
+{
+    const s = score({ auditEvents: [] });
+    assert.equal(s.d2.score, 18, 'D2: no audit events must score 18');
+}
+
+// D2 / case 4: handoff_note missing but artifacts present -> 10.
+{
+    const s = score({
+        artifacts: {
+            tests_run: { passed: 1, failed: 0 },
+            files_changed: ['src/api/widgets.js'],
+        },
+    });
+    assert.equal(s.d2.score, 10, 'D2: missing note with artifacts must score 10');
+}
+
+// D2 / case 5: no artifacts and no handoff_note -> 0.
+{
+    const s = score({ artifacts: null });
+    assert.equal(s.d2.score, 0, 'D2: no artifacts must score 0');
+}
+
+// D2 / case 6: malformed audit events (null, missing event_type) are
+// ignored when counting distinct types.
+{
+    const s = score({
+        auditEvents: [
+            null,
+            {},
+            { event_type: null },
+            { event_type: 'agent_run.started' },
+            { event_type: 'work_item.updated' },
+            { event_type: 'agent_run.completed' },
+        ],
+    });
+    assert.equal(s.d2.score, 25, 'D2: malformed events must be ignored; 3 valid types -> 25');
+}
+
+// ----------------------------------------------------------------------------
+// extractACCoverage helper.
+// ----------------------------------------------------------------------------
+
+// AC / case 1: full coverage when each criterion mentions a path/word
+// that appears in files_changed.
+{
+    const cov = extractACCoverage(
+        {
+            files_changed: [
+                'src/api/widgets.js',
+                'tests/api/widgets/post.test.ts',
+                'README.md',
+            ],
+        },
+        {
+            acceptanceCriteria: [
+                { id: 'AC-1', text: 'POST /widgets returns 201' },
+                { id: 'AC-2', text: 'Integration test under tests/api/widgets/' },
+                { id: 'AC-3', text: 'Error envelope documented in README' },
+            ],
+        },
+    );
+    assert.equal(cov.total,   3, 'AC coverage: total counts declared criteria');
+    assert.equal(cov.covered, 3, 'AC coverage: all three criteria covered');
+    assert.equal(cov.ratio,   1, 'AC coverage: full coverage ratio 1');
+}
+
+// AC / case 2: partial coverage (1 of 2).
+{
+    const cov = extractACCoverage(
+        { files_changed: ['src/api/widgets.js'] },
+        {
+            acceptanceCriteria: [
+                { id: 'AC-1', text: 'POST /widgets returns 201' },
+                { id: 'AC-2', text: 'Integration test under tests/api/billing/' },
+            ],
+        },
+    );
+    assert.equal(cov.total,   2);
+    assert.equal(cov.covered, 1, 'AC coverage: only widgets criterion matched');
+    assert.equal(cov.ratio,   0.5);
+}
+
+// AC / case 3: empty files_changed -> 0 covered, ratio 0.
+{
+    const cov = extractACCoverage(
+        { files_changed: [] },
+        { acceptanceCriteria: [{ id: 'AC-1', text: 'POST /widgets returns 201' }] },
+    );
+    assert.equal(cov.covered, 0);
+    assert.equal(cov.total,   1);
+    assert.equal(cov.ratio,   0);
+}
+
+// AC / case 4: no criteria declared -> vacuous full coverage. The D1
+// rubric depends on this: a contract that does not constrain AC must
+// not block the 25 tier.
+{
+    const cov = extractACCoverage(
+        { files_changed: ['src/api/widgets.js'] },
+        { acceptanceCriteria: [] },
+    );
+    assert.equal(cov.covered, 0);
+    assert.equal(cov.total,   0);
+    assert.equal(cov.ratio,   1, 'AC coverage: empty AC list is vacuously covered');
+}
+
+// AC / case 5: null artifacts/contract are tolerated.
+{
+    const cov = extractACCoverage(null, null);
+    assert.equal(cov.total,   0);
+    assert.equal(cov.ratio,   1);
 }
 
 process.stdout.write('scorer: all tests passed\n');
