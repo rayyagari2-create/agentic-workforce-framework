@@ -1,25 +1,106 @@
 # Agentic Workforce Framework
 
-A reference architecture for operating autonomous AI agents as
-accountable digital workers inside enterprise environments.
+## Agents that earn autonomy. Not agents you babysit.
 
-This framework defines how agents are assigned work, bounded by role,
-governed by approval chains, evaluated over time and integrated into
-enterprise structures such as divisions, workspaces, audit logs and
-control planes.
+The Agentic Workforce Framework gives AI coding agent teams an operating model:
+persistent identity, task contracts, failure memory, D1-D4 trust scoring, autonomy
+gates and audit trails.
 
-> **Status:** Production-informed reference architecture.
-> **Current implementation:** Single-workspace operating model with a five-agent reference team.
-> **Evidence base:** 50+ scored sessions in the reference implementation reporting period. Metrics are self-reported and have not been independently audited.
-> **Enterprise scaling model:** Designed extension, not yet field-proven at multi-team scale.
+Agent runtimes make agents execute. **AWF makes agents accountable.**
 
 ---
+
+## Try It
+
+> Requires Node.js 18+ and PostgreSQL.
+
+```bash
+git clone https://github.com/rayyagari2-create/agentic-workforce-framework
+cd agentic-workforce-framework
+cp examples/awf-demo/.env.example examples/awf-demo/.env
+# edit .env with your DATABASE_URL
+psql -d awf -f database/migrations/001_core_schema.sql
+psql -d awf -f database/migrations/002_audit_schema.sql
+psql -d awf -f database/migrations/003_audit_chain.sql
+psql -d awf -f database/migrations/004_work_item_classification.sql
+psql -d awf -f database/migrations/005_work_queue_claim.sql
+psql -d awf -f database/migrations/006_approval_gate.sql
+psql -d awf -f database/migrations/007_agent_assignment.sql
+node examples/awf-demo/src/run-demo.js
+```
+
+The demo loads a sample backlog, classifies 5 tickets by risk, fires an approval
+gate for high-risk items, assigns the right agent role, runs a simulated execution,
+produces a real D1-D4 score and writes a tamper-evident hash-chained audit log.
+
+D3 and D4 use deterministic scoring. D1 and D2 are candidate scores and require
+calibration before autonomy-gating decisions.
+
+---
+
+## Sprint 0 Status
+
+| Capability | Status |
+|---|---|
+| Postgres governance schema (10 tables, full tenant/workspace/division scope) | Implemented |
+| Hash-chained audit service as a separate process | Implemented |
+| AWFAgentRuntime interface v1.0 (vendor-neutral adapter contract) | Implemented |
+| SimulatedRuntimeAdapter with [PREVIEW] labeling | Implemented |
+| Work intake from JSON (GitHub Issues format) | Implemented |
+| Risk classifier (10 rules, deterministic, pure function) | Implemented |
+| Priority queue with SELECT FOR UPDATE SKIP LOCKED | Implemented |
+| Single approval gate (high/critical risk requires approval) | Implemented |
+| Agent assignment (5 roles, task-class routing) | Implemented |
+| D1-D4 reference scorer (D3/D4 deterministic, D1/D2 candidate) | Implemented |
+| QA verdict production (AJV-validated, 4 outcomes) | Implemented |
+| End-to-end CLI demo (9 steps, audit verified) | Implemented |
+| 5-agent reference team instructions | Implemented |
+| D1-D4 trust scoring rubric and calibration anchors | Implemented |
+| Failure memory with 17-class taxonomy | Implemented |
+| OS-level hook enforcement templates | Implemented |
+| AWF CLI (awf init, awf check, awf add) | Implemented |
+| Claude Code and Codex runtime adapters | Planned Sprint 2 |
+| Automated D1/D2 scoring (semantic, calibrated) | Planned Sprint 1+ |
+| Multi-workspace enterprise control plane | Planned Sprint 2+ |
+| AGT runtime policy integration | Preview (shadow mode) |
+
+Label meanings: **Implemented** is runnable today. **Planned** is on the roadmap.
+**Preview** is runnable with documented limits.
+
+---
+
+## Evidence Base
+
+From the private reference implementation since 2026-04-12:
+
+- 82 governed tasks scored
+- 123 individual agent-task scoring entries with evidence per dimension
+- 7 distinct agents scored
+- Observed score range: 48 to 100
+- Zero successful hook bypasses on record
+- Zero falsified telemetry incidents on record
+
+A governed task means a manifest-backed work item with scoring evidence.
+Metrics are self-reported and have not been independently audited.
+
+---
+
+## Choose Your Path
+
+- Run the demo: `node examples/awf-demo/src/run-demo.js`
+- Adopt AWF in your repo: `npx agentic-workforce-framework@latest init`
+- Build a runtime adapter: implement [AWFAgentRuntime v1.0](services/execution/src/runtime-interface.js)
+- Read the schemas: [schemas/v1/](schemas/v1/)
+- Read the architecture: [docs/architecture/four-plane-model.md](docs/architecture/four-plane-model.md)
+
+---
+
 ## Where this fits
 
 This repository is designed to be adapted, not installed.
 
-It is not an agent runtime, SDK, hosted product, or drop-in replacement for
-LangGraph, CrewAI, Claude Code, Microsoft Agent Governance Toolkit, or any
+It is not an agent runtime, SDK, hosted product or drop-in replacement for
+LangGraph, CrewAI, Claude Code, Microsoft Agent Governance Toolkit or any
 other execution framework.
 
 Those tools help agents run.
@@ -62,7 +143,7 @@ memory, approval gates and enterprise scaling.
 - Trust and autonomy model (D1-D4)
 - Manifest-based task assignment
 - OS-level hook interception examples
-- Reference Postgres governance schema
+- Reference Postgres governance schema (Sprint 0: 10 tables, full scope)
 - Enterprise extension schema (divisions, workspaces, agent instances)
 - Reference agent instruction files (five-agent team)
 - Failure memory taxonomy (17 classes)
@@ -71,7 +152,7 @@ memory, approval gates and enterprise scaling.
 - Modular install support for agents, trust scoring, failure memory,
   task manifests and Claude Code hooks
 - Runtime-aware scaffold support for Claude Code and runtime-agnostic
-  scaffold support for Cursor, Windsurf and other environments
+  scaffold support for other environments
 
 ---
 
@@ -87,9 +168,9 @@ and capability is labeled.
 | Experimental | Actively being validated in the reference implementation |
 | Planned | Future roadmap concept, not yet designed or built |
 
-The Implementation Status table below applies these labels to every
+The Implementation Status table applies these labels to every
 capability claim. The labels are deliberately conservative: a capability
-moves to "Implemented" only after sustained use in the reference
+moves to Implemented only after sustained use in the reference
 implementation, not on the day it is first written.
 
 ---
@@ -108,7 +189,7 @@ This framework is not:
 What this framework is:
 
 An operating architecture for accountable agentic work. It governs
-the operational reliability of agents — not the safety of their
+the operational reliability of agents, not the safety of their
 outputs. It tracks whether agents are becoming more or less
 trustworthy over time, gates autonomy on demonstrated behavior and
 maintains institutional failure memory.
@@ -180,27 +261,28 @@ For Claude Code runtimes only.
 
 - Single-workspace reference implementation only. Multi-workspace
   enterprise scaling is Reference Pattern, not field-proven.
-- Manual D1-D4 scoring is the current implementation. Automated
-  trust scoring is Planned. At enterprise scale, D1-D4 should be computed from structured QA verdicts, policy violations, audit events and failure recurrence data.
+- D1 and D2 scoring is heuristic in Sprint 0. Automated
+  trust scoring requires calibrated session data (n >= 20). At enterprise
+  scale, D1-D4 should be computed from structured QA verdicts, policy
+  violations, audit events and failure recurrence data.
 - Hook examples require environment-specific adaptation.
   Claude Code native hooks work out of the box. Framework-enriched
   hooks require payload enrichment before use in Claude Code.
-- Runtime policy layer (AGT integration) is Experimental —
+- Runtime policy layer (AGT integration) is Experimental in
   shadow mode in the reference implementation.
 - Claude Code does not provide framework-enriched context fields
   (agent_id, agent_depth, session_reads) by default. These must
   be derived from sidecar manifests or runtime state files.
-- Postgres governance schema is live with schema and constraints
-  in place. Data migration from file-based governance is in
-  progress in the reference implementation.
+- Runtime adapters for Claude Code and Codex ship in Sprint 2.
+  Sprint 0 ships a simulated adapter only.
 
 ---
 
 ## The Problem
 
 Enterprise AI agents are moving from isolated tools to autonomous digital workers.
-They plan, execute, review, escalate and collaborate across increasingly complex workflows.
-The question has shifted from:
+They plan, execute, review, escalate and collaborate across increasingly complex
+workflows. The question has shifted from:
 
 > *"Can this model answer correctly?"*
 
@@ -208,10 +290,11 @@ to:
 
 > *"How do we operate autonomous agent teams like an accountable workforce?"*
 
-That requires persistent identity, role boundaries, task assignment, work logs, trust
-history, failure memory, approval gates, policy enforcement and enterprise-scale team structures.
-Most teams are still early here. Many have model APIs and prompt files, but not yet
-a durable operating model for agent identity, trust, failure memory and autonomy.
+That requires persistent identity, role boundaries, task assignment, work logs,
+trust history, failure memory, approval gates, policy enforcement and
+enterprise-scale team structures. Most teams are still early here. Many have
+model APIs and prompt files, but not yet a durable operating model for agent
+identity, trust, failure memory and autonomy.
 
 ---
 
@@ -219,33 +302,30 @@ a durable operating model for agent identity, trust, failure memory and autonomy
 
 ```
 ╔════════════════════════════════════════════════════════════════╗
-║  AGENTIC WORKFORCE PLANE  ✅                                    ║
+║  AGENTIC WORKFORCE PLANE  Implemented                          ║
 ║                                                                 ║
 ║  Orchestrator · Frontend Agent · Backend Agent                  ║
 ║  QA Agent · Fix Agent                                           ║
 ╠════════════════════════════════════════════════════════════════╣
-║  AUTONOMY PLANE  ✅                                             ║
+║  AUTONOMY PLANE  Implemented                                    ║
 ║                                                                 ║
-║  D1-D4 Trust Scoring (manual) · Failure Memory (17 classes)     ║
+║  D1-D4 Trust Scoring · Failure Memory (17 classes)              ║
 ║  Autonomy Gates · Promotion / Demotion                          ║
 ╠════════════════════════════════════════════════════════════════╣
-║  CONTROL PLANE  ⚠️ partial                                      ║
+║  CONTROL PLANE  Experimental / partial                          ║
 ║                                                                 ║
 ║  Pre-Spawn Protocol · HITL Gates · OS-Level Hook System         ║
-║  AGT Adapter (shadow mode) · Audit Log (file-based)             ║
+║  AGT Adapter (shadow mode) · Audit Log (hash-chained Postgres)  ║
 ╠════════════════════════════════════════════════════════════════╣
-║  AUTOMATION PLANE  next                                         ║
+║  AUTOMATION PLANE  Planned                                      ║
 ║                                                                 ║
 ║  PR Test Routine (R1) · Security Scan Routine (R4)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ```
 
-The status glyphs above mirror the four-label legend: ✅ corresponds
-to Implemented, ⚠️ to Experimental, "next" to Planned. The full
-breakdown is in the Implementation Status table further down.
-
 **Governance is the control plane. Not the architecture.**
-The workforce plane is the headline. Governance is what makes it safe to run autonomously.
+The workforce plane is the headline. Governance is what makes it safe to run
+autonomously.
 
 ---
 
@@ -282,7 +362,7 @@ None replaces the other.
 |---|---|---|
 | Runtime enforcement | AGT-style runtime policy layer | What agents are permitted to do: identity, policy, sandboxing |
 | Scheduled automation | Claude Code Routines | When lightweight tasks run: scheduled checks, PR scans, alerts |
-| Behavioral accountability | **This framework** | Whether agents can be trusted to do it: trust over time, failure memory |
+| Behavioral accountability | This framework | Whether agents can be trusted to do it: trust over time, failure memory |
 
 The reference implementation currently uses Microsoft AGT in shadow mode.
 This framework is designed to sit above any runtime policy layer that provides
@@ -317,7 +397,7 @@ covers what you can run today without Postgres or hooks.
 | [D1-D4 Trust Scoring](docs/concepts/trust-scoring.md) | 100-point session scoring across Correctness, Observability, Compliance and Recurrence. Hard-stop rules. Calibration anchors. |
 | [Failure Memory](docs/concepts/failure-memory.md) | 17-class failure taxonomy. Recurrence detection. Pre-task retrieval: agents check their own failure history before starting. |
 | [Autonomy Gates](docs/concepts/autonomy-gates.md) | Five trust tiers (HIGH / STANDARD / RESTRICTED / PROBATION / PROVISIONAL). Promotion and demotion rules. Gate expansion on demonstrated trust. |
-| [Pre-Spawn Protocol](docs/control-plane/pre-spawn-protocol.md) | Three-step decision tree before any agent spawns. Governs whether to /spec, /plan, or require a Boardroom session. |
+| [Pre-Spawn Protocol](docs/control-plane/pre-spawn-protocol.md) | Three-step decision tree before any agent spawns. Governs whether to /spec, /plan or require a Boardroom session. |
 | [HITL Gates](docs/control-plane/hitl-gates.md) | Human-in-the-loop approval chains. Gate types, authority levels, delegation with TTL and 3-strike escalation. |
 | [Build State Machine](docs/control-plane/build-state-machine.md) | Agent execution lifecycle from DEBUG through COMPLETE, with loop conditions, QA enforcement and escalation triggers. |
 | [Hook System](docs/control-plane/hook-system.md) | OS-level enforcement via PreToolUse and PostToolUse hooks. exit(2) = hard block. Fail-closed by default. Operator override with TTL. |
@@ -333,19 +413,29 @@ row uses the four-label legend defined above.
 
 | Capability | Status |
 |---|---|
+| Postgres governance schema (10 tables, full tenant/division/workspace scope) | Implemented |
+| Hash-chained audit service (separate process, tamper-evident) | Implemented |
+| AWFAgentRuntime interface v1.0 | Implemented |
+| SimulatedRuntimeAdapter | Implemented |
+| Risk classifier (10 rules, deterministic) | Implemented |
+| Priority queue (SELECT FOR UPDATE SKIP LOCKED) | Implemented |
+| Approval gate (high/critical risk) | Implemented |
+| Agent assignment (5 roles, task-class routing) | Implemented |
+| D1-D4 reference scorer (D3/D4 deterministic, D1/D2 candidate) | Implemented |
+| QA verdict production (AJV-validated) | Implemented |
+| End-to-end CLI demo | Implemented |
 | Single-workspace orchestrator model | Implemented |
-| D1-D4 trust scoring | Implemented |
-| Failure memory | Implemented |
-| Hook enforcement | Implemented in reference implementation; public repo ships sanitized hook templates |
-| AGT integration | Experimental |
-| Postgres governance schema | Experimental |
+| D1-D4 trust scoring rubric and calibration anchors | Implemented |
+| Failure memory (17-class taxonomy) | Implemented |
+| Hook enforcement templates | Implemented |
+| AWF CLI (awf init, awf check, awf add) | Implemented |
+| Claude Code runtime adapter | Planned Sprint 2 |
+| Codex runtime adapter | Planned Sprint 2 |
+| Automated D1/D2 scoring | Planned Sprint 1+ |
+| Multi-workspace enterprise control plane | Planned Sprint 2+ |
+| AGT integration | Experimental (shadow mode) |
 | R1 PR test routine | Planned |
 | R4 security scan routine | Planned |
-| Enterprise multi-workspace model | Reference Pattern |
-| Automated trust scoring (R10) | Planned |
-| Work queue system | Planned |
-| Approval gate chains | Planned |
-| AWF CLI (awf init, awf check, awf add) | Implemented in v0.1.0 CLI |
 
 ---
 
@@ -353,16 +443,19 @@ row uses the four-label legend defined above.
 
 You can adopt the framework incrementally:
 
-0. Scaffold the starter framework into a repo:
+0. Run the demo to see governance end to end:
+
+    node examples/awf-demo/src/run-demo.js
+
+1. Scaffold the starter framework into a repo:
 
     npx agentic-workforce-framework@latest init
-    npx agentic-workforce-framework@latest check
 
-1. Start with the D1-D4 trust scoring rubric and score your first agent session.
-2. Add FailureRecord tracking for recurring agent mistakes.
-3. Introduce AgentTaskManifest before spawning agents on high-risk tasks.
-4. Add hook enforcement for high-risk file and commit actions.
-5. Move to Postgres-backed governance when file-based tracking becomes limiting.
+2. Start with the D1-D4 trust scoring rubric and score your first agent session.
+3. Add FailureRecord tracking for recurring agent mistakes.
+4. Introduce AgentTaskManifest before spawning agents on high-risk tasks.
+5. Add hook enforcement for high-risk file and commit actions.
+6. Move to Postgres-backed governance when file-based tracking becomes limiting.
 
 ---
 
@@ -372,46 +465,44 @@ Top-level folders in this repository:
 
 - `agents/` — Reference agent role definitions (orchestrator, frontend, backend, QA, fix).
 - `calibration/` — D1-D4 rubric anchors, confidence band guide, scoring ledger and anti-patterns.
-- `database/` — Postgres schemas: `database/governance/` (core) and `database/enterprise/` (multi-workspace extension).
+- `database/migrations/` — Postgres migrations for the Sprint 0 governance schema.
 - `docs/` — Concepts, control plane, architecture, operating model and guides.
-- `examples/` — Case study templates and worked examples.
-- `governance/` — Runtime state templates. Copy these files into your own repo and populate them. These are operational files your orchestrator reads at startup — not framework documentation.
-- `hooks/` — Sanitized PreToolUse / SubagentStart / PostToolUse hook examples plus Claude Code settings template.
+- `examples/awf-demo/` — End-to-end demo runner and sample backlog.
+- `governance/` — Runtime state templates. Copy into your own repo and populate them.
+- `hooks/` — Sanitized PreToolUse / SubagentStart / PostToolUse hook examples.
 - `routines/` — Scheduled automation routine specs.
-- `schemas/` — JSON Schema files for AgentTaskManifest, QAVerdict, FailureRecord and TrustScore.
-- `packages/awf-cli/` — npm CLI for scaffolding AWF artifacts into
-  a target repo.
+- `schemas/v1/` — JSON Schema files for AgentTaskManifest, QAVerdict, FailureRecord and TrustScore.
+- `services/audit-service/` — Hash-chained audit service (separate process).
+- `services/execution/` — AWFAgentRuntime interface and SimulatedRuntimeAdapter.
+- `services/governance/` — Intake, classifier, queue, approvals and assignment.
+- `services/scoring/` — D1-D4 scorer, QA verdict production and trust store.
+- `packages/awf-cli/` — npm CLI for scaffolding AWF artifacts into a target repo.
 
 ---
 
 ## Schemas
 
 Five JSON schemas ship with v1.0, all AJV Draft 2020-12 compatible.
-Implementations are expected to extend agent rosters, failure classes and domain-specific validation rules through versioned schema extensions rather than modifying adopted schemas silently.
 Schemas are versioned under `schemas/v1/`. Breaking changes require a new version path.
 
 | Schema | Purpose |
 |---|---|
-| [AgentTaskManifest](schemas/v1/agent-task-manifest.schema.json) | Mission context, files in scope, risk level and verification required. The employment contract for a task. |
-| [QAVerdict](schemas/v1/qa-verdict.schema.json) | Structured pass/fail with per-criterion evidence and ULID key. No judgment calls in the output format. |
-| [FailureRecord](schemas/v1/failure-record.schema.json) | 17-class failure taxonomy, recurrenceCount, prevention rule and agents involved. |
+| [AgentTaskManifest](schemas/v1/agent-task-manifest.schema.json) | Mission context, files in scope, risk level and verification required. |
+| [QAVerdict](schemas/v1/qa-verdict.schema.json) | Structured verdict with per-criterion evidence and ULID key. |
+| [FailureRecord](schemas/v1/failure-record.schema.json) | 17-class failure taxonomy, recurrenceCount and prevention rule. |
 | [TrustScore](schemas/v1/trust-score.schema.json) | D1-D4 per dimension, total score, trust level and confidence band. |
-| [AgentSpawnSidecar](schemas/v1/agent-spawn-sidecar.schema.json) | Hook-readable spawn authorization record. Written by the Orchestrator before Agent tool call. Validated by the PreToolUse hook. The enforcement artifact for agent spawn governance. |
+| [AgentSpawnSidecar](schemas/v1/agent-spawn-sidecar.schema.json) | Hook-readable spawn authorization record. The enforcement artifact for agent spawn governance. |
 
 ---
 
 ## Database
 
-Two SQL schemas ship with this framework, both Postgres-compatible.
+Sprint 0 ships seven sequential migrations under `database/migrations/`.
+Apply them in order against a Postgres 15+ database.
 
-**[/database/governance/](database/governance/)** Core governance tables for any single-workspace deployment.
-Includes audit log, agent events, trust scores, failure records and routine runs.
-Run this first.
-
-**[/database/enterprise/](database/enterprise/)** Enterprise extension for multi-workspace deployments.
-Includes divisions, workspaces, persistent agent instances, work queue items,
-gate records and delegation rules.
-Run this only when scaling to multi-team. Requires the governance schema first.
+The schema establishes 10 tables with full tenant, division and workspace
+scope on every workspace-scoped record. The audit schema adds a physically
+separate hash-chained event log with tamper detection.
 
 ---
 
@@ -419,20 +510,19 @@ Run this only when scaling to multi-team. Requires the governance schema first.
 
 The [/hooks/](hooks/) directory contains sanitized, commented example implementations
 of OS-level enforcement hooks for Claude Code. All paths are template placeholders.
-No private repository references exist in any example.
 
 All hooks follow two rules:
 
 - exit(2) = hard block, agent cannot proceed
-- Fail closed: any error defaults to block, not allow
+- Fail closed: any hook error defaults to block, not allow
 
 ---
 
 ## Calibration
 
-Trust scoring without calibration produces drift. The [/calibration/](calibration/) directory
-provides the D1-D4 rubric with anchored examples, a confidence band guide (n=sessions to band),
-a scoring ledger template and an anti-patterns document covering the most common scoring mistakes.
+Trust scoring without calibration produces drift. The [/calibration/](calibration/)
+directory provides the D1-D4 rubric with anchored examples, a confidence band
+guide (n=sessions to band), a scoring ledger template and an anti-patterns document.
 
 ---
 
@@ -474,7 +564,6 @@ Contributions welcome in three areas:
 
 **Case studies.** If you have adopted this framework or adapted it, submit a case study
 using [the template](examples/case-studies/TEMPLATE.md).
-The most useful case studies show what you adapted, not just that it worked.
 
 **Schema extensions.** Propose new schemas or schema versions via GitHub issue.
 Schema changes require a documented rationale and a backward-compatibility statement.
@@ -509,4 +598,3 @@ covered by this license.
 ---
 
 *Agentic Workforce Framework — originated by Ramesh Ayyagari (https://github.com/rayyagari2-create), 2026*
-*First public release: 2026*
