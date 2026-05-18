@@ -90,10 +90,21 @@ export async function classifyAll() {
 
             for (const row of rows) {
                 const { task_class, risk_level } = classify({ labels: row.labels });
+                // Flip 'created' -> 'classified' here. The lifecycle
+                // comment in database/migrations/005_work_queue_claim.sql
+                // makes the classifier the owner of that transition, and
+                // the queue (E0-06) only claims rows in 'classified'. The
+                // CASE guard leaves rows in any later state untouched, so
+                // re-running the classifier is safe.
                 await client.query(
                     `UPDATE public.work_queue_items
                         SET risk_level = $1::risk_level,
-                            task_class = $2
+                            task_class = $2,
+                            status     = CASE
+                                            WHEN status = 'created'
+                                            THEN 'classified'::work_queue_status
+                                            ELSE status
+                                         END
                       WHERE id = $3`,
                     [RISK_ENUM[risk_level], task_class, row.id],
                 );

@@ -1,26 +1,38 @@
 {
-  "verdictId": "01KRW53G5R7NEF90N7P66114NY",
-  "taskId": "01HW2YA6NXBZ4S0K3K9C5R8RQ7",
+  "verdictId": "01KRW5XDXHD95XWAM66S8W2X9S",
+  "taskId": "01KRW5XDXCYDEBAK3WXWCZAVCY",
   "verdict": "pass_with_notes",
   "qaDecision": "pass_with_notes",
   "criteria": [
     {
       "criterion_id": "AC-1",
-      "criterion_text": "criterion one",
+      "criterion_text": "Exponential backoff with jitter on transient (5xx, network) errors",
       "result": "pass",
-      "evidence": "[PREVIEW] simulated"
+      "evidence": "[PREVIEW] simulated runtime asserts this criterion holds"
     },
     {
       "criterion_id": "AC-2",
-      "criterion_text": "criterion two",
+      "criterion_text": "Maximum five attempts then dead letter",
       "result": "pass",
-      "evidence": "[PREVIEW] simulated"
+      "evidence": "[PREVIEW] simulated runtime asserts this criterion holds"
+    },
+    {
+      "criterion_id": "AC-3",
+      "criterion_text": "Idempotency key honored so retries do not double grant entitlements",
+      "result": "pass",
+      "evidence": "[PREVIEW] simulated runtime asserts this criterion holds"
+    },
+    {
+      "criterion_id": "AC-4",
+      "criterion_text": "Metrics emitted for attempt count and final outcome",
+      "result": "pass",
+      "evidence": "[PREVIEW] simulated runtime asserts this criterion holds"
     }
   ],
   "findings": [
     {
       "category": "qa_summary",
-      "description": "verdict=pass_with_notes; criteria total=2, failed=0, blocked=0",
+      "description": "verdict=pass_with_notes; criteria total=4, failed=0, blocked=0",
       "severity": "info"
     },
     {
@@ -30,5 +42,5 @@
     }
   ],
   "novelty": "unknown",
-  "timestamp": "2026-05-17T23:42:22.393Z"
+  "timestamp": "2026-05-17T23:56:32.049Z"
 }
