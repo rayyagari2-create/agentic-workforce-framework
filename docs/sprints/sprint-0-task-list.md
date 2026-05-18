@@ -15,5 +15,5 @@ Started: 2026-05-17
 - [ ] E0-10: D1-D4 reference scorer
 - [ ] E0-11: QA verdict production
 - [ ] E0-12: CLI demo entry point
-- [ ] E0-13: README update
+- [x] E0-13: README update
 - [ ] E0-14: Distribution list
