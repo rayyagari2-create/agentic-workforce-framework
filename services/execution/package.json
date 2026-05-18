@@ -6,7 +6,10 @@
   "type": "module",
   "main": "src/runtime-interface.js",
   "scripts": {
-    "test": "node test/simulated.test.js"
+    "test": "node test/simulated.test.js && node test/git-workspace-manager.test.js"
+  },
+  "dependencies": {
+    "simple-git": "^3.36.0"
   },
   "engines": {
     "node": ">=18.0.0"
