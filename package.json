@@ -1,0 +1,21 @@
+{
+  "name": "agentic-workforce-framework",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "services/audit-service",
+    "services/execution",
+    "services/governance",
+    "services/scoring",
+    "examples/awf-demo",
+    "packages/awf-cli"
+  ],
+  "scripts": {
+    "demo:setup": "node scripts/demo-setup.js",
+    "demo": "node examples/awf-demo/src/run-demo.js",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  }
+}

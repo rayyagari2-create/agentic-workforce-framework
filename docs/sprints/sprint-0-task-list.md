@@ -1,6 +1,8 @@
 # Sprint 0 Task List
 
-Status: COMPLETE
+Sprint 0 Engineering: COMPLETE
+Sprint 0 Distribution (E0-14): PARKED — research pending
+Sprint 0 Public Release: PENDING P0 cleanup
 Started: 2026-05-17
 
 - [x] E0-01: Core data model

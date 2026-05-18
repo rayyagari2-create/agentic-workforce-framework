@@ -1,5 +1,16 @@
 # Database
 
+## Sprint 0 demo path
+
+For the current public demo, run migrations in this order:
+database/migrations/001_core_schema.sql through 007_agent_assignment.sql
+then 008_audit_append_only.sql
+
+The older database/governance/ and database/enterprise/ folders remain
+reference patterns. Do not use them for the Sprint 0 demo path.
+
+---
+
 SQL governance schemas for the Agentic Workforce Framework.
 Postgres / Supabase compatible. Tested against Postgres 14+.
 

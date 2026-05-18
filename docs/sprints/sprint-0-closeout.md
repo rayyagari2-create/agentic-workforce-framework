@@ -1,6 +1,8 @@
 # Sprint 0 Closeout
 
-Status: COMPLETE
+Sprint 0 Engineering: COMPLETE
+Sprint 0 Distribution (E0-14): PARKED — research pending
+Sprint 0 Public Release: PENDING P0 cleanup
 Date: 2026-05-17
 Tag: v0.1.0-sprint-0
 Demo command: node examples/awf-demo/src/run-demo.js

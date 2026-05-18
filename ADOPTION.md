@@ -5,6 +5,20 @@ implementing the Agentic Workforce Framework.
 
 ---
 
+## Two adoption paths
+
+Path A: Lightweight adoption (no Postgres required)
+Start with the D1-D4 rubric, FailureRecord templates and AgentTaskManifest.
+No database, no hooks, no infrastructure.
+Follow the steps below.
+
+Path B: Sprint 0 control-plane demo (Postgres required)
+Run the full governance loop: intake, classification, approval gate,
+assignment, simulated execution, D1-D4 scoring and hash-chained audit.
+See the Try It section in README.md.
+
+---
+
 ## Who this is for
 
 Engineering leaders, platform teams and AI governance teams

@@ -17,16 +17,11 @@ Agent runtimes make agents execute. **AWF makes agents accountable.**
 ```bash
 git clone https://github.com/rayyagari2-create/agentic-workforce-framework
 cd agentic-workforce-framework
-cp examples/awf-demo/.env.example examples/awf-demo/.env
+cp .env.example .env
 # edit .env with your DATABASE_URL
-psql -d awf -f database/migrations/001_core_schema.sql
-psql -d awf -f database/migrations/002_audit_schema.sql
-psql -d awf -f database/migrations/003_audit_chain.sql
-psql -d awf -f database/migrations/004_work_item_classification.sql
-psql -d awf -f database/migrations/005_work_queue_claim.sql
-psql -d awf -f database/migrations/006_approval_gate.sql
-psql -d awf -f database/migrations/007_agent_assignment.sql
-node examples/awf-demo/src/run-demo.js
+npm install
+npm run demo:setup
+npm run demo
 ```
 
 The demo loads a sample backlog, classifies 5 tickets by risk, fires an approval

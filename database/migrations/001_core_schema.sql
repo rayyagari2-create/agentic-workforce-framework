@@ -220,9 +220,11 @@ CREATE TABLE IF NOT EXISTS public.approval_requests (
 -- 7. agent_runs
 -- ============================================================================
 -- One row per agent execution against a work item. runtime_provider is the
--- identifier of the runtime that executed the run (e.g., 'simulated',
--- 'cli_claude', 'cli_codex', 'api_anthropic'). Required so that downstream
--- trust and failure analytics can be segmented by runtime.
+-- identifier of the runtime that executed the run. Canonical values:
+-- 'claude_code', 'codex', 'devin', 'cursor', 'github_actions',
+-- 'github_copilot', 'simulated', 'internal', 'pre_execution',
+-- 'human_action', 'system'. Required so that downstream trust and failure
+-- analytics can be segmented by runtime.
 CREATE TABLE IF NOT EXISTS public.agent_runs (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id           UUID NOT NULL REFERENCES public.tenants(id) ON DELETE RESTRICT,
