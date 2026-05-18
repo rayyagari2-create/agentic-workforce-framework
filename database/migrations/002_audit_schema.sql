@@ -168,10 +168,15 @@ REVOKE UPDATE, DELETE ON audit.events FROM app_role;
 -- runtime_provider (convention, not enforced):
 --   pre_execution    -- default; event emitted before any runtime ran
 --   simulated        -- Sprint 0 simulated execution adapter (E0-09)
---   cli_claude       -- Claude Code CLI runtime
---   cli_codex        -- Codex CLI runtime
---   api_anthropic    -- direct Anthropic API runtime
---   api_openai       -- direct OpenAI API runtime
+--   claude_code      -- Claude Code runtime
+--   codex            -- Codex runtime
+--   devin            -- Devin runtime
+--   cursor           -- Cursor runtime
+--   github_actions   -- GitHub Actions runtime
+--   github_copilot   -- GitHub Copilot runtime
+--   internal         -- in-process runtime owned by AWF
+--   human_action     -- action performed directly by a human
+--   system           -- the runtime itself
 --   external         -- any runtime not in the controlled set; rationale required
 -- ============================================================================
 
