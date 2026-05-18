@@ -1,0 +1,20 @@
+{
+  "name": "@awf/intake",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sprint 1 intake adapters. E1-04 ships the GitHub Issues adapter that pulls open issues from a GitHub repo and normalizes them into AWF work items for the governance queue.",
+  "type": "module",
+  "main": "src/github-issues-adapter.js",
+  "scripts": {
+    "intake:github": "node src/github-issues-adapter.js",
+    "test": "node test/github-issues-adapter.test.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Ramesh Ayyagari",
+  "license": "MIT"
+}

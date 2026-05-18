@@ -6,6 +6,7 @@
     "services/audit-service",
     "services/execution",
     "services/governance",
+    "services/intake",
     "services/scoring",
     "examples/awf-demo",
     "packages/awf-cli"
