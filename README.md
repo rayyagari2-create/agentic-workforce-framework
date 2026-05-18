@@ -92,20 +92,22 @@ Metrics are self-reported and have not been independently audited.
 
 ## Where this fits
 
-This repository is designed to be adapted, not installed.
+AWF is not an agent execution runtime. It does not replace Claude Code,
+Devin, Codex, LangGraph or any other execution framework.
 
-It is not an agent runtime, SDK, hosted product or drop-in replacement for
-LangGraph, CrewAI, Claude Code, Microsoft Agent Governance Toolkit or any
-other execution framework.
+Those tools make agents execute. AWF governs whether the work was
+authorized, evidenced, auditable, trustworthy and safe to repeat.
 
-Those tools help agents run.
+AWF sits alongside your existing agent runtimes and adds:
+- A governed intake and approval layer before agents start work
+- A trust scoring model that tracks agent reliability over time
+- A tamper-evident audit trail across every agent action
+- A runtime adapter interface so any execution platform can be governed
 
-This framework defines the operating discipline around agent work: identity,
-task contracts, failure memory, behavioral trust scoring, escalation, approval
-gates and auditability.
-
-Most teams should adapt the concepts, schemas, controls and reference patterns
-to their own runtime, risk model and enterprise environment.
+You can run the Sprint 0 demo today. You can adopt individual schemas
+and concepts without running the full stack. And when Sprint 2 ships,
+you can plug in Claude Code or Codex as governed runtimes using the
+AWFAgentRuntime adapter interface.
 
 ---
 
