@@ -7,11 +7,12 @@
   "scripts": {
     "intake":         "node src/intake.js",
     "classify":       "node src/classifier.js",
-    "test":           "node test/classifier.test.js && node test/queue.test.js && node test/approvals.test.js && node test/assigner.test.js && node test/conflict-graph.test.js",
+    "test":           "node test/classifier.test.js && node test/queue.test.js && node test/approvals.test.js && node test/assigner.test.js && node test/conflict-graph.test.js && node test/wave-planner.test.js",
     "test:queue":         "node test/queue.test.js",
     "test:approvals":     "node test/approvals.test.js",
     "test:assigner":      "node test/assigner.test.js",
-    "test:conflict-graph": "node test/conflict-graph.test.js"
+    "test:conflict-graph": "node test/conflict-graph.test.js",
+    "test:wave-planner":   "node test/wave-planner.test.js"
   },
   "dependencies": {
     "pg": "^8.11.0"

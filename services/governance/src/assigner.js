@@ -73,6 +73,8 @@ const ASSIGN_SQL = `
  RETURNING id, status, assigned_agent_instance_id, task_class
 `;
 
+export { ROUTING_TABLE as TASK_CLASS_TO_ROLE };
+
 export async function assignAgent(pool, workItemId) {
     const client = await pool.connect();
     try {
