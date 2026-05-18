@@ -6,6 +6,32 @@ This project adheres to semantic versioning for schemas and documentation. Break
 
 ---
 
+## [v0.1.0-sprint-0] - 2026-05-17
+
+### Added
+- Sprint 0 end-to-end demo (node examples/awf-demo/src/run-demo.js)
+- Postgres core schema: 10 tables with full tenant/division/workspace scope
+- Hash-chained audit service as a separate process with tamper-evident verification
+- AWFAgentRuntime interface v1.0 (vendor-neutral adapter contract)
+- SimulatedRuntimeAdapter with [PREVIEW] labeling
+- Work intake from JSON (GitHub Issues format)
+- Risk classifier (10 rules, deterministic, pure function)
+- Priority queue with SELECT FOR UPDATE SKIP LOCKED
+- Single approval gate (high/critical risk gated to tech_lead)
+- Agent assignment (5 roles, task-class routing)
+- D1-D4 reference scorer (D3/D4 deterministic, D1/D2 candidate)
+- QA verdict production (AJV-validated, 4 outcomes)
+- Root workspace package.json with npm install and npm run demo
+- Audit append-only trigger (migration 008)
+- demo-output/ gitignored, sample outputs in examples/awf-demo/sample-output/
+
+### Status
+- D1/D2 scoring is heuristic. Full calibration requires n >= 20 sessions.
+- Runtime adapters for Claude Code and Codex ship in Sprint 2.
+- Distribution list (E0-14) parked pending research.
+
+---
+
 ## [CLI v0.1.0] - 2026-04-28
 
 ### Added
