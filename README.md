@@ -511,10 +511,13 @@ separate hash-chained event log with tamper detection.
 The [/hooks/](hooks/) directory contains sanitized, commented example implementations
 of OS-level enforcement hooks for Claude Code. All paths are template placeholders.
 
-All hooks follow two rules:
+PreToolUse enforcement hooks fail closed:
 
 - exit(2) = hard block, agent cannot proceed
-- Fail closed: any hook error defaults to block, not allow
+- Any hook error defaults to block, not allow
+
+PostToolUse audit hooks cannot retroactively block completed actions.
+They write audit events, failure records and governance alerts.
 
 ---
 
