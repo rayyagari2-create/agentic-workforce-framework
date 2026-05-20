@@ -66,6 +66,12 @@ operator, but deployments should document how their runtime
 treats PostToolUse non-zero exits. Do not assume PostToolUse
 exit(2) blocks anything.
 
+**SDK compatibility.** These examples target command-based runtime
+hook execution (exit 0 = allow, exit 2 = hard block). SDK-native
+hook APIs may require structured JSON responses instead of
+exit-code-only behavior. Validate hook protocol compatibility
+before using these examples with an SDK runner.
+
 ---
 
 ## When to use a hook vs runtime policy

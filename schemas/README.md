@@ -3,7 +3,7 @@
 Generic, product-agnostic JSON Schemas for the Agentic Workforce Framework.
 All schemas are written for **AJV with JSON Schema Draft 2020-12**.
 
-These schemas describe the four governance contracts that any single-workspace
+These schemas describe five governance artifacts that any single-workspace
 deployment must produce and consume:
 
 - **AgentTaskManifest** the dispatch contract. No manifest = no dispatch.

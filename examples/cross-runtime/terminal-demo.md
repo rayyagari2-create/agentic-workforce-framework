@@ -89,6 +89,7 @@ VERIFIED
 ├─────────────────────────────────────────┤
 │ AWF governs heterogeneous agent         │
 │ runtimes from one control plane.        │
-│ Not a claim. A demo.                    │
+│ Not just a claim. A validated pattern,  │
+│ shown here as a sanitized replay.       │
 └─────────────────────────────────────────┘
 ```

@@ -1,6 +1,7 @@
 # Cross-Runtime Governance Demo
 
-This demo shows AWF governing **two heterogeneous agent runtimes** —
+This runnable sanitized replay of the Sprint 2 proof pattern shows
+AWF governing **two heterogeneous agent runtimes** —
 an event-rich adapter (Claude Code profile) and a policy-rich adapter
 (Codex profile) — through a single control plane, producing **one
 verified audit chain** across both runs.

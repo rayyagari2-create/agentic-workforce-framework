@@ -45,9 +45,8 @@ This project adheres to semantic versioning for schemas and documentation. Break
 
 ### Status
 
-- The public demo uses simulated adapter outputs that mirror the
-  Sprint 2 proof pattern. Real adapter implementations remain in the
-  commercial control-plane repo.
+- Public demo is a sanitized replay of the Sprint 2 governance proof.
+  Real adapter implementations and production evidence remain private.
 - D1/D2 remain candidate scores in the public reference.
   Calibration still requires n >= 20 sessions.
 

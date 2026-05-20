@@ -11,6 +11,7 @@ Reference implementations of the Agentic Workforce Framework, organized by deplo
 | Zero infra. You have model APIs and prompt files. You want to run a scored session inside of a day. | [`minimum-viable-adoption/`](minimum-viable-adoption/) | [v1.0] |
 | Single workspace. You have or are willing to stand up Postgres, hooks, and a file-based bulletin. You want the full reference implementation. | [`single-workspace/`](single-workspace/) | [v1.0] |
 | Multi-team, multiple workspaces, division-level orchestration. | [`multi-team/`](multi-team/) | [v3.0] placeholder |
+| You want to understand Sprint 2 cross-runtime governance proof. | [`cross-runtime/`](cross-runtime/) | v0.2.0 sanitized replay of validated proof |
 | You have adopted this framework and want to share results. | Submit a [`case-studies/`](case-studies/) entry | [v1.0] |
 
 ---

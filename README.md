@@ -22,9 +22,10 @@ Agent runtimes make agents execute. **AWF makes agents accountable.**
 Sprint 2 proved the cross-runtime pattern end-to-end: an event-rich
 adapter (Claude Code profile) and a policy-rich adapter (Codex
 profile) run through the same five-stage governance lifecycle and
-emit into one tamper-evident audit chain. Both reach D1-D4 = 93 →
-HIGH on the same governed work item; the chain verifies end-to-end
-with per-runtime attribution preserved.
+emit into one tamper-evident audit chain. In the sanitized replay,
+both adapter profiles reach D1-D4 = 93 → HIGH on the same governed
+work item; the chain verifies end-to-end with per-runtime attribution
+preserved.
 
 The published design foundations are in
 [docs/adapter-designs/](docs/adapter-designs/) (DESIGN-01, DESIGN-02,
@@ -93,8 +94,8 @@ chain across both. Adapter design foundations DESIGN-01 / DESIGN-02
 | Adapter Enforcement Limits (DESIGN-03) | Published (Sprint 2) |
 | Cross-runtime governance demo (sanitized) | Published (Sprint 2) |
 | Claude Code and Codex runtime adapters (production implementations) | Commercial repo (Sprint 2 proven) |
-| Automated D1/D2 scoring (semantic, calibrated) | Planned Sprint 1+ |
-| Multi-workspace enterprise control plane | Planned Sprint 2+ |
+| Automated D1/D2 scoring (semantic, calibrated) | Planned — calibration-dependent |
+| Multi-workspace enterprise control plane | Reference Pattern |
 | AGT runtime policy integration | Preview (shadow mode) |
 
 Label meanings: **Implemented** is runnable today. **Planned** is on the roadmap.
@@ -245,6 +246,12 @@ These three layers are complementary. None replaces the other.
 ---
 
 ## Install the CLI
+
+> Framework public release: v0.2.0.
+> CLI npm package: v0.1.0.
+> These version numbers are separate. The framework version reflects
+> public milestone completion. The CLI package version reflects CLI
+> changes only.
 
 Scaffold the full framework into any repo:
 
@@ -478,8 +485,8 @@ row uses the four-label legend defined above.
 | Adapter Enforcement Limits (DESIGN-03) | Published (Sprint 2) |
 | Cross-runtime governance demo (sanitized) | Published (Sprint 2) |
 | Claude Code and Codex runtime adapters (production implementations) | Commercial repo (Sprint 2 proven) |
-| Automated D1/D2 scoring | Planned Sprint 1+ |
-| Multi-workspace enterprise control plane | Planned Sprint 2+ |
+| Automated D1/D2 scoring | Planned — calibration-dependent |
+| Multi-workspace enterprise control plane | Reference Pattern |
 | AGT integration | Experimental (shadow mode) |
 | R1 PR test routine | Planned |
 | R4 security scan routine | Planned |
