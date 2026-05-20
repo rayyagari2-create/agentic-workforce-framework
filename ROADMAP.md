@@ -1,197 +1,131 @@
-# Roadmap
+# AWF Public Roadmap
 
-This roadmap describes how the reference pattern will mature
-over time.
-
-The current version is intentionally scoped to a five-agent
-team and single-workspace operating model because those
-patterns are validated, explainable and suitable for
-enterprise review today.
-
-Future versions expand runtime coverage, automation depth
-and enterprise operating models only after the reference
-implementation validates them.
-
-Each version ships when the reference implementation has
-validated it, not on a fixed calendar.
+This roadmap covers the public framework standards repository only.
+Runtime adapter implementations, private production-reference evidence
+and the commercial control-plane remain in a separate private repository.
 
 ---
 
-## v0.2.0 — Sprint 2 Cross-Runtime Governance Proof
+## Public / Private Boundary
 
-Published adapter capability model (DESIGN-01), trust subject model
-(DESIGN-02), and enforcement limits (DESIGN-03). Sanitized cross-runtime
-replay demonstrates the five-stage governance lifecycle across two
-competing AI providers. Real adapter implementations remain private.
-
----
-
-## v0.1.0 - AWF CLI
-
-First installable release of the Agentic Workforce Framework CLI.
-
-    npm install -g agentic-workforce-framework
-
-Commands:
-
-- awf init — scaffold the framework into any repo
-- awf add <module> — install a specific module
-- awf check — validate your setup
-
-Available modules:
-
-- five-agent-team — five agent instruction files
-- trust-scoring — D1-D4 rubric, calibration anchors, TrustScore schema
-- failure-memory — failure library, FailureRecord schema, example
-- task-manifest — AgentTaskManifest schema, sidecar schema, example
-- claude-code-hooks — hook examples and Claude Code settings example
-
-The CLI scaffolds the operating model around your chosen runtime.
-It does not run agents directly.
+| Public (this repo) | Private (commercial repo) |
+|---|---|
+| Framework concepts and standards | Runtime adapter implementations |
+| Schemas and rubrics | Gate 2 / Gate 3 execution evidence |
+| D1-D4 trust scoring model | Commercial control-plane |
+| Trust subject model | Private production-reference implementation |
+| Adapter capability model | Real Claude Code and Codex adapter code |
+| Enforcement limit standards | Private audit chain evidence |
+| Sanitized demo patterns | |
+| Governed skills and plugin scaffolds | |
 
 ---
 
-## CLI Roadmap
+## v0.1.0 — Sprint 0 + Sprint 1: Reference Framework Foundation
+**Status: COMPLETE**
 
-### v0.1 - Current
-
-- awf init, awf check, awf add
-- Claude Code scaffold support
-- Runtime-agnostic scaffold support for Cursor, Windsurf and Other
-- Modular installs: five-agent-team, trust-scoring, failure-memory,
-  task-manifest, claude-code-hooks
-
-### v0.2 - Next
-
-- awf validate manifest
-- awf validate failure
-- awf validate trust
-- awf new manifest
-- awf new failure
-- Expanded schema fixture validation
-
-### v0.3 - Planned
-
-- awf score
-- Interactive D1-D4 scoring
-- TrustScore JSON generation
-- Calibration guardrails
-
-### v0.4 - Planned
-
-- Runtime adapter templates for LangGraph, CrewAI and OpenAI Agents SDK
-- Postgres scaffold option
-- CI validation examples
+- CLI scaffold and demo runner
+- Five-agent reference operating model
+- D1-D4 trust scoring rubric and calibration anchors
+- Failure memory taxonomy (17 classes)
+- AgentTaskManifest, QAVerdict, FailureRecord, TrustScore schemas
+- Simulated governance demo
+- Postgres governance schema (core + enterprise extension)
+- OS-level hook examples (sanitized)
 
 ---
 
-## v1.0 - Reference Pattern
+## v0.2.0 — Sprint 2: Cross-Runtime Governance Proof
+**Status: CURRENT**
 
-Published reference architecture for governed autonomous
-agent teams.
+AWF has validated the cross-runtime governance pattern across two real
+agent runtime families — Claude Code (Anthropic) and Codex (OpenAI) —
+through a private production-reference implementation.
 
-Includes:
+Public scope released:
+- Runtime Adapter Capability Model (DESIGN-01) — 12 capability surfaces,
+  7 runtime profiles, evidence strength model E0-E3
+- Trust Subject Model (DESIGN-02) — 7 trust subject types, subject_key
+  patterns, cross-runtime trust rules
+- Adapter Enforcement Limits (DESIGN-03) — per-tier claims language,
+  overclaiming prevention standard
+- Sanitized cross-runtime demo replay in examples/cross-runtime/
 
-- Five-agent reference team:
-  - Orchestrator
-  - Frontend Agent
-  - Backend Agent
-  - QA Agent
-  - Fix Agent
-- Single-workspace operating model
-- Claude Code native hook interception examples
-- D1-D4 trust scoring with calibration anchors
-- Failure memory with 17-class taxonomy
-- Pre-spawn protocol
-- Build state machine
-- Enterprise architecture published as a reference pattern
-- Postgres governance schema
-- JSON schemas for core artifacts
-- Control ownership matrix
-- Threat model
-- End-to-end governance scenario
+Private scope (not in this repo):
+- Real Claude Code and Codex adapter implementations
+- Gate 3 production validation evidence
+- Commercial control-plane implementation
 
 ---
 
-## v1.5 - Runtime Expansion
+## v0.3.0 — Public Governance Schemas
+**Status: PLANNED**
 
-Planned expansion of the reference pattern across additional
-governance agents and runtime environments.
-
-Expected additions:
-
-- Additional agents:
-  - security-check
-  - evolve
-  - code-review
-- Runtime adapter variants for non-Claude Code environments
-- Automated schema validation in CI
-- Additional hook examples
-- Community case studies from early adopters
-- Expanded documentation for implementation teams
-- awf score command for interactive D1-D4 trust scoring
-- awf validate command for artifact schema validation
-- awf new manifest and awf new failure artifact creation commands
+- trust_subjects reference schema
+- trust_capability_profiles reference schema
+- Evidence strength schema (E0-E3 formal definition)
+- AdapterCapabilityProfile schema
+- Public validation CLI commands for framework artifacts:
+  awf validate manifest
+  awf validate trust
+  awf validate failure
 
 ---
 
-## v2.0 - Expanded Reference Pattern
+## v0.4.0 — Governed Skills and Plugin Scaffolding
+**Status: PLANNED**
 
-Designed expansion for larger agent teams and stronger
-automation support.
-
-Expected additions:
-
-- Additional agents:
-  - chief-of-staff
-  - deep-research
-- Multi-workspace model field validation
-- Automated trust scoring pattern
-- Full approval gate chain implementation
-- Expanded audit trail examples
-- More complete enterprise operating model guidance
+- AWF governed skills model
+- AGENTS.md governance template library
+- Runtime-specific plugin manifest scaffolds (Claude Code, Codex,
+  Cursor, OpenClaw patterns) — sanitized, no proprietary adapter code
+- awf init command for scaffolding governance in a new repo
 
 ---
 
-## v3.0 - Enterprise Scale Pattern
+## v0.5.0 — Community Adapter Examples
+**Status: PLANNED**
 
-Planned maturity layer for enterprise-scale governance,
-reporting and compliance support.
+- Simulated event-rich adapter (Claude Code profile) — no real SDK
+- Simulated policy-rich adapter (Codex profile) — no real SDK
+- Simulated artifact-rich adapter (Devin profile) — no real API
+- LangGraph embedded governance example
+- GitHub Actions artifact adapter example
 
-Expected additions:
+---
 
-- Enterprise division model field-proven
-- Full row-level security policy suite for enterprise tables
-- Compliance export capability
-- Eval/Telemetry service reference pattern
-- Deploy service reference pattern
-- Enterprise reporting patterns
-- Expanded control evidence mapping
+## v1.0 — Public Reference Standard
+**Status: DIRECTIONAL**
+
+- Stable schemas (no breaking changes without major version bump)
+- Stable D1-D4 scoring model
+- Stable trust subject model
+- Stable adapter capability model
+- Stable enforcement claim language
+- Complete sanitized demo suite
+- Adoption guide and case study library
+- Community adapter contribution path
 
 ---
 
 ## Contributing
 
-Community contributions are welcome in focused areas:
+Public contributions are welcome in:
+- Schema extensions and schema versions
+- Adapter capability profiles for new runtimes
+- Simulated adapter examples (no real SDK code required)
+- Governed skills and AGENTS.md templates
+- Enforcement-limit documentation for additional runtime tiers
+- Case studies and adoption guides
 
-- Case studies
-- Schema extensions
-- Concept documentation
-- Runtime adapter examples
-- Enterprise adoption notes
+Commercial runtime adapters and private production-reference
+implementations are maintained separately and are not accepting
+public contributions.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution
-guidelines.
+See CONTRIBUTING.md for guidelines.
 
-Runtime adapter contributions for Codex, Cursor, Windsurf
-and other agent runtimes are especially welcome.
+---
 
-To preserve the integrity of the reference architecture,
-contributions should extend the pattern without weakening
-the core governance principles:
-
-- Human approval before production-impacting actions
-- Append-only audit trail
-- Trust scoring based on evidence
-- Failure memory with recurrence tracking
-- Clear separation between agents, services and routines
+*Roadmap owner: Ramesh Ayyagari*
+*Last updated: 2026-05-20*
+*Change process: roadmap updates require explicit milestone decision*
