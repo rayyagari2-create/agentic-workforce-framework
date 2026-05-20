@@ -5,11 +5,13 @@
 // failure. Uses node:assert/strict to match classifier.test.js and the
 // execution test.
 //
-// All test rows use the 'queue-test:<phase>:<n>' task_id prefix so the
-// fixtures are isolated from the real backlog and can be cleaned up in one
-// DELETE at the start (defensive) and the end (cleanup) of the run.
+// Test isolation: a fresh workspace row is created per run (TEST_WORKSPACE_ID
+// is randomly generated) so demo seed data in the canonical demo workspace
+// never bleeds into the empty-queue assertion. The workspace is torn down in
+// the finally block.
 
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import pg from 'pg';
 import { databaseUrl } from '../src/env.js';
 import { claimNextEligibleItem } from '../src/queue.js';
@@ -18,16 +20,29 @@ const { Pool } = pg;
 
 const DEMO_TENANT_ID    = '00000000-0000-0000-0000-000000000001';
 const DEMO_DIVISION_ID  = '00000000-0000-0000-0000-000000000010';
-const DEMO_WORKSPACE_ID = '00000000-0000-0000-0000-000000000100';
+const TEST_WORKSPACE_ID = crypto.randomUUID();
+const TEST_WORKSPACE_SLUG = `queue-test-${TEST_WORKSPACE_ID.slice(0, 8)}`;
 
 const TEST_PREFIX = 'queue-test:';
 
 async function deleteTestRows(pool) {
     await pool.query(
-        `DELETE FROM public.work_queue_items
-          WHERE workspace_id = $1 AND task_id LIKE $2`,
-        [DEMO_WORKSPACE_ID, TEST_PREFIX + '%'],
+        `DELETE FROM public.work_queue_items WHERE workspace_id = $1`,
+        [TEST_WORKSPACE_ID],
     );
+}
+
+async function createTestWorkspace(pool) {
+    await pool.query(
+        `INSERT INTO public.workspaces (id, tenant_id, division_id, slug, name, hitl_default_threshold)
+         VALUES ($1, $2, $3, $4, 'Queue Test Workspace', 'HIGH')
+         ON CONFLICT (id) DO NOTHING`,
+        [TEST_WORKSPACE_ID, DEMO_TENANT_ID, DEMO_DIVISION_ID, TEST_WORKSPACE_SLUG],
+    );
+}
+
+async function dropTestWorkspace(pool) {
+    await pool.query(`DELETE FROM public.workspaces WHERE id = $1`, [TEST_WORKSPACE_ID]);
 }
 
 // Insert a single work item shaped like a post-classifier row. Caller picks
@@ -50,7 +65,7 @@ async function insertItem(pool, {
          )
          RETURNING id`,
         [
-            DEMO_TENANT_ID, DEMO_DIVISION_ID, DEMO_WORKSPACE_ID,
+            DEMO_TENANT_ID, DEMO_DIVISION_ID, TEST_WORKSPACE_ID,
             TEST_PREFIX + taskId, title, risk_level, status, priority, claimed_at,
         ],
     );
@@ -69,6 +84,8 @@ async function getItem(pool, id) {
 const pool = new Pool({ connectionString: databaseUrl() });
 
 try {
+    // Provision a fresh workspace for this run.
+    await createTestWorkspace(pool);
     // Clean any leftovers from a prior failed run.
     await deleteTestRows(pool);
 
@@ -76,7 +93,7 @@ try {
     // Phase A: empty queue returns null.
     // ------------------------------------------------------------------
     {
-        const claimed = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
+        const claimed = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
         assert.equal(claimed, null, 'empty queue must return null');
     }
 
@@ -91,7 +108,7 @@ try {
             taskId: 'B:1', title: 'Phase B item',
             status: 'classified', risk_level: 'MEDIUM', priority: 100,
         });
-        const claimed = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
+        const claimed = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
         assert.ok(claimed, 'phase B: expected a claimed row');
         assert.equal(claimed.id, id, 'phase B: claimed the row we inserted');
         assert.equal(claimed.status, 'planned', 'phase B: status must be planned');
@@ -112,7 +129,7 @@ try {
             taskId: 'C:1', title: 'Phase C critical',
             status: 'classified', risk_level: 'CRITICAL', priority: 100,
         });
-        const claimed = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
+        const claimed = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
         assert.equal(claimed, null, 'phase C: critical-risk rows must not be claimed');
         await deleteTestRows(pool);
     }
@@ -130,7 +147,7 @@ try {
             status: 'planned', risk_level: 'MEDIUM', priority: 100,
             claimed_at: staleAt,
         });
-        const claimed = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
+        const claimed = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
         assert.ok(claimed, 'phase D: stale planned row must be re-claimable');
         assert.equal(claimed.id, id);
         assert.equal(claimed.status, 'planned');
@@ -140,7 +157,7 @@ try {
         );
 
         // Sanity: a fresh planned row (claimed_at = NOW) must NOT be re-claimable.
-        const freshClaimed = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
+        const freshClaimed = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
         assert.equal(
             freshClaimed, null,
             'phase D: a freshly claimed row must not be re-claimable immediately',
@@ -167,8 +184,8 @@ try {
         });
 
         const [a, b] = await Promise.all([
-            claimNextEligibleItem(pool, DEMO_WORKSPACE_ID),
-            claimNextEligibleItem(pool, DEMO_WORKSPACE_ID),
+            claimNextEligibleItem(pool, TEST_WORKSPACE_ID),
+            claimNextEligibleItem(pool, TEST_WORKSPACE_ID),
         ]);
 
         assert.ok(a, 'phase E: caller A claimed a row');
@@ -195,8 +212,8 @@ try {
         });
 
         const [a, b] = await Promise.all([
-            claimNextEligibleItem(pool, DEMO_WORKSPACE_ID),
-            claimNextEligibleItem(pool, DEMO_WORKSPACE_ID),
+            claimNextEligibleItem(pool, TEST_WORKSPACE_ID),
+            claimNextEligibleItem(pool, TEST_WORKSPACE_ID),
         ]);
 
         const winners = [a, b].filter(Boolean);
@@ -226,10 +243,10 @@ try {
             status: 'classified', risk_level: 'MEDIUM', priority: 100,
         });
 
-        const first  = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
-        const second = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
-        const third  = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
-        const fourth = await claimNextEligibleItem(pool, DEMO_WORKSPACE_ID);
+        const first  = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
+        const second = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
+        const third  = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
+        const fourth = await claimNextEligibleItem(pool, TEST_WORKSPACE_ID);
 
         assert.equal(first.id,  idHigh, 'phase G: highest priority claimed first');
         assert.equal(second.id, idMid,  'phase G: middle priority claimed second');
@@ -246,5 +263,6 @@ try {
 } finally {
     // Belt-and-braces cleanup even on failure.
     try { await deleteTestRows(pool); } catch (_) { /* ignore */ }
+    try { await dropTestWorkspace(pool); } catch (_) { /* ignore */ }
     await pool.end();
 }
