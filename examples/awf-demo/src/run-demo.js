@@ -680,7 +680,8 @@ async function main() {
         }
 
         process.stdout.write(
-            `\n${BOLD}Sprint 2: Same governance. Claude Code (Anthropic) or Codex (OpenAI).${OFF}\n`,
+            `\n${BOLD}Sprint 2: Same governance model across Claude Code and Codex.${OFF}\n` +
+            `Public demo uses simulated/sanitized evidence; real adapters remain private.\n`,
         );
     } finally {
         await pool.end().catch(() => {});
