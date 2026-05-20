@@ -1,7 +1,7 @@
 # Runtime Adapter Capability Model
 **Document ID:** DESIGN-01
 **Version:** 1.1
-**Status:** NEAR LOCK — pending founder review
+**Status:** LOCKED — public Sprint 2 foundation
 **Location:** `docs/adapter-designs/DESIGN-01.md`
 **Depends on:** None — this is the foundation document
 **Blocks:** All other adapter design documents
@@ -601,8 +601,5 @@ and hooks are verified fail-closed in the target environment.
 
 ---
 
-*Document owner: Founder*
-*Version 1.1 — LOCKED. CTO corrections applied. Split evidenceStrength into current/target.*
-*Added requiresRuntimeHookInstall and supportsFailClosed fields.*
-*D3 deterministic language qualified. Multica evidence split into lifecycle/work-product.*
-*Standard sections added: Open Questions, Implementation Checklist, Acceptance Evidence, Claims.*
+*Document owner: Ramesh Ayyagari*
+*Version 1.1 — 2026-05-19*

@@ -1,7 +1,7 @@
 # Adapter Enforcement Limits
 **Document ID:** DESIGN-03
 **Version:** 1.1
-**Status:** NEAR LOCK — pending founder review
+**Status:** LOCKED — public Sprint 2 foundation
 **Location:** `docs/adapter-designs/DESIGN-03.md`
 **Depends on:** DESIGN-01, DESIGN-02
 **Blocks:** All adapter design documents, marketing and sales materials
@@ -343,8 +343,5 @@ The phrase "AWF is the only cross-runtime governance layer" — too absolute and
 
 ---
 
-*Document owner: Founder*
-*Version 1.1 — LOCKED. CTO corrections applied. Tier 1 split into capable vs installed/active.*
-*"Every tool call" qualified to "exposed through the runtime hook surface."*
-*Codex hook explanation added. Four hook conditions required before E3 claim.*
-*Standard sections added.*
+*Document owner: Ramesh Ayyagari*
+*Version 1.1 — 2026-05-19*

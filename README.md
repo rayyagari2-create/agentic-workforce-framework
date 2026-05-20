@@ -13,7 +13,11 @@ Agent runtimes make agents execute. **AWF makes agents accountable.**
 ## Sprint 2: Cross-Runtime Governance — Proven
 
 > AWF governs heterogeneous agent runtimes from one control plane.
-> Not a claim. A demo.
+> AWF Sprint 2 validated the cross-runtime governance pattern in a
+> private production-reference implementation. This public repo includes
+> the framework standards and a sanitized replay of the proof pattern.
+> Real runtime adapter implementations and production evidence remain
+> in the commercial control-plane repo.
 
 Sprint 2 proved the cross-runtime pattern end-to-end: an event-rich
 adapter (Claude Code profile) and a policy-rich adapter (Codex

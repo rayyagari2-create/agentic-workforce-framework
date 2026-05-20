@@ -20,7 +20,8 @@ See [`terminal-demo.md`](terminal-demo.md) for the full sanitized transcript.
 4. The hash-chained audit log captures events from both runtimes into
    one tamper-evident chain, with per-runtime attribution preserved.
 5. A heterogeneous fleet of agent runtimes can be governed from one
-   control plane — not as an aspiration, but as a runnable demo.
+   control plane — not as an aspiration, but as a sanitized replay
+   of a validated private proof.
 
 ---
 

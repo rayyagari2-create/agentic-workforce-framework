@@ -17,6 +17,15 @@ validated it, not on a fixed calendar.
 
 ---
 
+## v0.2.0 — Sprint 2 Cross-Runtime Governance Proof
+
+Published adapter capability model (DESIGN-01), trust subject model
+(DESIGN-02), and enforcement limits (DESIGN-03). Sanitized cross-runtime
+replay demonstrates the five-stage governance lifecycle across two
+competing AI providers. Real adapter implementations remain private.
+
+---
+
 ## v0.1.0 - AWF CLI
 
 First installable release of the Agentic Workforce Framework CLI.

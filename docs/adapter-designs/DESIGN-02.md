@@ -1,7 +1,7 @@
 # Trust Subject Model
 **Document ID:** DESIGN-02
 **Version:** 1.1
-**Status:** NEAR LOCK — pending founder review
+**Status:** LOCKED — public Sprint 2 foundation
 **Location:** `docs/adapter-designs/DESIGN-02.md`
 **Depends on:** DESIGN-01
 **Blocks:** All adapter design documents, trust_subjects schema migration
@@ -485,8 +485,5 @@ This document is satisfied when:
 
 ---
 
-*Document owner: Founder*
-*Version 1.1 — LOCKED. CTO corrections applied. D1-D4 role_profile wording fixed.*
-*archived_at, config_hash, subject_version added to schema.*
-*Session-bound trust accumulation language clarified.*
-*Standard sections added.*
+*Document owner: Ramesh Ayyagari*
+*Version 1.1 — 2026-05-19*

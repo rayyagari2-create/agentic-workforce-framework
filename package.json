@@ -14,6 +14,7 @@
   "scripts": {
     "demo:setup": "node scripts/demo-setup.js",
     "demo": "node examples/awf-demo/src/run-demo.js",
+    "demo:cross-runtime": "cat examples/cross-runtime/terminal-demo.md",
     "test": "npm run test --workspaces --if-present"
   },
   "dependencies": {
