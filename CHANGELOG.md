@@ -6,6 +6,53 @@ This project adheres to semantic versioning for schemas and documentation. Break
 
 ---
 
+## [v0.2.0] - 2026-05-20
+
+### Added
+
+- Sprint 2 cross-runtime governance proof, published as a sanitized
+  replay. Shows the same five-stage governance lifecycle running
+  across an event-rich adapter profile (Claude Code) and a
+  policy-rich adapter profile (Codex), with one verified audit
+  chain across both runs.
+- `examples/cross-runtime/terminal-demo.md` — sanitized terminal
+  transcript of the cross-runtime demo (synthetic runtime outputs,
+  real AWF lifecycle stages).
+- `examples/cross-runtime/README.md` — explainer covering what the
+  demo proves, the five governance stages and the trust subject
+  model per runtime type.
+- `docs/adapter-designs/DESIGN-01.md` — Runtime Adapter Capability
+  Model. Defines the 12 capability surfaces, operational qualifiers
+  and enforcement tiers used to evaluate any runtime by evidence
+  and control surface, not brand.
+- `docs/adapter-designs/DESIGN-02.md` — Trust Subject Model. Defines
+  the seven trust subject types (`agent`, `subagent`, `role_profile`,
+  `session`, `graph_node`, `human_runtime`, `task`), `subject_key`
+  construction rules and cross-runtime trust rules.
+- `docs/adapter-designs/DESIGN-03.md` — Adapter Enforcement Limits.
+  Defines the overclaiming prevention standard and per-tier claims
+  language.
+- README: Sprint 2 proof statement, Sprint 2 status table entries
+  and pointer to the cross-runtime demo.
+
+### Changed
+
+- README sprint status updated to mark Sprint 2 COMPLETE.
+- Implementation Status rows for Claude Code / Codex runtime adapters
+  updated to reflect that production implementations live in the
+  commercial control-plane repo while design foundations and the
+  sanitized demo ship publicly.
+
+### Status
+
+- The public demo uses simulated adapter outputs that mirror the
+  Sprint 2 proof pattern. Real adapter implementations remain in the
+  commercial control-plane repo.
+- D1/D2 remain candidate scores in the public reference.
+  Calibration still requires n >= 20 sessions.
+
+---
+
 ## [v0.1.0-sprint-0] - 2026-05-17
 
 ### Added

@@ -10,6 +10,28 @@ Agent runtimes make agents execute. **AWF makes agents accountable.**
 
 ---
 
+## Sprint 2: Cross-Runtime Governance — Proven
+
+> AWF governs heterogeneous agent runtimes from one control plane.
+> Not a claim. A demo.
+
+Sprint 2 proved the cross-runtime pattern end-to-end: an event-rich
+adapter (Claude Code profile) and a policy-rich adapter (Codex
+profile) run through the same five-stage governance lifecycle and
+emit into one tamper-evident audit chain. Both reach D1-D4 = 93 →
+HIGH on the same governed work item; the chain verifies end-to-end
+with per-runtime attribution preserved.
+
+The published design foundations are in
+[docs/adapter-designs/](docs/adapter-designs/) (DESIGN-01, DESIGN-02,
+DESIGN-03). A sanitized replay of the proof is in
+[examples/cross-runtime/](examples/cross-runtime/).
+
+Real runtime adapter implementations and production evidence remain
+in the commercial control-plane repo.
+
+---
+
 ## Try It
 
 > Requires Node.js 18+ and PostgreSQL.
@@ -33,7 +55,15 @@ calibration before autonomy-gating decisions.
 
 ---
 
-## Sprint 0 Status
+## Sprint Status
+
+**Sprint 0: COMPLETE.** Governance foundation, simulated adapter,
+end-to-end demo.
+
+**Sprint 2: COMPLETE.** Cross-runtime governance proven across an
+event-rich and a policy-rich adapter profile, one verified audit
+chain across both. Adapter design foundations DESIGN-01 / DESIGN-02
+/ DESIGN-03 published in [docs/adapter-designs/](docs/adapter-designs/).
 
 | Capability | Status |
 |---|---|
@@ -54,7 +84,11 @@ calibration before autonomy-gating decisions.
 | Failure memory with 17-class taxonomy | Implemented |
 | OS-level hook enforcement templates | Implemented |
 | AWF CLI (awf init, awf check, awf add) | Implemented |
-| Claude Code and Codex runtime adapters | Planned Sprint 2 |
+| Runtime Adapter Capability Model (DESIGN-01) | Published (Sprint 2) |
+| Trust Subject Model (DESIGN-02) | Published (Sprint 2) |
+| Adapter Enforcement Limits (DESIGN-03) | Published (Sprint 2) |
+| Cross-runtime governance demo (sanitized) | Published (Sprint 2) |
+| Claude Code and Codex runtime adapters (production implementations) | Commercial repo (Sprint 2 proven) |
 | Automated D1/D2 scoring (semantic, calibrated) | Planned Sprint 1+ |
 | Multi-workspace enterprise control plane | Planned Sprint 2+ |
 | AGT runtime policy integration | Preview (shadow mode) |
@@ -104,10 +138,13 @@ AWF sits alongside your existing agent runtimes and adds:
 - A tamper-evident audit trail across every agent action
 - A runtime adapter interface so any execution platform can be governed
 
-You can run the Sprint 0 demo today. You can adopt individual schemas
-and concepts without running the full stack. And when Sprint 2 ships,
-you can plug in Claude Code or Codex as governed runtimes using the
-AWFAgentRuntime adapter interface.
+You can run the Sprint 0 demo today and the sanitized
+[cross-runtime demo](examples/cross-runtime/) from Sprint 2.
+You can adopt individual schemas and concepts without running the
+full stack. Real Claude Code and Codex adapter implementations live
+in the commercial control-plane repo; the public repo ships the
+adapter design foundations (DESIGN-01 / DESIGN-02 / DESIGN-03) and
+the AWFAgentRuntime adapter interface needed to build your own.
 
 ---
 
@@ -270,8 +307,14 @@ For Claude Code runtimes only.
 - Claude Code does not provide framework-enriched context fields
   (agent_id, agent_depth, session_reads) by default. These must
   be derived from sidecar manifests or runtime state files.
-- Runtime adapters for Claude Code and Codex ship in Sprint 2.
-  Sprint 0 ships a simulated adapter only.
+- Sprint 0 ships a simulated adapter only. Sprint 2 proved the
+  cross-runtime governance pattern with event-rich (Claude Code
+  profile) and policy-rich (Codex profile) adapters; the
+  design foundations are published in
+  [docs/adapter-designs/](docs/adapter-designs/) and a sanitized
+  replay is in [examples/cross-runtime/](examples/cross-runtime/).
+  Production adapter implementations remain in the commercial
+  control-plane repo.
 
 ---
 
@@ -426,8 +469,11 @@ row uses the four-label legend defined above.
 | Failure memory (17-class taxonomy) | Implemented |
 | Hook enforcement templates | Implemented |
 | AWF CLI (awf init, awf check, awf add) | Implemented |
-| Claude Code runtime adapter | Planned Sprint 2 |
-| Codex runtime adapter | Planned Sprint 2 |
+| Runtime Adapter Capability Model (DESIGN-01) | Published (Sprint 2) |
+| Trust Subject Model (DESIGN-02) | Published (Sprint 2) |
+| Adapter Enforcement Limits (DESIGN-03) | Published (Sprint 2) |
+| Cross-runtime governance demo (sanitized) | Published (Sprint 2) |
+| Claude Code and Codex runtime adapters (production implementations) | Commercial repo (Sprint 2 proven) |
 | Automated D1/D2 scoring | Planned Sprint 1+ |
 | Multi-workspace enterprise control plane | Planned Sprint 2+ |
 | AGT integration | Experimental (shadow mode) |
