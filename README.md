@@ -1,4 +1,5 @@
-# Agentic Workforce Framework
+# TrustPlane
+*Agentic Workforce Framework (AWF) — cross-runtime accountability for AI agents that change code.*
 
 ## Agents that earn autonomy. Not agents you babysit.
 
